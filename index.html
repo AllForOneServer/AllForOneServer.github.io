@@ -1,26 +1,230 @@
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>AllForOne</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-        <style>
-            html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>AllForOne — Homepage</title>
 
-iframe {
-    width: 100%;
-    height: 100%;
-    border: none;
-}
+  <style>
+    :root{
+      --bg: #f9f9f9;
+      --text: #000000;
+      --heading: #1e90ff; /* main heading color requested */
+      --accent-1: #0B5394;
+      --accent-2: #4A86E8;
+      --dark: #1C1C1C;
+      --danger: #ef4444;
+      --soft-pink: #fff1f2;
+      --soft-yellow: #fff9c4;
+      --amber: #facc15;
 
-        </style>
-    <body>
-        <iframe src="https://sites.google.com/view/allforoneserver/allforone-247" frameborder="0" marginheight="0" marginwidth="0"></iframe>
-    </body>
-    </html>
+      --radius: 14px;
+      --card-radius: 12px;
+      --glass: rgba(255,255,255,0.7);
+      --shadow: 0 10px 30px rgba(12,12,12,0.06);
+      --blur: 10px;
+      --max-width: 980px;
+      --gap: 18px;
+    }
+
+    /* Reset / base */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background:var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:48px 20px;
+    }
+
+    /* Container */
+    .wrap{
+      width:100%;
+      max-width:var(--max-width);
+      margin:0 auto;
+      display:grid;
+      grid-template-columns: 1fr 380px;
+      gap:var(--gap);
+      align-items:center;
+    }
+
+    /* Left / Message card */
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.95));
+      border-radius:var(--card-radius);
+      padding:36px;
+      box-shadow:var(--shadow);
+      backdrop-filter: blur(var(--blur));
+      border:1px solid rgba(20,20,20,0.03);
+    }
+
+    header h1{
+      margin:0 0 8px 0;
+      font-size:32px;
+      color:var(--heading);
+      letter-spacing:-0.5px;
+      line-height:1.02;
+    }
+    
+        header h2{
+      margin:0 0 8px 0;
+      font-size:25px;
+      color:var(--heading);
+      letter-spacing:-0.5px;
+      line-height:1.02;
+    }
+
+    header p.lead{
+      margin:0 0 18px 0;
+      color:var(--dark);
+      font-size:15px;
+      opacity:0.95;
+    }
+
+    .status{
+      display:inline-flex;
+      align-items:center;
+      gap:10px;
+      margin-top:12px;
+    }
+    .dot{
+      width:12px;height:12px;border-radius:50%;
+      box-shadow:0 2px 6px rgba(0,0,0,0.08);
+    }
+    .dot.dev{ background: var(--amber); } /* under development */
+    .meta{
+      font-size:13px;color:#333;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,0.02);
+    }
+
+    /* Buttons card (right) */
+    .actions{
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+      align-items:stretch;
+    }
+
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:12px 16px;
+      border-radius:10px;
+      border:1px solid rgba(20,20,20,0.06);
+      background:white;
+      text-decoration:none;
+      color:var(--dark);
+      font-weight:600;
+      font-size:15px;
+      box-shadow:0 6px 18px rgba(12,12,12,0.04);
+      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    }
+    .btn:active{ transform: translateY(1px); }
+    .btn:focus{ outline:3px solid rgba(30,144,255,0.14); outline-offset:2px; }
+
+    .btn-primary{
+      background: linear-gradient(180deg,var(--accent-2),var(--accent-1));
+      color: #fff;
+      border: none;
+      box-shadow: 0 8px 30px rgba(30,144,255,0.16);
+    }
+    .btn-primary:hover{ transform: translateY(-3px); }
+
+    .btn-ghost{
+      background: transparent;
+      border: 1px dashed rgba(30,144,255,0.15);
+      color: var(--heading);
+      font-weight:700;
+    }
+    .btn-danger{
+      background: linear-gradient(180deg,#ff6b6b,var(--danger));
+      color:white;
+      border:none;
+    }
+
+    /* Small helpers */
+    .muted{ color:#6b7280; font-size:13px; }
+    .small{ font-size:13px; color:#444; }
+    .footer{
+      margin-top:18px;
+      font-size:13px;
+      color:#555;
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:center;
+    }
+
+    /* Decorative panel at the top-right of the left card */
+    .badge{
+      display:inline-flex;
+      gap:8px;
+      align-items:center;
+      padding:8px 10px;
+      border-radius:999px;
+      background: linear-gradient(90deg,var(--soft-yellow),#fff);
+      border:1px solid rgba(250,200,21,0.06);
+      color:var(--dark);
+      font-weight:600;
+      box-shadow: 0 6px 18px rgba(250,200,21,0.06);
+    }
+
+    /* Illustration / placeholder area */
+    .illustration{
+      margin-top:20px;
+      display:grid;
+      grid-template-columns: repeat(3,1fr);
+      gap:12px;
+    }
+    .tile{
+      height:68px;border-radius:10px;background:linear-gradient(180deg, rgba(74,134,232,0.12), rgba(11,83,148,0.06));
+      display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--dark);
+      border:1px solid rgba(20,20,20,0.03);
+    }
+
+    /* Responsive */
+    @media (max-width:880px){
+      .wrap{ grid-template-columns: 1fr; padding:0 6px }
+      .actions{ flex-direction:row; gap:8px; }
+      .card{ padding:22px }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap" role="main" aria-labelledby="page-title">
+    <section class="card" aria-labelledby="page-title">
+      <header>
+        <div class="badge" aria-hidden="true">AllForOne</div>
+        <h1 id="page-title">Homepage — Under Development</h1>
+        <p class="lead">
+          The official AllForOne server homepage is being built. We're polishing features and content so the site can deliver a clean, secure, and friendly experience.
+        </p>
+
+        <div class="status" aria-hidden="false">
+          <span class="dot dev" aria-hidden="true"></span>
+          <span class="meta">Under development</span>
+        </div>
+<div><h2>Public Pages:</h2></div>
+<div class="illustration" aria-hidden="true">
+  <a href="AllForOneServer.github.io/posting" class="tile">Public Posting</a>
+  <a href="AllForOneServer.github.io/rules" class="tile">Public Server Rules</a>
+  <a href="AllForOneServer.github.io/messages" class="tile">Private Messaging</a>
+</div>
+</header>
+
+
+      <div class="footer" aria-hidden="false">
+        <span class="small">Need immediate help? Contact Kai:</span>
+        <a class="btn btn-ghost" href="mailto:kaioliver111@gmail.com">Kaioliver111@gmail.com</a>
+        <span class="muted">Estimated launch: soon — stay tuned.</span>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
