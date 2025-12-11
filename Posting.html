@@ -726,7 +726,7 @@
           Your account has been created successfully! However, it needs to be approved by an administrator before you
           can access the community.
         </p>
-        <p>You will receive access once <strong>kaioliver111@gmail.com</strong> approves your account.</p>
+        <p>You will receive access once <strong>Kaidaz18</strong> approves your account.</p>
         <p style="font-size: 14px; color: #999; margin-top: 30px">
           You can close this page and try logging in again later.
         </p>
@@ -746,7 +746,7 @@
           <button class="logout-btn" id="logoutBtn">Log Out</button>
         </div>
 
-        <div class="post-composer">
+<div class="post-composer">
           <h3>Share with the community</h3>
           <div id="postError" class="error hidden"></div>
           <div class="input-group">
@@ -754,7 +754,7 @@
           </div>
           <textarea
             id="postInput"
-            placeholder="What's on your mind? Share your builds, discoveries, or ask for help..."></textarea>
+            placeholder="What's on your mind? Share your builds, discoveries, or ask for help... (Ctrl+V to paste images)"></textarea>
           
           <div class="media-upload-section">
             <button class="media-upload-btn" id="uploadImageBtn">📷 Add Image</button>
@@ -764,19 +764,6 @@
             <input type="file" id="videoInput" accept="video/*" multiple style="display: none;" />
             <div id="mediaPreview" class="media-preview"></div>
           </div>
-
-          <div
-            id="adminOptions"
-            class="hidden"
-            style="margin: 15px 0; padding: 15px; background: #fff9c4; border-radius: 10px; border: 1px solid #fef3c7">
-            <label
-              style="display: flex; align-items: center; gap: 10px; cursor: pointer; color: #854d0e; font-weight: 500">
-              <input type="checkbox" id="announcementCheck" style="width: auto; cursor: pointer" />
-              📢 Make this an announcement
-            </label>
-          </div>
-          <button id="postBtn">Post</button>
-        </div>
 
         <div class="posts-container" id="postsContainer">
           <div class="loading">Loading posts...</div>
@@ -1301,8 +1288,8 @@
           if (snapshot.empty) {
             postsContainer.innerHTML = `
             <div class="empty-state">
-              <h3>🎮 No posts yet</h3>
-              <p>Be the first to share something with the community!</p>
+              <h3>No posts yet</h3>
+              <p>I can't wait to hear what happens!</p>
             </div>
           `;
             return;
