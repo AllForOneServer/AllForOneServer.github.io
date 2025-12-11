@@ -765,11 +765,15 @@
             <div id="mediaPreview" class="media-preview"></div>
           </div>
 
-        <div class="posts-container" id="postsContainer">
-          <div class="loading">Loading posts...</div>
+          <div id="adminOptions" class="hidden" style="margin: 15px 0; padding: 12px; background: #fff9c4; border-radius: 8px; border: 1px solid #facc15;">
+            <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 14px; color: #854d0e;">
+              <input type="checkbox" id="announcementCheck" style="width: auto; cursor: pointer;" />
+              <span>📢 Make this an announcement</span>
+            </label>
+          </div>
+
+          <button id="postBtn">Post</button>
         </div>
-      </div>
-    </div>
 
     <!-- Fullscreen Media Overlay -->
     <div id="fullscreenOverlay" class="fullscreen-overlay">
