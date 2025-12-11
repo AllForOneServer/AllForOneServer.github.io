@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AllForOne Posts</title>
+    <title>AllForOne Community</title>
     <style>
       * {
         margin: 0;
@@ -197,6 +197,73 @@
         resize: vertical;
       }
 
+      .media-upload-section {
+        margin: 15px 0;
+        padding: 15px;
+        background: #f9f9f9;
+        border-radius: 10px;
+        border: 2px dashed #e0e0e0;
+      }
+
+      .media-upload-btn {
+        width: auto;
+        padding: 10px 20px;
+        font-size: 14px;
+        margin-right: 10px;
+        background: #4a86e8;
+      }
+
+      .media-upload-btn:hover {
+        background: #1e90ff;
+      }
+
+      .media-preview {
+        margin-top: 15px;
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .media-preview-item {
+        position: relative;
+        width: 120px;
+        height: 120px;
+        border-radius: 8px;
+        overflow: hidden;
+        border: 2px solid #e0e0e0;
+      }
+
+      .media-preview-item img,
+      .media-preview-item video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .media-preview-remove {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        padding: 0;
+        margin: 0;
+      }
+
+      .media-preview-remove:hover {
+        background: #dc2626;
+        transform: none;
+      }
+
       .posts-container {
         display: flex;
         flex-direction: column;
@@ -289,6 +356,41 @@
         margin-bottom: 10px;
       }
 
+      .post-media {
+        margin: 15px 0;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 10px;
+      }
+
+      .post-media-item {
+        position: relative;
+        border-radius: 12px;
+        overflow: hidden;
+        cursor: pointer;
+        background: #f0f0f0;
+      }
+
+      .post-media-item img,
+      .post-media-item video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+      }
+
+      .post-media-item.single {
+        grid-column: 1 / -1;
+        max-height: 500px;
+      }
+
+      .post-media-item.single img,
+      .post-media-item.single video {
+        max-height: 500px;
+        width: 100%;
+        object-fit: contain;
+      }
+
       .post-actions {
         display: flex;
         gap: 15px;
@@ -330,6 +432,180 @@
       .delete-btn:hover {
         background: #fff1f2;
         color: #dc2626;
+      }
+
+      .comments-section {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid #f0f0f0;
+      }
+
+      .comments-toggle {
+        color: #666;
+        cursor: pointer;
+        font-size: 14px;
+        margin-bottom: 10px;
+        display: inline-block;
+      }
+
+      .comments-toggle:hover {
+        color: #1e90ff;
+      }
+
+      .comments-container {
+        margin-top: 10px;
+      }
+
+      .comment {
+        background: #f9f9f9;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 8px;
+      }
+
+      .comment-header {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+      }
+
+      .comment-avatar {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4a86e8, #1e90ff);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 12px;
+      }
+
+      .comment-author {
+        font-weight: 600;
+        font-size: 13px;
+        color: #1c1c1c;
+      }
+
+      .comment-time {
+        font-size: 11px;
+        color: #999;
+        margin-left: auto;
+      }
+
+      .comment-content {
+        font-size: 14px;
+        color: #333;
+        line-height: 1.4;
+        margin-left: 36px;
+      }
+
+      .comment-input-container {
+        display: flex;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .comment-input {
+        flex: 1;
+        padding: 10px 12px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 14px;
+        background: white;
+      }
+
+      .comment-btn {
+        width: auto;
+        padding: 10px 20px;
+        font-size: 14px;
+        margin: 0;
+      }
+
+      .fullscreen-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.95);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .fullscreen-overlay.active {
+        display: flex;
+      }
+
+      .fullscreen-content {
+        max-width: 90vw;
+        max-height: 90vh;
+        position: relative;
+      }
+
+      .fullscreen-content img,
+      .fullscreen-content video {
+        max-width: 100%;
+        max-height: 90vh;
+        object-fit: contain;
+      }
+
+      .fullscreen-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+      }
+
+      .fullscreen-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: none;
+      }
+
+      .fullscreen-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(10px);
+      }
+
+      .fullscreen-nav:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: translateY(-50%);
+      }
+
+      .fullscreen-prev {
+        left: 20px;
+      }
+
+      .fullscreen-next {
+        right: 20px;
       }
 
       .error {
@@ -406,6 +682,13 @@
         font-size: 64px;
         margin-bottom: 20px;
       }
+
+      .uploading-indicator {
+        display: inline-block;
+        margin-left: 10px;
+        color: #1e90ff;
+        font-size: 14px;
+      }
     </style>
   </head>
   <body>
@@ -472,6 +755,16 @@
           <textarea
             id="postInput"
             placeholder="What's on your mind? Share your builds, discoveries, or ask for help..."></textarea>
+          
+          <div class="media-upload-section">
+            <button class="media-upload-btn" id="uploadImageBtn">📷 Add Image</button>
+            <button class="media-upload-btn" id="uploadVideoBtn">🎥 Add Video</button>
+            <span id="uploadingIndicator" class="uploading-indicator hidden">Uploading...</span>
+            <input type="file" id="imageInput" accept="image/*" multiple style="display: none;" />
+            <input type="file" id="videoInput" accept="video/*" multiple style="display: none;" />
+            <div id="mediaPreview" class="media-preview"></div>
+          </div>
+
           <div
             id="adminOptions"
             class="hidden"
@@ -489,6 +782,14 @@
           <div class="loading">Loading posts...</div>
         </div>
       </div>
+    </div>
+
+    <!-- Fullscreen Media Overlay -->
+    <div id="fullscreenOverlay" class="fullscreen-overlay">
+      <button class="fullscreen-close" id="fullscreenClose">×</button>
+      <button class="fullscreen-nav fullscreen-prev" id="fullscreenPrev">‹</button>
+      <button class="fullscreen-nav fullscreen-next" id="fullscreenNext">›</button>
+      <div class="fullscreen-content" id="fullscreenContent"></div>
     </div>
 
     <script type="module">
@@ -537,9 +838,14 @@
 
       setPersistence(auth, browserLocalPersistence);
 
+      // Cloudinary config
+      const CLOUDINARY_CLOUD_NAME = "dgrmpcha9";
+      const CLOUDINARY_UPLOAD_PRESET = "AllForOne Posts";
+
       let currentUser = null;
       let isSignupMode = false;
       let isAdmin = false;
+      let uploadedMedia = [];
 
       // Check if user is approved
       async function checkUserApproval(uid) {
@@ -590,6 +896,34 @@
         return filtered;
       }
 
+      // Cloudinary upload function
+      async function uploadToCloudinary(file, resourceType) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        formData.append("resource_type", resourceType);
+
+        try {
+          const response = await fetch(
+            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
+            {
+              method: "POST",
+              body: formData
+            }
+          );
+
+          const data = await response.json();
+          return {
+            url: data.secure_url,
+            type: resourceType,
+            publicId: data.public_id
+          };
+        } catch (error) {
+          console.error("Upload error:", error);
+          throw error;
+        }
+      }
+
       // UI Elements
       const authSection = document.getElementById("authSection");
       const pendingSection = document.getElementById("pendingSection");
@@ -614,6 +948,144 @@
       const adminOptions = document.getElementById("adminOptions");
       const postBtn = document.getElementById("postBtn");
       const postsContainer = document.getElementById("postsContainer");
+      const uploadImageBtn = document.getElementById("uploadImageBtn");
+      const uploadVideoBtn = document.getElementById("uploadVideoBtn");
+      const imageInput = document.getElementById("imageInput");
+      const videoInput = document.getElementById("videoInput");
+      const mediaPreview = document.getElementById("mediaPreview");
+      const uploadingIndicator = document.getElementById("uploadingIndicator");
+      const fullscreenOverlay = document.getElementById("fullscreenOverlay");
+      const fullscreenContent = document.getElementById("fullscreenContent");
+      const fullscreenClose = document.getElementById("fullscreenClose");
+      const fullscreenPrev = document.getElementById("fullscreenPrev");
+      const fullscreenNext = document.getElementById("fullscreenNext");
+
+      // Media upload handlers
+      uploadImageBtn.addEventListener("click", () => imageInput.click());
+      uploadVideoBtn.addEventListener("click", () => videoInput.click());
+
+      imageInput.addEventListener("change", async (e) => {
+        await handleFileUpload(e.target.files, "image");
+        imageInput.value = "";
+      });
+
+      videoInput.addEventListener("change", async (e) => {
+        await handleFileUpload(e.target.files, "video");
+        videoInput.value = "";
+      });
+
+      async function handleFileUpload(files, type) {
+        if (!files.length) return;
+
+        uploadingIndicator.classList.remove("hidden");
+        uploadImageBtn.disabled = true;
+        uploadVideoBtn.disabled = true;
+
+        try {
+          for (const file of files) {
+            const mediaData = await uploadToCloudinary(file, type);
+            uploadedMedia.push(mediaData);
+            addMediaPreview(mediaData);
+          }
+        } catch (error) {
+          showError("Failed to upload media. Please try again.", postError);
+        } finally {
+          uploadingIndicator.classList.add("hidden");
+          uploadImageBtn.disabled = false;
+          uploadVideoBtn.disabled = false;
+        }
+      }
+
+      function addMediaPreview(mediaData) {
+        const previewItem = document.createElement("div");
+        previewItem.className = "media-preview-item";
+        previewItem.dataset.publicId = mediaData.publicId;
+
+        if (mediaData.type === "image") {
+          previewItem.innerHTML = `
+            <img src="${mediaData.url}" alt="Preview" />
+            <button class="media-preview-remove">×</button>
+          `;
+        } else {
+          previewItem.innerHTML = `
+            <video src="${mediaData.url}" muted></video>
+            <button class="media-preview-remove">×</button>
+          `;
+        }
+
+        const removeBtn = previewItem.querySelector(".media-preview-remove");
+        removeBtn.addEventListener("click", () => {
+          uploadedMedia = uploadedMedia.filter((m) => m.publicId !== mediaData.publicId);
+          previewItem.remove();
+        });
+
+        mediaPreview.appendChild(previewItem);
+      }
+
+      // Fullscreen functionality
+      let currentMediaArray = [];
+      let currentMediaIndex = 0;
+
+      function openFullscreen(mediaArray, index) {
+        currentMediaArray = mediaArray;
+        currentMediaIndex = index;
+        showFullscreenMedia();
+        fullscreenOverlay.classList.add("active");
+        document.body.style.overflow = "hidden";
+      }
+
+      function showFullscreenMedia() {
+        const media = currentMediaArray[currentMediaIndex];
+        fullscreenContent.innerHTML = "";
+
+        if (media.type === "image") {
+          const img = document.createElement("img");
+          img.src = media.url;
+          fullscreenContent.appendChild(img);
+        } else {
+          const video = document.createElement("video");
+          video.src = media.url;
+          video.controls = true;
+          video.autoplay = true;
+          fullscreenContent.appendChild(video);
+        }
+
+        fullscreenPrev.style.display = currentMediaIndex > 0 ? "flex" : "none";
+        fullscreenNext.style.display = currentMediaIndex < currentMediaArray.length - 1 ? "flex" : "none";
+      }
+
+      fullscreenClose.addEventListener("click", () => {
+        fullscreenOverlay.classList.remove("active");
+        document.body.style.overflow = "";
+        const video = fullscreenContent.querySelector("video");
+        if (video) video.pause();
+      });
+
+      fullscreenPrev.addEventListener("click", () => {
+        if (currentMediaIndex > 0) {
+          currentMediaIndex--;
+          showFullscreenMedia();
+        }
+      });
+
+      fullscreenNext.addEventListener("click", () => {
+        if (currentMediaIndex < currentMediaArray.length - 1) {
+          currentMediaIndex++;
+          showFullscreenMedia();
+        }
+      });
+
+      fullscreenOverlay.addEventListener("click", (e) => {
+        if (e.target === fullscreenOverlay) {
+          fullscreenClose.click();
+        }
+      });
+
+      // Set initial login state (hide display name by default)
+      displayNameGroup.classList.add("hidden");
+      authTitle.textContent = "Welcome Back";
+      primaryBtn.textContent = "Log In";
+      toggleAuth.textContent = "Need an account? Sign up";
 
       // Toggle auth mode
       toggleAuth.addEventListener("click", () => {
@@ -641,8 +1113,6 @@
         toggleAuth.textContent = "Need an account? Sign up";
         displayNameGroup.classList.add("hidden");
       });
-
-      displayNameGroup.classList.add("hidden");
 
       function showError(message, errorElement) {
         errorElement.textContent = message;
@@ -679,14 +1149,13 @@
 
             await updateProfile(user, { displayName });
 
-            // Create user document with approved = false (awaiting approval)
             await setDoc(doc(db, "MessagesUsers", user.uid), {
               uid: user.uid,
               displayName: displayName,
               email: email,
               createdAt: serverTimestamp(),
               lastSeen: serverTimestamp(),
-              approved: false // Needs admin approval
+              approved: false
             });
 
             showSuccess("Account created! Awaiting approval...");
@@ -694,15 +1163,12 @@
             emailInput.value = "";
             passwordInput.value = "";
             displayNameInput.value = "";
-
-            // Don't auto-sign out, let onAuthStateChanged handle it
           } catch (error) {
             showError(error.message.replace("Firebase: ", ""), authError);
           }
         } else {
           try {
             await signInWithEmailAndPassword(auth, email, password);
-            // onAuthStateChanged will handle the approval check
           } catch (error) {
             showError(error.message.replace("Firebase: ", ""), authError);
           }
@@ -715,11 +1181,9 @@
 
       onAuthStateChanged(auth, async (user) => {
         if (user) {
-          // Check if user is approved
           const isApproved = await checkUserApproval(user.uid);
 
           if (!isApproved) {
-            // Show pending approval screen
             authSection.classList.add("hidden");
             mainContent.classList.add("hidden");
             pendingSection.classList.remove("hidden");
@@ -731,7 +1195,6 @@
           pendingSection.classList.add("hidden");
           mainContent.classList.remove("hidden");
 
-          // Check if user is admin
           isAdmin = user.email === "kaioliver111@gmail.com";
 
           let displayName = user.displayName;
@@ -749,7 +1212,6 @@
           currentUserDisplay.textContent = displayName || user.email;
           userAvatar.textContent = (displayName || user.email)[0].toUpperCase();
 
-          // Show admin options if admin
           if (isAdmin) {
             adminOptions.classList.remove("hidden");
           }
@@ -781,8 +1243,8 @@
         const content = postInput.value.trim();
         const heading = postHeading.value.trim();
 
-        if (!content) {
-          showError("Please write something to post", postError);
+        if (!content && uploadedMedia.length === 0) {
+          showError("Please write something or upload media", postError);
           return;
         }
 
@@ -802,7 +1264,8 @@
             authorName: displayName,
             content: filtered,
             timestamp: serverTimestamp(),
-            likes: []
+            likes: [],
+            media: uploadedMedia
           };
 
           if (filteredHeading) {
@@ -818,6 +1281,8 @@
           postInput.value = "";
           postHeading.value = "";
           if (announcementCheck) announcementCheck.checked = false;
+          uploadedMedia = [];
+          mediaPreview.innerHTML = "";
           postBtn.disabled = false;
         } catch (error) {
           console.error("Error posting:", error);
@@ -873,6 +1338,33 @@
         const announcementBadge = post.isAnnouncement ? '<div class="announcement-badge">📢 ANNOUNCEMENT</div>' : "";
         const headingHtml = post.heading ? `<div class="post-heading">${post.heading}</div>` : "";
 
+        // Generate media HTML
+        let mediaHtml = "";
+        if (post.media && post.media.length > 0) {
+          const singleClass = post.media.length === 1 ? "single" : "";
+          mediaHtml = '<div class="post-media">';
+          post.media.forEach((media, index) => {
+            if (media.type === "image") {
+              mediaHtml += `
+                <div class="post-media-item ${singleClass}" data-media-index="${index}">
+                  <img src="${media.url}" alt="Post media" />
+                </div>
+              `;
+            } else {
+              mediaHtml += `
+                <div class="post-media-item ${singleClass}" data-media-index="${index}">
+                  <video src="${media.url}" controls></video>
+                </div>
+              `;
+            }
+          });
+          mediaHtml += "</div>";
+        }
+
+        // Comments count
+        const commentCount = post.comments ? post.comments.length : 0;
+        const commentText = commentCount === 1 ? "1 comment" : `${commentCount} comments`;
+
         postDiv.innerHTML = `
         ${announcementBadge}
         <div class="post-header">
@@ -884,13 +1376,35 @@
         </div>
         ${headingHtml}
         <div class="post-content">${post.content}</div>
+        ${mediaHtml}
         <div class="post-actions">
           <button class="action-btn ${isLiked ? "liked" : ""}" data-post-id="${postId}" data-action="like">
             ${isLiked ? "❤️" : "🤍"} ${likeCount > 0 ? likeCount : ""}
           </button>
+          <button class="action-btn" data-post-id="${postId}" data-action="comment">
+            💬 ${commentCount > 0 ? commentText : "Comment"}
+          </button>
           ${isAuthor || isAdmin ? `<button class="action-btn delete-btn" data-post-id="${postId}" data-action="delete">🗑️ Delete</button>` : ""}
         </div>
+        <div class="comments-section" data-post-id="${postId}">
+          <div class="comments-container hidden" id="comments-${postId}"></div>
+          <div class="comment-input-container hidden" id="comment-input-${postId}">
+            <input type="text" class="comment-input" placeholder="Write a comment..." />
+            <button class="comment-btn">Post</button>
+          </div>
+        </div>
       `;
+
+        // Media click handlers for fullscreen
+        if (post.media && post.media.length > 0) {
+          const mediaItems = postDiv.querySelectorAll(".post-media-item");
+          mediaItems.forEach((item) => {
+            item.addEventListener("click", () => {
+              const index = parseInt(item.dataset.mediaIndex);
+              openFullscreen(post.media, index);
+            });
+          });
+        }
 
         // Like handler
         const likeBtn = postDiv.querySelector('[data-action="like"]');
@@ -908,6 +1422,59 @@
             }
           } catch (error) {
             console.error("Error liking post:", error);
+          }
+        });
+
+        // Comment toggle handler
+        const commentBtn = postDiv.querySelector('[data-action="comment"]');
+        const commentsContainer = postDiv.querySelector(`#comments-${postId}`);
+        const commentInputContainer = postDiv.querySelector(`#comment-input-${postId}`);
+
+        commentBtn.addEventListener("click", () => {
+          const isHidden = commentsContainer.classList.contains("hidden");
+          if (isHidden) {
+            commentsContainer.classList.remove("hidden");
+            commentInputContainer.classList.remove("hidden");
+            loadComments(postId, commentsContainer);
+          } else {
+            commentsContainer.classList.add("hidden");
+            commentInputContainer.classList.add("hidden");
+          }
+        });
+
+        // Comment posting handler
+        const commentInput = commentInputContainer.querySelector(".comment-input");
+        const commentPostBtn = commentInputContainer.querySelector(".comment-btn");
+
+        commentPostBtn.addEventListener("click", async () => {
+          const commentText = commentInput.value.trim();
+          if (!commentText) return;
+
+          const filteredComment = filterProfanity(commentText);
+
+          try {
+            commentPostBtn.disabled = true;
+            const postRef = doc(db, "MessagesPosts", postId);
+
+            const displayName =
+              currentUser.displayName ||
+              (await getDoc(doc(db, "MessagesUsers", currentUser.uid))).data()?.displayName ||
+              currentUser.email;
+
+            await updateDoc(postRef, {
+              comments: arrayUnion({
+                authorId: currentUser.uid,
+                authorName: displayName,
+                content: filteredComment,
+                timestamp: new Date().toISOString()
+              })
+            });
+
+            commentInput.value = "";
+            commentPostBtn.disabled = false;
+          } catch (error) {
+            console.error("Error posting comment:", error);
+            commentPostBtn.disabled = false;
           }
         });
 
@@ -932,6 +1499,47 @@
         }
 
         postsContainer.appendChild(postDiv);
+
+        // Load comments if they exist
+        if (commentCount > 0) {
+          loadComments(postId, commentsContainer);
+        }
+      }
+
+      function loadComments(postId, container) {
+        const postRef = doc(db, "MessagesPosts", postId);
+
+        onSnapshot(postRef, (docSnap) => {
+          if (!docSnap.exists()) return;
+
+          const post = docSnap.data();
+          const comments = post.comments || [];
+
+          container.innerHTML = "";
+
+          comments.forEach((comment) => {
+            const commentDiv = document.createElement("div");
+            commentDiv.className = "comment";
+
+            const commentTime = new Date(comment.timestamp).toLocaleString([], {
+              month: "short",
+              day: "numeric",
+              hour: "2-digit",
+              minute: "2-digit"
+            });
+
+            commentDiv.innerHTML = `
+              <div class="comment-header">
+                <div class="comment-avatar">${comment.authorName[0].toUpperCase()}</div>
+                <div class="comment-author">${comment.authorName}</div>
+                <div class="comment-time">${commentTime}</div>
+              </div>
+              <div class="comment-content">${comment.content}</div>
+            `;
+
+            container.appendChild(commentDiv);
+          });
+        });
       }
     </script>
   </body>
