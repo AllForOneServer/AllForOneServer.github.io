@@ -710,7 +710,7 @@
           <div class="input-group">
             <input type="password" id="passwordInput" placeholder="Password" />
           </div>
-          <div class="input-group" id="displayNameGroup">
+          <div class="input-group hidden" id="displayNameGroup">
             <input type="text" id="displayNameInput" placeholder="Display Name" />
           </div>
           <button id="primaryBtn">Log In</button>
@@ -746,7 +746,7 @@
           <button class="logout-btn" id="logoutBtn">Log Out</button>
         </div>
 
-<div class="post-composer">
+        <div class="post-composer">
           <h3>Share with the community</h3>
           <div id="postError" class="error hidden"></div>
           <div class="input-group">
@@ -774,6 +774,11 @@
 
           <button id="postBtn">Post</button>
         </div>
+
+        <!-- Posts Container - THIS WAS MISSING -->
+        <div id="postsContainer" class="posts-container"></div>
+      </div>
+    </div>
 
     <!-- Fullscreen Media Overlay -->
     <div id="fullscreenOverlay" class="fullscreen-overlay">
@@ -882,7 +887,7 @@
         let filtered = text;
         profanityList.forEach((word) => {
           const regex = new RegExp(`\\b${word}\\b`, "gi");
-          filtered = filtered.replace(regex, "");
+          filtered = filtered.replace(regex, "***");
         });
         return filtered;
       }
@@ -1072,12 +1077,6 @@
         }
       });
 
-      // Set initial login state (hide display name by default)
-      displayNameGroup.classList.add("hidden");
-      authTitle.textContent = "Welcome Back";
-      primaryBtn.textContent = "Log In";
-      toggleAuth.textContent = "Need an account? Sign up";
-
       // Toggle auth mode
       toggleAuth.addEventListener("click", () => {
         isSignupMode = !isSignupMode;
@@ -1186,6 +1185,7 @@
           pendingSection.classList.add("hidden");
           mainContent.classList.remove("hidden");
 
+          // FIXED: Strict admin check
           isAdmin = user.email === "kaioliver111@gmail.com";
 
           let displayName = user.displayName;
@@ -1203,8 +1203,11 @@
           currentUserDisplay.textContent = displayName || user.email;
           userAvatar.textContent = (displayName || user.email)[0].toUpperCase();
 
+          // FIXED: Only show admin options for the specific admin email
           if (isAdmin) {
             adminOptions.classList.remove("hidden");
+          } else {
+            adminOptions.classList.add("hidden");
           }
 
           try {
@@ -1263,6 +1266,7 @@
             postData.heading = filteredHeading;
           }
 
+          // FIXED: Only allow announcement if user is actually admin
           if (isAdmin && announcementCheck.checked) {
             postData.isAnnouncement = true;
           }
@@ -1293,7 +1297,7 @@
             postsContainer.innerHTML = `
             <div class="empty-state">
               <h3>No posts yet</h3>
-              <p>I can't wait to hear what happens!</p>
+              <p>Be the first to share something with the community!</p>
             </div>
           `;
             return;
