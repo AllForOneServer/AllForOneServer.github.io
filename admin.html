@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - AllForOne Server</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: white;
+      color: #1C1C1C;
+      min-height: 100vh;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .access-denied {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #1e90ff 0%, #0B5394 100%);
+    }
+
+    .access-denied-card {
+      background: white;
+      border-radius: 16px;
+      padding: 50px;
+      text-align: center;
+      max-width: 500px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .access-denied-card h1 {
+      color: #ef4444;
+      font-size: 48px;
+      margin-bottom: 20px;
+    }
+
+    .access-denied-card p {
+      color: #666;
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #1e90ff 0%, #0B5394 100%);
+      padding: 30px;
+      color: white;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .header h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .header p {
+      font-size: 18px;
+      opacity: 0.95;
+    }
+
+    .nav {
+      background: white;
+      padding: 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: center;
+      gap: 0;
+    }
+
+    .nav a {
+      padding: 18px 40px;
+      text-decoration: none;
+      color: #1e90ff;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s;
+      border-bottom: 3px solid transparent;
+    }
+
+    .nav a:hover {
+      background: #f0f8ff;
+      border-bottom-color: #1e90ff;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      margin-bottom: 30px;
+    }
+
+    .card h2 {
+      color: #1e90ff;
+      font-size: 28px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: #0B5394;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #1e90ff;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: 'Courier New', monospace;
+      background: white;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #0B5394;
+      box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
+    }
+
+    .form-group .helper-text {
+      font-size: 13px;
+      color: #666;
+      margin-top: 8px;
+    }
+
+    .image-upload-area {
+      border: 3px dashed #1e90ff;
+      border-radius: 12px;
+      padding: 30px;
+      text-align: center;
+      background: #f0f8ff;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 15px;
+    }
+
+    .image-upload-area:hover {
+      background: #e0f0ff;
+      border-color: #0B5394;
+    }
+
+    .image-upload-area.dragover {
+      background: #d0e8ff;
+      border-color: #0B5394;
+    }
+
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .image-preview {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 12px;
+      margin-top: 15px;
+      border: 3px solid #1e90ff;
+      display: none;
+    }
+
+    .image-preview.show {
+      display: block;
+    }
+
+    .file-input {
+      display: none;
+    }
+
+    .current-image-section {
+      margin-top: 20px;
+      padding: 20px;
+      background: #f0f8ff;
+      border-radius: 12px;
+      border: 2px solid #1e90ff;
+    }
+
+    .current-image-section h3 {
+      color: #0B5394;
+      font-size: 18px;
+      margin-bottom: 15px;
+    }
+
+    .current-image-section img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 8px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    .btn {
+      flex: 1;
+      padding: 18px;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-secondary {
+      background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(107, 114, 128, 0.4);
+    }
+
+    .message {
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 20px;
+      font-weight: 500;
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .message.success {
+      background: #ecfdf5;
+      color: #047857;
+      border: 2px solid #10b981;
+    }
+
+    .message.error {
+      background: #fef2f2;
+      color: #991b1b;
+      border: 2px solid #ef4444;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header h1 {
+        font-size: 32px;
+      }
+
+      .nav {
+        flex-direction: column;
+      }
+
+      .nav a {
+        text-align: center;
+      }
+
+      .button-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Access Denied Screen -->
+  <div id="accessDenied" class="access-denied hidden">
+    <div class="access-denied-card">
+      <h1>🚫</h1>
+      <h2 style="color: #ef4444; margin-bottom: 15px;">Access Denied</h2>
+      <p>You do not have permission to access this admin page.</p>
+      <p style="font-size: 14px; color: #999;">Only kaioliver111@gmail.com can access this page.</p>
+      <button class="btn btn-secondary" onclick="window.location.href='index.html'" style="margin-top: 20px;">
+        Return to Home
+      </button>
+    </div>
+  </div>
+
+  <!-- Admin Content -->
+  <div id="adminContent" class="hidden">
+    <div class="header">
+      <h1>🔧 Admin Panel</h1>
+      <p>Update Server Join Code & Connection ID</p>
+    </div>
+
+    <div class="nav">
+      <a href="index.html">Home</a>
+      <a href="https://allforoneserver.github.io/messages/">Messages</a>
+      <a href="https://allforoneserver.github.io/Posting/">Posts</a>
+      <a href="https://allforoneserver.github.io/polls/">Public Polls</a>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <h2>📝 Update Server Information</h2>
+        
+        <div class="form-group">
+          <label for="connectionId">Connection ID</label>
+          <input type="text" 
+                 id="connectionId" 
+                 placeholder="Enter connection ID (e.g., AllForOne-MC-2024)">
+          <div class="helper-text">This is the code players use to connect to the server</div>
+        </div>
+
+        <div class="form-group">
+          <label>Join Code Image / QR Code</label>
+          <div class="image-upload-area" id="uploadArea">
+            <div class="upload-icon">📸</div>
+            <p style="font-size: 16px; color: #0B5394; margin-bottom: 8px;">
+              <strong>Click to upload, drag and drop, or paste (Ctrl+V)</strong>
+            </p>
+            <p style="font-size: 13px; color: #666;">
+              PNG, JPG, or GIF (recommended size: 400x300px)
+            </p>
+          </div>
+          <input type="file" 
+                 id="fileInput" 
+                 class="file-input" 
+                 accept="image/*">
+          <img id="imagePreview" class="image-preview" alt="Preview">
+          
+          <div class="current-image-section" id="currentImageSection" style="display: none;">
+            <h3>Current Join Code Image:</h3>
+            <img id="currentImage" alt="Current join code">
+          </div>
+        </div>
+
+        <div class="button-group">
+          <button class="btn btn-secondary" id="loadCurrentBtn">
+            📥 Load Current Data
+          </button>
+          <button class="btn btn-primary" id="saveBtn">
+            💾 Save Changes
+          </button>
+        </div>
+
+        <div class="message" id="message"></div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getFirestore, doc, getDoc } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+    // Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDzQlAqhCeytCLEYafboYGpFu6pY3Kv9WE",
+  authDomain: "allforonemedia-9a7d8.firebaseapp.com",
+  databaseURL: "https://allforonemedia-9a7d8-default-rtdb.firebaseio.com",
+  projectId: "allforonemedia-9a7d8",
+  storageBucket: "allforonemedia-9a7d8.firebasestorage.app",
+  messagingSenderId: "892787060584",
+  appId: "1:892787060584:web:e65609062592f9ba96f0dd",
+  measurementId: "G-JSXKLMBRLC"
+};
+
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const ADMIN_EMAIL = 'kaioliver111@gmail.com';
+
+    const accessDenied = document.getElementById('accessDenied');
+    const adminContent = document.getElementById('adminContent');
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    const imagePreview = document.getElementById('imagePreview');
+    const connectionIdInput = document.getElementById('connectionId');
+    const saveBtn = document.getElementById('saveBtn');
+    const loadCurrentBtn = document.getElementById('loadCurrentBtn');
+    const messageEl = document.getElementById('message');
+    const currentImageSection = document.getElementById('currentImageSection');
+    const currentImage = document.getElementById('currentImage');
+
+    let uploadedImageData = null;
+
+    // Check admin access
+    async function checkAdminAccess(user) {
+      if (!user) {
+        window.location.href = 'index.html';
+        return false;
+      }
+
+      if (user.email !== ADMIN_EMAIL) {
+        accessDenied.classList.remove('hidden');
+        adminContent.classList.add('hidden');
+        return false;
+      }
+
+      const userDoc = await getDoc(doc(db, "MessagesUsers", user.uid));
+      if (!userDoc.exists() || !userDoc.data().approved) {
+        window.location.href = 'index.html';
+        return false;
+      }
+
+      accessDenied.classList.add('hidden');
+      adminContent.classList.remove('hidden');
+      return true;
+    }
+
+    // Auth state change handler
+    onAuthStateChanged(auth, async (user) => {
+      const hasAccess = await checkAdminAccess(user);
+      if (hasAccess) {
+        loadCurrentData();
+      }
+    });
+
+    // Load current data
+    async function loadCurrentData() {
+      try {
+        const connectionData = await window.storage.get('server-connection-id');
+        const imageData = await window.storage.get('server-join-image');
+
+        if (connectionData) {
+          connectionIdInput.value = connectionData.value;
+        }
+
+        if (imageData) {
+          currentImage.src = imageData.value;
+          currentImageSection.style.display = 'block';
+        }
+
+        showMessage('Current data loaded successfully', 'success');
+      } catch (error) {
+        showMessage('No existing data found', 'error');
+      }
+    }
+
+    loadCurrentBtn.addEventListener('click', loadCurrentData);
+
+    // Handle paste event for images
+    document.addEventListener('paste', async (e) => {
+      const items = e.clipboardData.items;
+      
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.indexOf('image') !== -1) {
+          e.preventDefault();
+          const blob = items[i].getAsFile();
+          handleFile(blob);
+          showMessage('Image pasted! Click "Save Changes" to update.', 'success');
+          break;
+        }
+      }
+    });
+
+    // Click to upload
+    uploadArea.addEventListener('click', () => {
+      fileInput.click();
+    });
+
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        handleFile(files[0]);
+      }
+    });
+
+    // File input change
+    fileInput.addEventListener('change', (e) => {
+      if (e.target.files.length > 0) {
+        handleFile(e.target.files[0]);
+      }
+    });
+
+    // Handle file upload
+    function handleFile(file) {
+      if (!file.type.startsWith('image/')) {
+        showMessage('Please upload an image file', 'error');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        uploadedImageData = e.target.result;
+        imagePreview.src = uploadedImageData;
+        imagePreview.classList.add('show');
+        showMessage('Image loaded. Click "Save Changes" to update.', 'success');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    // Save changes
+    saveBtn.addEventListener('click', async () => {
+      const connectionId = connectionIdInput.value.trim();
+
+      if (!connectionId) {
+        showMessage('Please enter a connection ID', 'error');
+        return;
+      }
+
+      try {
+        await window.storage.set('server-connection-id', connectionId);
+
+        if (uploadedImageData) {
+          await window.storage.set('server-join-image', uploadedImageData);
+        }
+
+        showMessage('✓ Changes saved successfully! The homepage will now display the updated information.', 'success');
+        
+        if (uploadedImageData) {
+          currentImage.src = uploadedImageData;
+          currentImageSection.style.display = 'block';
+        }
+      } catch (error) {
+        showMessage('Error saving data: ' + error.message, 'error');
+      }
+    });
+
+    // Show message
+    function showMessage(text, type) {
+      messageEl.textContent = text;
+      messageEl.className = 'message show ' + type;
+      
+      setTimeout(() => {
+        messageEl.classList.remove('show');
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
