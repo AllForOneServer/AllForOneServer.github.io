@@ -1,231 +1,487 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>AllForOne | Homepage</title>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AllForOne - Minecraft Education Server</title>
   <style>
-    :root{
-      --bg: #f9f9f9;
-      --text: #000000;
-      --heading: #1e90ff; /* main heading color requested */
-      --accent-1: #0B5394;
-      --accent-2: #4A86E8;
-      --dark: #1C1C1C;
-      --danger: #ef4444;
-      --soft-pink: #fff1f2;
-      --soft-yellow: #fff9c4;
-      --amber: #facc15;
-
-      --radius: 14px;
-      --card-radius: 12px;
-      --glass: rgba(255,255,255,0.7);
-      --shadow: 0 10px 30px rgba(12,12,12,0.06);
-      --blur: 10px;
-      --max-width: 980px;
-      --gap: 18px;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
-    /* Reset / base */
-    *{box-sizing:border-box}
-    html,body{height:100%}
-    body{
-      margin:0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-      background:var(--bg);
-      color:var(--text);
-      -webkit-font-smoothing:antialiased;
-      -moz-osx-font-smoothing:grayscale;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      padding:48px 20px;
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #1C1C1C;
+      min-height: 100vh;
     }
 
-    /* Container */
-    .wrap{
-      width:100%;
-      max-width:var(--max-width);
-      margin:0 auto;
-      display:grid;
-      grid-template-columns: 1fr 380px;
-      gap:var(--gap);
-      align-items:center;
+    .header {
+      background: linear-gradient(135deg, #1e90ff 0%, #0B5394 100%);
+      padding: 30px;
+      color: white;
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
     }
 
-    /* Left / Message card */
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(255,255,255,0.95));
-      border-radius:var(--card-radius);
-      padding:36px;
-      box-shadow:var(--shadow);
-      backdrop-filter: blur(var(--blur));
-      border:1px solid rgba(20,20,20,0.03);
+    .header h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     }
 
-    header h1{
-      margin:0 0 8px 0;
-      font-size:32px;
-      color:var(--heading);
-      letter-spacing:-0.5px;
-      line-height:1.02;
-    }
-    
-        header h2{
-      margin:0 0 8px 0;
-      font-size:25px;
-      color:var(--heading);
-      letter-spacing:-0.5px;
-      line-height:1.02;
+    .header p {
+      font-size: 18px;
+      opacity: 0.95;
     }
 
-    header p.lead{
-      margin:0 0 18px 0;
-      color:var(--dark);
-      font-size:15px;
-      opacity:0.95;
+    .nav {
+      background: white;
+      padding: 0;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: center;
+      gap: 0;
     }
 
-    .status{
-      display:inline-flex;
-      align-items:center;
-      gap:10px;
-      margin-top:12px;
-    }
-    .dot{
-      width:12px;height:12px;border-radius:50%;
-      box-shadow:0 2px 6px rgba(0,0,0,0.08);
-    }
-    .dot.dev{ background: var(--amber); } /* under development */
-    .meta{
-      font-size:13px;color:#333;padding:6px 10px;border-radius:999px;background:rgba(0,0,0,0.02);
+    .nav a {
+      padding: 18px 40px;
+      text-decoration: none;
+      color: #1e90ff;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s;
+      border-bottom: 3px solid transparent;
     }
 
-    /* Buttons card (right) */
-    .actions{
-      display:flex;
-      flex-direction:column;
-      gap:12px;
-      align-items:stretch;
+    .nav a:hover {
+      background: #f0f8ff;
+      border-bottom-color: #1e90ff;
     }
 
-    .btn{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      padding:12px 16px;
-      border-radius:10px;
-      border:1px solid rgba(20,20,20,0.06);
-      background:white;
-      text-decoration:none;
-      color:var(--dark);
-      font-weight:600;
-      font-size:15px;
-      box-shadow:0 6px 18px rgba(12,12,12,0.04);
-      transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+    .container {
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 0 20px;
     }
-    .btn:active{ transform: translateY(1px); }
-    .btn:focus{ outline:3px solid rgba(30,144,255,0.14); outline-offset:2px; }
 
-    .btn-primary{
-      background: linear-gradient(180deg,var(--accent-2),var(--accent-1));
-      color: #fff;
+    .main-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+
+    .card h2 {
+      color: #1e90ff;
+      font-size: 28px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .news-item {
+      padding: 20px;
+      border-left: 4px solid #1e90ff;
+      background: #f0f8ff;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      transition: transform 0.2s;
+    }
+
+    .news-item:hover {
+      transform: translateX(5px);
+    }
+
+    .news-item h3 {
+      color: #0B5394;
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .news-item p {
+      color: #555;
+      line-height: 1.6;
+      margin-bottom: 8px;
+    }
+
+    .news-date {
+      font-size: 13px;
+      color: #999;
+      font-style: italic;
+    }
+
+    .join-code-section {
+      text-align: center;
+    }
+
+    .join-code-image {
+      width: 100%;
+      max-width: 400px;
+      border-radius: 12px;
+      border: 3px solid #1e90ff;
+      margin: 20px 0;
+      box-shadow: 0 4px 15px rgba(30, 144, 255, 0.3);
+    }
+
+    .connection-id {
+      background: #f0f8ff;
+      padding: 15px;
+      border-radius: 10px;
+      margin: 20px 0;
+      border: 2px dashed #1e90ff;
+    }
+
+    .connection-id label {
+      display: block;
+      font-weight: 600;
+      color: #0B5394;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .connection-id-input {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .connection-id input {
+      flex: 1;
+      padding: 12px;
+      border: 2px solid #1e90ff;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: 'Courier New', monospace;
+      text-align: center;
+      background: white;
+    }
+
+    .copy-btn {
+      padding: 12px 20px;
+      background: #1e90ff;
+      color: white;
       border: none;
-      box-shadow: 0 8px 30px rgba(30,144,255,0.16);
-    }
-    .btn-primary:hover{ transform: translateY(-3px); }
-
-    .btn-ghost{
-      background: transparent;
-      border: 1px dashed rgba(30,144,255,0.15);
-      color: var(--heading);
-      font-weight:700;
-    }
-    .btn-danger{
-      background: linear-gradient(180deg,#ff6b6b,var(--danger));
-      color:white;
-      border:none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      white-space: nowrap;
     }
 
-    /* Small helpers */
-    .muted{ color:#6b7280; font-size:13px; }
-    .small{ font-size:13px; color:#444; }
-    .footer{
-      margin-top:18px;
-      font-size:13px;
-      color:#555;
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      align-items:center;
+    .copy-btn:hover {
+      background: #0B5394;
+      transform: translateY(-2px);
     }
 
-    /* Decorative panel at the top-right of the left card */
-    .badge{
-      display:inline-flex;
-      gap:8px;
-      align-items:center;
-      padding:8px 10px;
-      border-radius:999px;
-      background: linear-gradient(90deg,var(--soft-yellow),#fff);
-      border:1px solid rgba(250,200,21,0.06);
-      color:var(--dark);
-      font-weight:600;
-      box-shadow: 0 6px 18px rgba(250,200,21,0.06);
+    .copy-btn:active {
+      transform: translateY(0);
     }
 
-    /* Illustration / placeholder area */
-    .illustration{
-      margin-top:20px;
-      display:grid;
-      grid-template-columns: repeat(3,1fr);
-      gap:12px;
-    }
-    .tile{
-      height:68px;border-radius:10px;background:linear-gradient(180deg, rgba(74,134,232,0.12), rgba(11,83,148,0.06));
-      display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--dark);
-      border:1px solid rgba(20,20,20,0.03);
+    .action-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-top: 20px;
     }
 
-    /* Responsive */
-    @media (max-width:880px){
-      .wrap{ grid-template-columns: 1fr; padding:0 6px }
-      .actions{ flex-direction:row; gap:8px; }
-      .card{ padding:22px }
+    .action-btn {
+      padding: 18px;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .join-btn {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: white;
+    }
+
+    .join-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .voice-btn {
+      background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+      color: white;
+    }
+
+    .voice-btn:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-top: 30px;
+    }
+
+    .info-card {
+      background: white;
+      border-radius: 12px;
+      padding: 25px;
+      text-align: center;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s;
+    }
+
+    .info-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .info-card-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+
+    .info-card h3 {
+      color: #1e90ff;
+      font-size: 20px;
+      margin-bottom: 10px;
+    }
+
+    .info-card p {
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .success-message {
+      background: #ecfdf5;
+      color: #047857;
+      padding: 12px;
+      border-radius: 8px;
+      margin-top: 10px;
+      font-weight: 500;
+      display: none;
+      border: 2px solid #10b981;
+    }
+
+    .success-message.show {
+      display: block;
+      animation: fadeIn 0.3s ease;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .header h1 {
+        font-size: 32px;
+      }
+
+      .nav {
+        flex-direction: column;
+      }
+
+      .nav a {
+        text-align: center;
+      }
+
+      .connection-id-input {
+        flex-direction: column;
+      }
+
+      .connection-id input {
+        width: 100%;
+      }
     }
   </style>
 </head>
 <body>
-  <main class="wrap" role="main" aria-labelledby="page-title">
-    <section class="card" aria-labelledby="page-title">
-      <header>
-        <div class="badge" aria-hidden="true">AllForOne</div>
-        <h1 id="page-title">Homepage — Under Development</h1>
-        <p class="lead">
-          The official AllForOne server homepage is being built. We're polishing features and content so the site can deliver a clean, secure, and friendly experience.
-        </p>
+  <div class="header">
+    <h1>🎮 AllForOne Server</h1>
+    <p>Minecraft Education Edition - 24/7 Community Server</p>
+  </div>
 
-        <div class="status" aria-hidden="false">
-          <span class="dot dev" aria-hidden="true"></span>
-          <span class="meta">Under development</span>
+  <div class="nav">
+    <a href="index.html">🏠 Home</a>
+    <a href="messages.html">💬 Messages</a>
+    <a href="posts.html">📝 Posts</a>
+  </div>
+
+  <div class="container">
+    <div class="main-grid">
+      <!-- News Section -->
+      <div class="card">
+        <h2>📰 Latest News & Updates</h2>
+        
+        <div class="news-item">
+          <h3>Server Now Live 24/7!</h3>
+          <p>We're excited to announce that the AllForOne server is now running 24/7! Join anytime with the code below and start building with the community.</p>
+          <div class="news-date">December 13, 2024</div>
         </div>
-<div><h2>Public Pages:</h2></div>
-<div class="illustration" aria-hidden="true">
-  <a href="https://allforoneserver.github.io/Posting.html" class="tile">Public Posting</a>
-  <a href="https://allforoneserver.github.io/Rules.html" class="tile">Public Server Rules</a>
-  <a href="https://allforoneserver.github.io/Messages.html" class="tile">Private Messaging</a>
-</div>
 
+        <div class="news-item">
+          <h3>New Messaging System</h3>
+          <p>Check out our new private messaging system! Create an account and chat with other players directly. All messages are filtered for a safe community experience.</p>
+          <div class="news-date">December 12, 2024</div>
+        </div>
 
+        <div class="news-item">
+          <h3>Community Posts Feature</h3>
+          <p>Share your builds, achievements, and ideas with the entire community! Upload images and videos of your creations to inspire others.</p>
+          <div class="news-date">December 10, 2024</div>
+        </div>
 
-
-      <div class="footer" aria-hidden="false">
-        <span class="small">Need immediate help? Contact Kai:</span>
-        <a class="btn btn-ghost" href="mailto:kaioliver111@gmail.com">Kaioliver111@gmail.com</a>
-        <span class="muted">Estimated launch: soon — stay tuned.</span>
+        <div class="news-item">
+          <h3>Proximity Voice Chat Available</h3>
+          <p>Enable proximity voice chat for an immersive experience! Talk to players near you in-game. Make sure to enable it before joining for the best experience.</p>
+          <div class="news-date">December 8, 2024</div>
+        </div>
       </div>
-    </section>
-  </main>
+
+      <!-- Join Code Section -->
+      <div class="card join-code-section">
+        <h2>🎯 Join the Server</h2>
+        
+        <img src="https://via.placeholder.com/400x300/1e90ff/ffffff?text=Join+Code+QR" 
+             alt="Server Join Code" 
+             class="join-code-image"
+             id="joinCodeImage">
+        
+        <div class="connection-id">
+          <label>Connection ID:</label>
+          <div class="connection-id-input">
+            <input type="text" 
+                   id="connectionIdInput" 
+                   value="AllForOne-MC-2024" 
+                   readonly>
+            <button class="copy-btn" id="copyBtn">📋 Copy</button>
+          </div>
+          <div class="success-message" id="successMessage">✓ Copied to clipboard!</div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="action-btn voice-btn" id="voiceBtn">
+            🎙️ Enable Proximity Voice Chat
+          </button>
+          <button class="action-btn join-btn" id="joinBtn">
+            🚀 Join Game Now
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Info Cards -->
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-card-icon">⚡</div>
+        <h3>24/7 Uptime</h3>
+        <p>Our server is always online and ready for you to join. Play anytime, anywhere!</p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon">🛡️</div>
+        <h3>Safe Community</h3>
+        <p>Moderated chat and content filters ensure a positive experience for all players.</p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon">🎨</div>
+        <h3>Creative Freedom</h3>
+        <p>Build, explore, and create amazing projects with friends in a collaborative environment.</p>
+      </div>
+
+      <div class="info-card">
+        <div class="info-card-icon">👥</div>
+        <h3>Active Community</h3>
+        <p>Join a vibrant community of builders, explorers, and educators from around the world.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Copy Connection ID to clipboard
+    const copyBtn = document.getElementById('copyBtn');
+    const connectionIdInput = document.getElementById('connectionIdInput');
+    const successMessage = document.getElementById('successMessage');
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(connectionIdInput.value);
+        successMessage.classList.add('show');
+        copyBtn.textContent = '✓ Copied!';
+        
+        setTimeout(() => {
+          successMessage.classList.remove('show');
+          copyBtn.textContent = '📋 Copy';
+        }, 2000);
+      } catch (err) {
+        // Fallback for older browsers
+        connectionIdInput.select();
+        document.execCommand('copy');
+        successMessage.classList.add('show');
+        copyBtn.textContent = '✓ Copied!';
+        
+        setTimeout(() => {
+          successMessage.classList.remove('show');
+          copyBtn.textContent = '📋 Copy';
+        }, 2000);
+      }
+    });
+
+    // Voice Chat Button
+    const voiceBtn = document.getElementById('voiceBtn');
+    let voiceEnabled = false;
+
+    voiceBtn.addEventListener('click', () => {
+      voiceEnabled = !voiceEnabled;
+      if (voiceEnabled) {
+        voiceBtn.textContent = '✓ Voice Chat Enabled';
+        voiceBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
+        alert('Proximity Voice Chat has been enabled! You can now talk to nearby players in-game.');
+      } else {
+        voiceBtn.textContent = '🎙️ Enable Proximity Voice Chat';
+        voiceBtn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+      }
+    });
+
+    // Join Game Button
+    const joinBtn = document.getElementById('joinBtn');
+
+    joinBtn.addEventListener('click', () => {
+      alert('Opening Minecraft Education Edition...\n\nUse the Connection ID: ' + connectionIdInput.value + '\n\nIf the game doesn\'t open automatically, please open Minecraft Education Edition manually and enter the connection ID.');
+      // In a real implementation, this could attempt to open minecraft-education:// protocol
+      // window.location.href = 'minecraft-education://connect?code=' + connectionIdInput.value;
+    });
+
+    // Optional: Load join code image from your actual source
+    // document.getElementById('joinCodeImage').src = 'path/to/your/actual/join-code-image.png';
+  </script>
 </body>
 </html>
