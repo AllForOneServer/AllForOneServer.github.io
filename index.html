@@ -18,6 +18,10 @@
       min-height: 100vh;
     }
 
+    .hidden {
+      display: none !important;
+    }
+
     .header {
       background: linear-gradient(135deg, #1e90ff 0%, #0B5394 100%);
       padding: 30px;
@@ -60,6 +64,157 @@
     .nav a:hover {
       background: #f0f8ff;
       border-bottom-color: #1e90ff;
+    }
+
+    /* Auth Section Styles */
+    .auth-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .auth-modal {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 450px;
+      width: 90%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .auth-modal h2 {
+      color: #1e90ff;
+      font-size: 28px;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .auth-modal p {
+      color: #666;
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: #0B5394;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #1e90ff;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #0B5394;
+      box-shadow: 0 0 0 3px rgba(30, 144, 255, 0.1);
+    }
+
+    .auth-btn {
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #1e90ff 0%, #0B5394 100%);
+      color: white;
+    }
+
+    .auth-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(30, 144, 255, 0.4);
+    }
+
+    .auth-toggle {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+    }
+
+    .auth-toggle a {
+      color: #1e90ff;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .auth-toggle a:hover {
+      text-decoration: underline;
+    }
+
+    .pending-section {
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 40px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+      text-align: center;
+    }
+
+    .pending-section h2 {
+      color: #f59e0b;
+      font-size: 32px;
+      margin-bottom: 20px;
+    }
+
+    .pending-section p {
+      color: #666;
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 30px;
+    }
+
+    .logout-btn {
+      padding: 12px 30px;
+      background: #6b7280;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: #4b5563;
+    }
+
+    .error-message {
+      background: #fef2f2;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      border: 2px solid #ef4444;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
     }
 
     .container {
@@ -284,6 +439,12 @@
       animation: fadeIn 0.3s ease;
     }
 
+    .loading {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+    }
+
     @keyframes fadeIn {
       from {
         opacity: 0;
@@ -323,98 +484,370 @@
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>AllForOne Server</h1>
-    <p>Minecraft Education Edition - 24/7 Community Server</p>
-  </div>
-
-  <div class="nav">
-    <a href="https://allforoneserver.github.io">Home</a>
-    <a href="https://allforoneserver.github.io/messages/">Messages</a>
-    <a href="https://allforoneserver.github.io/Posting/">Posts</a>
-    <a href="https://allforoneserver.github.io/polls/">Public Polls</a>
-  </div>
-
-  <div class="container">
-    <div class="main-grid">
-      <!-- News Section -->
-      <div class="card">
-        <h2>📰 Latest News & Updates</h2>
-        
-        <div class="news-item">
-          <h3>This Website</h3>
-          <p>We have just released our new website allforoneserver.github.io! You know
-          this because your on it!</p>
-          <div class="news-date">December 13, 2024</div>
+  <!-- Auth Section -->
+  <div id="authSection" class="auth-overlay">
+    <div class="auth-modal">
+      <h2 id="authTitle">Sign In</h2>
+      <p id="authSubtitle">Sign in to view server join codes</p>
+      
+      <div id="errorMessage" class="error-message"></div>
+      
+      <div id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" placeholder="Enter your email">
         </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="Enter your password">
+        </div>
+        <button class="auth-btn" id="loginBtn">Sign In</button>
+      </div>
 
-      <!-- Join Code Section -->
-      <div class="card join-code-section">
-        <h2>Join the Server</h2>
-        
-        <img src="https://via.placeholder.com/400x300/1e90ff/ffffff?text=Join+Code+QR" 
-             alt="Server Join Code" 
-             class="join-code-image"
-             id="joinCodeImage">
-        
-        <div class="connection-id">
-          <label>Connection ID:</label>
-          <div class="connection-id-input">
-            <input type="text" 
-                   id="connectionIdInput" 
-                   value="AllForOne-MC-2024" 
-                   readonly>
-            <button class="copy-btn" id="copyBtn">📋 Copy</button>
+      <div id="signupForm" class="hidden">
+        <div class="form-group">
+          <label for="signupName">Display Name</label>
+          <input type="text" id="signupName" placeholder="Enter your name">
+        </div>
+        <div class="form-group">
+          <label for="signupEmail">Email</label>
+          <input type="email" id="signupEmail" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+          <label for="signupPassword">Password</label>
+          <input type="password" id="signupPassword" placeholder="Enter your password">
+        </div>
+        <button class="auth-btn" id="signupBtn">Create Account</button>
+      </div>
+
+      <div class="auth-toggle">
+        <span id="toggleText">Don't have an account?</span>
+        <a href="#" id="toggleLink">Sign Up</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Approval Section -->
+  <div id="pendingSection" class="hidden">
+    <div class="pending-section">
+      <h2>⏳ Pending Approval</h2>
+      <p>Your account has been created successfully! Please wait for an administrator to approve your account before you can view the server join codes.</p>
+      <p>This page will automatically refresh when you're approved.</p>
+      <button class="logout-btn" id="pendingLogoutBtn">Sign Out</button>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div id="mainContent" class="hidden">
+    <div class="header">
+      <h1>AllForOne Server</h1>
+      <p>Minecraft Education Edition - 24/7 Community Server</p>
+    </div>
+
+    <div class="nav">
+      <a href="index.html">Home</a>
+      <a href="https://allforoneserver.github.io/messages/">Messages</a>
+      <a href="https://allforoneserver.github.io/Posting/">Posts</a>
+      <a href="https://allforoneserver.github.io/polls/">Public Polls</a>
+      <a href="#" id="logoutNavBtn" style="margin-left: auto;">Sign Out</a>
+    </div>
+
+    <div class="container">
+      <div class="main-grid">
+        <!-- News Section -->
+        <div class="card">
+          <h2>📰 Latest News & Updates</h2>
+          
+          <div class="news-item">
+            <h3>This Website</h3>
+            <p>We have just released our new website allforoneserver.github.io! You know
+            this because you're on it!</p>
+            <div class="news-date">December 13, 2024</div>
           </div>
-          <div class="success-message" id="successMessage">✓ Copied to clipboard!</div>
         </div>
 
-        <div class="action-buttons">
-          <button class="action-btn voice-btn" id="voiceBtn">
-            🎙️ Enable Proximity Voice Chat
-          </button>
-          <button class="action-btn join-btn" id="joinBtn">
-            🚀 Join Game Now
-          </button>
+        <!-- Join Code Section -->
+        <div class="card join-code-section">
+          <h2>Join the Server</h2>
+          
+          <div id="loadingIndicator" class="loading">Loading join code...</div>
+          
+          <img src="https://via.placeholder.com/400x300/1e90ff/ffffff?text=Join+Code+QR" 
+               alt="Server Join Code" 
+               class="join-code-image"
+               id="joinCodeImage"
+               style="display: none;">
+          
+          <div class="connection-id">
+            <label>Connection ID:</label>
+            <div class="connection-id-input">
+              <input type="text" 
+                     id="connectionIdInput" 
+                     value="Loading..." 
+                     readonly>
+              <button class="copy-btn" id="copyBtn">📋 Copy</button>
+            </div>
+            <div class="success-message" id="successMessage">✓ Copied to clipboard!</div>
+          </div>
+
+          <div class="action-buttons">
+            <button class="action-btn voice-btn" id="voiceBtn">
+              🎙️ Enable Proximity Voice Chat
+            </button>
+            <button class="action-btn join-btn" id="joinBtn">
+              🚀 Join Game Now
+            </button>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Info Cards -->
-    <div class="info-grid">
-      <div class="info-card">
-        <div class="info-card-icon">⚡</div>
-        <h3>24/7 Uptime</h3>
-        <p>Our server is always online and ready for you to join. Play anytime, anywhere!</p>
-      </div>
+      <!-- Info Cards -->
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-icon">⚡</div>
+          <h3>24/7 Uptime</h3>
+          <p>Our server is always online and ready for you to join. Play anytime, anywhere!</p>
+        </div>
 
-      <div class="info-card">
-        <div class="info-card-icon">🛡️</div>
-        <h3>Safe Community</h3>
-        <p>Moderated chat and content filters ensure a positive experience for all players!</p>
-      </div>
+        <div class="info-card">
+          <div class="info-card-icon">🛡️</div>
+          <h3>Safe Community</h3>
+          <p>Moderated chat and content filters ensure a positive experience for all players!</p>
+        </div>
 
-      <div class="info-card">
-        <div class="info-card-icon">🎨</div>
-        <h3>Creative Freedom</h3>
-        <p>Build, explore, and create amazing projects with friends in a collaborative environment.</p>
-      </div>
+        <div class="info-card">
+          <div class="info-card-icon">🎨</div>
+          <h3>Creative Freedom</h3>
+          <p>Build, explore, and create amazing projects with friends in a collaborative environment.</p>
+        </div>
 
-      <div class="info-card">
-        <div class="info-card-icon">👥</div>
-        <h3>Active Community</h3>
-        <p>Join a vibrant community of builders, explorers, and educators from around the world.</p>
+        <div class="info-card">
+          <div class="info-card-icon">👥</div>
+          <h3>Active Community</h3>
+          <p>Join a vibrant community of builders, explorers, and educators from around the world.</p>
+        </div>
       </div>
     </div>
   </div>
 
-  <script>
-    // Copy Connection ID to clipboard
-    const copyBtn = document.getElementById('copyBtn');
-    const connectionIdInput = document.getElementById('connectionIdInput');
-    const successMessage = document.getElementById('successMessage');
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+    import { getFirestore, doc, getDoc, setDoc, serverTimestamp, onSnapshot } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-    copyBtn.addEventListener('click', async () => {
+    // Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyDzQlAqhCeytCLEYafboYGpFu6pY3Kv9WE",
+  authDomain: "allforonemedia-9a7d8.firebaseapp.com",
+  databaseURL: "https://allforonemedia-9a7d8-default-rtdb.firebaseio.com",
+  projectId: "allforonemedia-9a7d8",
+  storageBucket: "allforonemedia-9a7d8.firebasestorage.app",
+  messagingSenderId: "892787060584",
+  appId: "1:892787060584:web:e65609062592f9ba96f0dd",
+  measurementId: "G-JSXKLMBRLC"
+};
+
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // DOM elements
+    const authSection = document.getElementById('authSection');
+    const pendingSection = document.getElementById('pendingSection');
+    const mainContent = document.getElementById('mainContent');
+    const loginForm = document.getElementById('loginForm');
+    const signupForm = document.getElementById('signupForm');
+    const errorMessage = document.getElementById('errorMessage');
+    const authTitle = document.getElementById('authTitle');
+    const authSubtitle = document.getElementById('authSubtitle');
+    const toggleText = document.getElementById('toggleText');
+    const toggleLink = document.getElementById('toggleLink');
+
+    let approvalListener = null;
+    let showingLogin = true;
+
+    // Toggle between login and signup
+    toggleLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      showingLogin = !showingLogin;
+      
+      if (showingLogin) {
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        authTitle.textContent = 'Sign In';
+        authSubtitle.textContent = 'Sign in to view server join codes';
+        toggleText.textContent = "Don't have an account?";
+        toggleLink.textContent = 'Sign Up';
+      } else {
+        loginForm.classList.add('hidden');
+        signupForm.classList.remove('hidden');
+        authTitle.textContent = 'Create Account';
+        authSubtitle.textContent = 'Join the AllForOne community';
+        toggleText.textContent = 'Already have an account?';
+        toggleLink.textContent = 'Sign In';
+      }
+      errorMessage.classList.remove('show');
+    });
+
+    // Show error message
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.add('show');
+    }
+
+    // Check if user is approved
+    async function checkUserApproval(uid) {
+      try {
+        const userDoc = await getDoc(doc(db, "MessagesUsers", uid));
+        if (!userDoc.exists()) {
+          return false;
+        }
+        return userDoc.data().approved === true;
+      } catch (error) {
+        console.error("Error checking approval:", error);
+        return false;
+      }
+    }
+
+    // Real-time approval listener
+    function startApprovalListener(uid) {
+      if (approvalListener) {
+        approvalListener();
+      }
+      const userDocRef = doc(db, 'MessagesUsers', uid);
+      approvalListener = onSnapshot(userDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const userData = docSnap.data();
+          if (userData.approved === true) {
+            window.location.reload();
+          }
+        }
+      });
+    }
+
+    // Login
+    document.getElementById('loginBtn').addEventListener('click', async () => {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      if (!email || !password) {
+        showError('Please fill in all fields');
+        return;
+      }
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        showError(error.message);
+      }
+    });
+
+    // Signup
+    document.getElementById('signupBtn').addEventListener('click', async () => {
+      const displayName = document.getElementById('signupName').value;
+      const email = document.getElementById('signupEmail').value;
+      const password = document.getElementById('signupPassword').value;
+
+      if (!displayName || !email || !password) {
+        showError('Please fill in all fields');
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+
+        await setDoc(doc(db, 'MessagesUsers', user.uid), {
+          uid: user.uid,
+          displayName: displayName,
+          email: email,
+          createdAt: serverTimestamp(),
+          lastSeen: serverTimestamp(),
+          approved: false
+        });
+      } catch (error) {
+        showError(error.message);
+      }
+    });
+
+    // Logout buttons
+    document.getElementById('pendingLogoutBtn').addEventListener('click', () => signOut(auth));
+    document.getElementById('logoutNavBtn').addEventListener('click', (e) => {
+      e.preventDefault();
+      signOut(auth);
+    });
+
+    // Auth state change handler
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        const isApproved = await checkUserApproval(user.uid);
+        
+        if (!isApproved) {
+          authSection.classList.add('hidden');
+          mainContent.classList.add('hidden');
+          pendingSection.classList.remove('hidden');
+          startApprovalListener(user.uid);
+          return;
+        }
+
+        if (approvalListener) {
+          approvalListener();
+          approvalListener = null;
+        }
+
+        authSection.classList.add('hidden');
+        pendingSection.classList.add('hidden');
+        mainContent.classList.remove('hidden');
+        loadServerData();
+      } else {
+        if (approvalListener) {
+          approvalListener();
+          approvalListener = null;
+        }
+        authSection.classList.remove('hidden');
+        pendingSection.classList.add('hidden');
+        mainContent.classList.add('hidden');
+      }
+    });
+
+    // Load server data
+    async function loadServerData() {
+      const loadingIndicator = document.getElementById('loadingIndicator');
+      const joinCodeImage = document.getElementById('joinCodeImage');
+      const connectionIdInput = document.getElementById('connectionIdInput');
+
+      try {
+        const connectionData = await window.storage.get('server-connection-id');
+        if (connectionData) {
+          connectionIdInput.value = connectionData.value;
+        } else {
+          connectionIdInput.value = 'AllForOne-MC-2024';
+        }
+
+        const imageData = await window.storage.get('server-join-image');
+        if (imageData) {
+          joinCodeImage.src = imageData.value;
+          joinCodeImage.style.display = 'block';
+        } else {
+          joinCodeImage.style.display = 'block';
+        }
+
+        loadingIndicator.style.display = 'none';
+      } catch (error) {
+        console.log('Using default values');
+        connectionIdInput.value = 'AllForOne-MC-2024';
+        joinCodeImage.style.display = 'block';
+        loadingIndicator.style.display = 'none';
+      }
+    }
+
+    // Copy button
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      const connectionIdInput = document.getElementById('connectionIdInput');
+      const successMessage = document.getElementById('successMessage');
+      const copyBtn = document.getElementById('copyBtn');
+
       try {
         await navigator.clipboard.writeText(connectionIdInput.value);
         successMessage.classList.add('show');
@@ -425,7 +858,6 @@
           copyBtn.textContent = '📋 Copy';
         }, 2000);
       } catch (err) {
-        // Fallback for older browsers
         connectionIdInput.select();
         document.execCommand('copy');
         successMessage.classList.add('show');
@@ -438,33 +870,27 @@
       }
     });
 
-    // Voice Chat Button
+    // Voice chat button
     const voiceBtn = document.getElementById('voiceBtn');
     let voiceEnabled = false;
 
     voiceBtn.addEventListener('click', () => {
       voiceEnabled = !voiceEnabled;
       if (voiceEnabled) {
-        voiceBtn.textContent = '✓ Voice Chat Enabled';
+        voiceBtn.innerHTML = '✓ Voice Chat Enabled';
         voiceBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #059669 100%)';
         alert('Proximity Voice Chat has been enabled! You can now talk to nearby players in-game.');
       } else {
-        voiceBtn.textContent = '🎙️ Enable Proximity Voice Chat';
+        voiceBtn.innerHTML = '🎙️ Enable Proximity Voice Chat';
         voiceBtn.style.background = 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
       }
     });
 
-    // Join Game Button
-    const joinBtn = document.getElementById('joinBtn');
-
-    joinBtn.addEventListener('click', () => {
-      alert('Opening Minecraft Education Edition...\n\nUse the Connection ID: ' + connectionIdInput.value + '\n\nIf the game doesn\'t open automatically, please open Minecraft Education Edition manually and enter the connection ID.');
-      // In a real implementation, this could attempt to open minecraft-education:// protocol
-      // window.location.href = 'minecraft-education://connect?code=' + connectionIdInput.value;
+    // Join game button
+    document.getElementById('joinBtn').addEventListener('click', () => {
+      const connectionId = document.getElementById('connectionIdInput').value;
+      alert('Opening Minecraft Education Edition...\n\nUse the Connection ID: ' + connectionId + '\n\nIf the game doesn\'t open automatically, please open Minecraft Education Edition manually and enter the connection ID.');
     });
-
-    // Optional: Load join code image from your actual source
-    // document.getElementById('joinCodeImage').src = 'path/to/your/actual/join-code-image.png';
   </script>
 </body>
 </html>
