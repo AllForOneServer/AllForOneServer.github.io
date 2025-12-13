@@ -849,12 +849,28 @@
       renderPollDetail();
     }
     
-    // Submit vote
+// Submit vote
     async function submitVote() {
       if (!selectedOption || !selectedPoll) return;
       
+      // Check if user has already voted
+      if (userVotes[selectedPoll.id]) {
+        showMessage('authMessage2', 'You have already voted on this poll!', 'error');
+        renderPollDetail();
+        return;
+      }
+      
       try {
         const pollRef = db.collection('Polls').doc(selectedPoll.id);
+        
+        // Double-check in the database to prevent race conditions
+        const userVotesDoc = await db.collection('UserVotes').doc(currentUser.uid).get();
+        if (userVotesDoc.exists() && userVotesDoc.data().votes && userVotesDoc.data().votes[selectedPoll.id]) {
+          showMessage('authMessage2', 'You have already voted on this poll!', 'error');
+          userVotes[selectedPoll.id] = userVotesDoc.data().votes[selectedPoll.id];
+          renderPollDetail();
+          return;
+        }
         
         // First update the poll votes
         await pollRef.update({
