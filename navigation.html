@@ -1,57 +1,117 @@
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <title>AllForOne | Navigation Bar</title>
-        
-            <style>
-    
-.nav {
-  background: white;
-  padding: 0;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  display: flex;
-  justify-content: center;
-  gap: 0;
-}
+  <head>
+    <meta charset="UTF-8" />
+    <title>AllForOne | Navigation Bar</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
 
-.nav a {
-  padding: 18px 40px;
-  text-decoration: none;
-  color: #1e90ff;
-  font-weight: 600;
-  font-size: 16px;
-  transition: all 0.3s;
-  border-bottom: 3px solid transparent;
-}
+      .nav {
+        background: white;
+        padding: 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        gap: 0;
+      }
 
-.nav a:hover {
-  background: #f0f8ff;
-  border-bottom-color: #1e90ff;
-}
+      .nav a {
+        padding: 18px 40px;
+        text-decoration: none;
+        color: #1e90ff;
+        font-weight: 600;
+        font-size: 16px;
+        transition: all 0.3s;
+        border-bottom: 3px solid transparent;
+      }
 
-@media (max-width: 768px) {
-  .nav {
-    flex-direction: column;
-  }
+      .nav a:hover,
+      .nav a.active {
+        background: #f0f8ff;
+        border-bottom-color: #1e90ff;
+      }
 
-  .nav a {
-    text-align: center;
-  }
-}
+      @media (max-width: 768px) {
+        .nav {
+          flex-direction: column;
+        }
 
-        
+        .nav a {
+          text-align: center;
+        }
+      }
     </style>
-    </head>
+  </head>
 
-    <body>
-    
-      <div class="nav">
-    <a href="https://allforoneserver.github.io">Home</a>
-    <a href="https://allforoneserver.github.io/messages/">Messages</a>
-    <a href="https://allforoneserver.github.io/Posting/">Posts</a>
-    <a href="https://allforoneserver.github.io/polls/">Public Polls</a>
-  </div>
-    
-    </body>
+  <body>
+    <nav class="nav" aria-label="Main navigation">
+      <a href="https://allforoneserver.github.io">Home</a>
+      <a href="https://allforoneserver.github.io/messages/">Messages</a>
+      <a href="https://allforoneserver.github.io/Posting/">Posts</a>
+      <a href="https://allforoneserver.github.io/polls/">Public Polls</a>
+    </nav>
+
+    <script>
+      (function () {
+        // Highlight the active nav link by comparing normalized paths.
+        function normalizePath(href) {
+          try {
+            var url = new URL(href, location.origin);
+            var p = url.pathname.replace(/\/+$/, ""); // remove trailing slashes
+            return p === "" ? "/" : p;
+          } catch (e) {
+            // fallback for malformed URLs (treat as relative)
+            var a = document.createElement("a");
+            a.href = href;
+            var p = a.pathname.replace(/\/+$/, "");
+            return p === "" ? "/" : p;
+          }
+        }
+
+        var currentPath = location.pathname.replace(/\/+$/, "");
+        if (currentPath === "") currentPath = "/";
+
+        var links = document.querySelectorAll(".nav a");
+        var matched = false;
+
+        links.forEach(function (link) {
+          var linkPath = normalizePath(link.href);
+
+          // Consider root and trailing slash variants equal.
+          if (linkPath === currentPath || (linkPath === "/" && currentPath === "/")) {
+            link.classList.add("active");
+            matched = true;
+          } else {
+            // If link is a parent path of current path, mark it active as fallback.
+            if (currentPath.startsWith(linkPath) && linkPath !== "/") {
+              link.classList.add("active");
+              matched = true;
+            } else {
+              link.classList.remove("active");
+            }
+          }
+
+          // Ensure external links open in same context (no-op here, but keeps behavior explicit).
+          // If you want external links to open in new tab, set target="_blank" with rel="noopener".
+        });
+
+        // If nothing matched, try matching by hostname + pathname (useful when site served from custom domain)
+        if (!matched) {
+          links.forEach(function (link) {
+            try {
+              var url = new URL(link.href);
+              if (url.hostname === location.hostname && normalizePath(url.href) === currentPath) {
+                link.classList.add("active");
+              }
+            } catch (e) {
+              // ignore
+            }
+          });
+        }
+      })();
+    </script>
+  </body>
 </html>
