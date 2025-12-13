@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      margin: 0;
+    }
+    
+    .navbar {
+      background: linear-gradient(135deg, #1e90ff 0%, #0B5394 100%);
+      padding: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      position: relative;
+    }
+    
+    .nav-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 30px;
+    }
+    
+    .nav-brand {
+      color: white;
+      font-size: 24px;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .nav-brand:hover {
+      opacity: 0.9;
+    }
+    
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 5px;
+      align-items: center;
+    }
+    
+    .nav-links a {
+      color: white;
+      text-decoration: none;
+      padding: 20px 20px;
+      display: block;
+      transition: background 0.3s;
+      font-weight: 500;
+      font-size: 15px;
+    }
+    
+    .nav-links a:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .nav-links a.active {
+      background: rgba(255, 255, 255, 0.2);
+      border-bottom: 3px solid white;
+    }
+    
+    .mobile-toggle {
+      display: none;
+      background: none;
+      border: none;
+      color: white;
+      font-size: 28px;
+      cursor: pointer;
+      padding: 10px;
+    }
+    
+    @media (max-width: 768px) {
+      .mobile-toggle {
+        display: block;
+      }
+      
+      .nav-links {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: linear-gradient(135deg, #1e90ff 0%, #0B5394 100%);
+        flex-direction: column;
+        gap: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+      }
+      
+      .nav-links.open {
+        max-height: 500px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+      }
+      
+      .nav-links a {
+        padding: 15px 30px;
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      }
+      
+      .nav-links a.active {
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        border-left: 4px solid white;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <a href="index.html" class="nav-brand">
+        <span>🏠</span>
+        <span>All For One</span>
+      </a>
+      
+      <button class="mobile-toggle" onclick="toggleMenu()">☰</button>
+      
+      <ul class="nav-links" id="navLinks">
+        <li><a href="index.html" data-page="index">Home</a></li>
+        <li><a href="polls.html" data-page="polls">Polls</a></li>
+        <li><a href="about.html" data-page="about">About</a></li>
+        <li><a href="contact.html" data-page="contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <script>
+    // Toggle mobile menu
+    function toggleMenu() {
+      const navLinks = document.getElementById('navLinks');
+      navLinks.classList.toggle('open');
+    }
+    
+    // Close menu when clicking a link on mobile
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+          document.getElementById('navLinks').classList.remove('open');
+        }
+      });
+    });
+    
+    // Highlight active page
+    function setActivePage() {
+      // Get current page from parent window if in iframe
+      let currentPage = '';
+      try {
+        currentPage = window.parent.location.pathname.split('/').pop() || 'index.html';
+      } catch (e) {
+        // If we can't access parent (cross-origin), try to get from URL parameter
+        const urlParams = new URLSearchParams(window.location.search);
+        currentPage = urlParams.get('page') || 'index.html';
+      }
+      
+      // Remove active class from all links
+      document.querySelectorAll('.nav-links a').forEach(link => {
+        link.classList.remove('active');
+        
+        // Add active class to matching link
+        const linkPage = link.getAttribute('data-page') + '.html';
+        if (linkPage === currentPage || (currentPage === '' && linkPage === 'index.html')) {
+          link.classList.add('active');
+        }
+      });
+    }
+    
+    // Set active page on load
+    setActivePage();
+    
+    // Listen for page changes if in iframe
+    window.addEventListener('message', (event) => {
+      if (event.data.type === 'pageChange') {
+        setActivePage();
+      }
+    });
+  </script>
+</body>
+</html>
