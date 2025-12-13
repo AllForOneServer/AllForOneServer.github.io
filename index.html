@@ -544,13 +544,24 @@
       <p>Minecraft Education Edition - 24/7 Community Server</p>
     </div>
 
-    <div class="nav">
-      <a href="index.html">Home</a>
-      <a href="https://allforoneserver.github.io/messages/">Messages</a>
-      <a href="https://allforoneserver.github.io/Posting/">Posts</a>
-      <a href="https://allforoneserver.github.io/polls/">Public Polls</a>
-      <a href="#" id="logoutNavBtn" style="margin-left: auto;">Sign Out</a>
-    </div>
+  <div id="navbar-placeholder"></div>
+  <script>
+    fetch("https://allforoneserver.github.io/navigation.html")
+      .then((response) => response.text())
+      .then((data) => {
+        document.getElementById("navbar-placeholder").innerHTML = data;
+        // Re-execute any scripts in the loaded content (try/catch to avoid breaking)
+        const scripts = document.getElementById("navbar-placeholder").getElementsByTagName("script");
+        for (let script of scripts) {
+          try {
+            (0, eval)(script.innerHTML);
+          } catch (e) {
+            console.warn("Navbar script error", e);
+          }
+        }
+      })
+      .catch((error) => console.error("Error loading navbar:", error));
+  </script>
 
     <div class="container">
       <div class="main-grid">
