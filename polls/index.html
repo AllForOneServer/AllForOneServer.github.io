@@ -717,6 +717,14 @@
           polls.push({ id: doc.id, ...doc.data() });
         });
         renderPollsList();
+        if (selectedPoll) {
+          // Update selected poll with fresh data
+          const updated = polls.find(p => p.id === selectedPoll.id);
+          if (updated) {
+            selectedPoll = updated;
+            renderPollDetail();
+          }
+        }
       });
     }
     
@@ -834,10 +842,12 @@
       try {
         const pollRef = db.collection('Polls').doc(selectedPoll.id);
         
+        // First update the poll votes
         await pollRef.update({
           [`votes.${selectedOption}`]: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
         });
         
+        // Then update user votes
         await db.collection('UserVotes').doc(currentUser.uid).set({
           votes: {
             ...userVotes,
@@ -845,9 +855,20 @@
           }
         }, { merge: true });
         
+        // Update local state
+        userVotes[selectedPoll.id] = selectedOption;
+        
         showMessage('authMessage2', 'Vote submitted successfully!', 'success');
-        selectedOption = '';
+        
+        // Re-fetch the poll to get updated data
+        const updatedPoll = await pollRef.get();
+        if (updatedPoll.exists) {
+          selectedPoll = { id: updatedPoll.id, ...updatedPoll.data() };
+          selectedOption = '';
+          renderPollDetail();
+        }
       } catch (error) {
+        console.error('Vote error:', error);
         showMessage('authMessage2', 'Error submitting vote: ' + error.message, 'error');
       }
     }
