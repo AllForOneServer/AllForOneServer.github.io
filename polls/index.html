@@ -419,6 +419,21 @@
   </style>
 </head>
 <body>
+  <div id="navbar-placeholder"></div>
+  <script>
+    fetch('https://allforoneserver.github.io/navigation.html')
+      .then(response => response.text())
+      .then(data => {
+        document.getElementById('navbar-placeholder').innerHTML = data;
+        // Re-execute any scripts in the loaded content
+        const scripts = document.getElementById('navbar-placeholder').getElementsByTagName('script');
+        for (let script of scripts) {
+          eval(script.innerHTML);
+        }
+      })
+      .catch(error => console.error('Error loading navbar:', error));
+  </script>
+  
   <div class="header">
     <h1>Community Polls</h1>
     <p>Vote on topics that matter to you</p>
