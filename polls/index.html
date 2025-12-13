@@ -1,882 +1,888 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Community Polls</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-        background: #f9f9f9;
-        color: #1c1c1c;
-        min-height: 100vh;
-      }
-
-      .header {
-        padding: 20px 30px;
-        color: white;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        background: linear-gradient(90deg, #1e90ff, #4a86e8);
-      }
-
-      .header h1 {
-        font-size: 28px;
-        margin-bottom: 5px;
-      }
-
-      .header p {
-        opacity: 0.9;
-        font-size: 14px;
-      }
-
-      .container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 30px;
-      }
-
-      .auth-card {
-        background: white;
-        border-radius: 12px;
-        padding: 40px;
-        max-width: 450px;
-        margin: 60px auto;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-      }
-
-      .auth-card h2 {
-        margin-bottom: 25px;
-        text-align: center;
-      }
-
-      .input-group {
-        margin-bottom: 20px;
-      }
-
-      .input-group input,
-      .input-group textarea {
-        width: 100%;
-        padding: 14px 18px;
-        border: 1px solid #e0e0e0;
-        border-radius: 10px;
-        font-size: 15px;
-        background: #f9f9f9;
-        font-family: inherit;
-      }
-
-      .input-group input:focus,
-      .input-group textarea:focus {
-        outline: none;
-        border-color: #1e90ff;
-        background: white;
-      }
-
-      .btn {
-        width: 100%;
-        padding: 14px;
-        background: #1e90ff;
-        color: white;
-        border: none;
-        border-radius: 10px;
-        font-size: 16px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s;
-      }
-
-      .btn:hover {
-        background: #1873cc;
-        transform: translateY(-1px);
-      }
-
-      .btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: none;
-      }
-
-      .btn-secondary {
-        background: #4a86e8;
-      }
-
-      .btn-danger {
-        background: #ef4444;
-        padding: 10px 20px;
-        width: auto;
-      }
-
-      .toggle-link {
-        text-align: center;
-        margin-top: 20px;
-        color: #1e90ff;
-        cursor: pointer;
-        text-decoration: underline;
-      }
-
-      .message {
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 20px;
-        font-size: 14px;
-      }
-
-      .message-error {
-        background: #fff1f2;
-        color: #ef4444;
-        border: 1px solid #fee2e2;
-      }
-
-      .message-success {
-        background: #ecfdf5;
-        color: #047857;
-        border: 1px solid #d1fae5;
-      }
-
-      .top-bar {
-        background: white;
-        padding: 15px 30px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid #e0e0e0;
-      }
-
-      .user-info {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .user-avatar {
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #4a86e8, #1e90ff);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-        font-size: 16px;
-      }
-
-      .btn-group {
-        display: flex;
-        gap: 10px;
-      }
-
-      .main-content {
-        display: grid;
-        grid-template-columns: 350px 1fr;
-        gap: 30px;
-        margin-top: 30px;
-      }
-
-      .polls-list {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        height: fit-content;
-      }
-
-      .polls-list h3 {
-        color: #1e90ff;
-        margin-bottom: 20px;
-        font-size: 18px;
-      }
-
-      .poll-item {
-        padding: 16px;
-        border: 1px solid #e0e0e0;
-        border-radius: 10px;
-        margin-bottom: 12px;
-        cursor: pointer;
-        transition: all 0.2s;
-      }
-
-      .poll-item:hover {
-        border-color: #1e90ff;
-        background: #f0f8ff;
-      }
-
-      .poll-item.active {
-        background: #e3f2fd;
-        border-color: #1e90ff;
-        border-width: 2px;
-      }
-
-      .poll-item h4 {
-        margin-bottom: 8px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 8px;
-      }
-
-      .poll-badge {
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 11px;
-        font-weight: 500;
-        white-space: nowrap;
-      }
-
-      .badge-ended {
-        background: #ef4444;
-        color: white;
-      }
-
-      .badge-voted {
-        background: #10b981;
-        color: white;
-      }
-
-      .poll-desc {
-        font-size: 14px;
-        color: #666;
-        margin-bottom: 8px;
-      }
-
-      .poll-meta {
-        font-size: 12px;
-        color: #999;
-      }
-
-      .poll-detail {
-        background: white;
-        border-radius: 12px;
-        padding: 30px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      }
-
-      .empty-state {
-        text-align: center;
-        padding: 60px 20px;
-        color: #666;
-      }
-
-      .options-list {
-        margin: 30px 0;
-      }
-
-      .option-item {
-        padding: 16px;
-        border: 2px solid #e0e0e0;
-        border-radius: 10px;
-        margin-bottom: 12px;
-        cursor: pointer;
-        transition: all 0.2s;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .option-item:hover {
-        border-color: #1e90ff;
-      }
-
-      .option-item.selected {
-        border-color: #1e90ff;
-        background: #e3f2fd;
-      }
-
-      .radio {
-        width: 20px;
-        height: 20px;
-        border-radius: 50%;
-        border: 2px solid #1e90ff;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-      }
-
-      .radio-inner {
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background: #1e90ff;
-      }
-
-      .result-item {
-        margin-bottom: 20px;
-      }
-
-      .result-header {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
-        font-size: 14px;
-      }
-
-      .result-bar {
-        height: 30px;
-        background: #e0e0e0;
-        border-radius: 8px;
-        overflow: hidden;
-      }
-
-      .result-bar-fill {
-        height: 100%;
-        background: linear-gradient(135deg, #1e90ff, #4a86e8);
-        transition: width 0.5s ease;
-      }
-
-      .winner-box {
-        background: linear-gradient(135deg, #fef3c7, #fde68a);
-        padding: 20px;
-        border-radius: 12px;
-        margin-top: 30px;
-        text-align: center;
-        border: 2px solid #fbbf24;
-      }
-
-      .winner-box h4 {
-        margin-bottom: 10px;
-      }
-
-      .create-poll-form {
-        background: white;
-        border-radius: 12px;
-        padding: 30px;
-        margin-bottom: 30px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      }
-
-      .create-poll-form h3 {
-        margin-bottom: 20px;
-      }
-
-      .option-input-group {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 10px;
-      }
-
-      .option-input-group input {
-        flex: 1;
-      }
-
-      .btn-small {
-        padding: 10px 15px;
-        width: auto;
-      }
-
-      .btn-remove {
-        background: #ef4444;
-        width: 40px;
-        padding: 10px;
-      }
-
-      .label {
-        display: block;
-        margin-bottom: 8px;
-        color: #1c1c1c;
-        font-weight: 500;
-      }
-
-      .already-voted,
-      .poll-ended-notice {
-        padding: 16px;
-        border-radius: 10px;
-        margin-bottom: 20px;
-        border: 1px solid;
-      }
-
-      .already-voted {
-        background: #ecfdf5;
-        border-color: #d1fae5;
-        color: #047857;
-      }
-
-      .poll-ended-notice {
-        background: #fff1f2;
-        border-color: #fee2e2;
-        color: #ef4444;
-      }
-
-      .hidden {
-        display: none;
-      }
-
-      @media (max-width: 768px) {
-        .main-content {
-          grid-template-columns: 1fr;
-        }
-
-        .top-bar {
-          flex-direction: column;
-          gap: 15px;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="navbar-placeholder"></div>
-    <script>
-      fetch("https://allforoneserver.github.io/navigation.html")
-        .then((response) => response.text())
-        .then((data) => {
-          document.getElementById("navbar-placeholder").innerHTML = data;
-          // Re-execute any scripts in the loaded content (try/catch to avoid breaking)
-          const scripts = document.getElementById("navbar-placeholder").getElementsByTagName("script");
-          for (let script of scripts) {
-            try {
-              (0, eval)(script.innerHTML);
-            } catch (e) {
-              console.warn("Navbar script error", e);
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Community Polls</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
             }
-          }
-        })
-        .catch((error) => console.error("Error loading navbar:", error));
-    </script>
 
-    <div class="header">
-      <h1>Community Polls</h1>
-      <p>Vote on topics that matter to you</p>
-    </div>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
+                    sans-serif;
+                background: #f9f9f9;
+                color: #1c1c1c;
+                min-height: 100vh;
+            }
 
-    <!-- Auth Screen -->
-    <div id="authScreen">
-      <div class="auth-card">
-        <h2 id="authTitle">Welcome Back</h2>
-        <div id="authMessage" class="hidden"></div>
+            .header {
+                padding: 20px 30px;
+                color: white;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                background: linear-gradient(90deg, #1e90ff, #4a86e8);
+            }
 
-        <form id="authForm">
-          <div id="displayNameGroup" class="input-group hidden">
-            <input type="text" id="displayNameInput" placeholder="Display Name" />
-          </div>
+            .header h1 {
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
 
-          <div class="input-group">
-            <input type="email" id="emailInput" placeholder="Email" required />
-          </div>
+            .header p {
+                opacity: 0.9;
+                font-size: 14px;
+            }
 
-          <div class="input-group">
-            <input type="password" id="passwordInput" placeholder="Password" required />
-          </div>
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                padding: 30px;
+            }
 
-          <button type="submit" class="btn" id="authSubmitBtn">Log In</button>
+            .auth-card {
+                background: white;
+                border-radius: 12px;
+                padding: 40px;
+                max-width: 450px;
+                margin: 60px auto;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
 
-          <div class="toggle-link" id="authToggle">Need an account? Sign up</div>
-        </form>
-      </div>
-    </div>
+            .auth-card h2 {
+                margin-bottom: 25px;
+                text-align: center;
+            }
 
-    <!-- Pending Approval Screen -->
-    <div id="pendingScreen" class="hidden">
-      <div class="auth-card">
-        <h2>Account Pending Approval</h2>
-        <p style="margin: 20px 0; text-align: center; color: #666">
-          Your account has been created and is awaiting approval from an administrator. You'll be able to access the
-          polls once your account is approved.
-        </p>
-        <button class="btn btn-danger" onclick="logout()">Back to Login</button>
-      </div>
-    </div>
+            .input-group {
+                margin-bottom: 20px;
+            }
 
-    <!-- Main App Screen -->
-    <div id="mainScreen" class="hidden">
-      <div class="top-bar">
-        <div class="user-info">
-          <div class="user-avatar" id="userAvatar">U</div>
-          <span id="userName">User</span>
+            .input-group input,
+            .input-group textarea {
+                width: 100%;
+                padding: 14px 18px;
+                border: 1px solid #e0e0e0;
+                border-radius: 10px;
+                font-size: 15px;
+                background: #f9f9f9;
+                font-family: inherit;
+            }
+
+            .input-group input:focus,
+            .input-group textarea:focus {
+                outline: none;
+                border-color: #1e90ff;
+                background: white;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 14px;
+                background: #1e90ff;
+                color: white;
+                border: none;
+                border-radius: 10px;
+                font-size: 16px;
+                font-weight: 500;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .btn:hover {
+                background: #1873cc;
+                transform: translateY(-1px);
+            }
+
+            .btn:disabled {
+                opacity: 0.5;
+                cursor: not-allowed;
+                transform: none;
+            }
+
+            .btn-secondary {
+                background: #4a86e8;
+            }
+
+            .btn-danger {
+                background: #ef4444;
+                padding: 10px 20px;
+                width: auto;
+            }
+
+            .toggle-link {
+                text-align: center;
+                margin-top: 20px;
+                color: #1e90ff;
+                cursor: pointer;
+                text-decoration: underline;
+            }
+
+            .message {
+                padding: 12px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                font-size: 14px;
+            }
+
+            .message-error {
+                background: #fff1f2;
+                color: #ef4444;
+                border: 1px solid #fee2e2;
+            }
+
+            .message-success {
+                background: #ecfdf5;
+                color: #047857;
+                border: 1px solid #d1fae5;
+            }
+
+            .top-bar {
+                background: white;
+                padding: 15px 30px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #e0e0e0;
+            }
+
+            .user-info {
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .user-avatar {
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: linear-gradient(135deg, #4a86e8, #1e90ff);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 600;
+                font-size: 16px;
+            }
+
+            .btn-group {
+                display: flex;
+                gap: 10px;
+            }
+
+            .main-content {
+                display: grid;
+                grid-template-columns: 350px 1fr;
+                gap: 30px;
+                margin-top: 30px;
+            }
+
+            .polls-list {
+                background: white;
+                border-radius: 12px;
+                padding: 20px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+                height: fit-content;
+            }
+
+            .polls-list h3 {
+                color: #1e90ff;
+                margin-bottom: 20px;
+                font-size: 18px;
+            }
+
+            .poll-item {
+                padding: 16px;
+                border: 1px solid #e0e0e0;
+                border-radius: 10px;
+                margin-bottom: 12px;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+
+            .poll-item:hover {
+                border-color: #1e90ff;
+                background: #f0f8ff;
+            }
+
+            .poll-item.active {
+                background: #e3f2fd;
+                border-color: #1e90ff;
+                border-width: 2px;
+            }
+
+            .poll-item h4 {
+                margin-bottom: 8px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .poll-badge {
+                padding: 4px 8px;
+                border-radius: 4px;
+                font-size: 11px;
+                font-weight: 500;
+                white-space: nowrap;
+            }
+
+            .badge-ended {
+                background: #ef4444;
+                color: white;
+            }
+
+            .badge-voted {
+                background: #10b981;
+                color: white;
+            }
+
+            .poll-desc {
+                font-size: 14px;
+                color: #666;
+                margin-bottom: 8px;
+            }
+
+            .poll-meta {
+                font-size: 12px;
+                color: #999;
+            }
+
+            .poll-detail {
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+
+            .empty-state {
+                text-align: center;
+                padding: 60px 20px;
+                color: #666;
+            }
+
+            .options-list {
+                margin: 30px 0;
+            }
+
+            .option-item {
+                padding: 16px;
+                border: 2px solid #e0e0e0;
+                border-radius: 10px;
+                margin-bottom: 12px;
+                cursor: pointer;
+                transition: all 0.2s;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+            }
+
+            .option-item:hover {
+                border-color: #1e90ff;
+            }
+
+            .option-item.selected {
+                border-color: #1e90ff;
+                background: #e3f2fd;
+            }
+
+            .radio {
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                border: 2px solid #1e90ff;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+            }
+
+            .radio-inner {
+                width: 12px;
+                height: 12px;
+                border-radius: 50%;
+                background: #1e90ff;
+            }
+
+            .result-item {
+                margin-bottom: 20px;
+            }
+
+            .result-header {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 8px;
+                font-size: 14px;
+            }
+
+            .result-bar {
+                height: 30px;
+                background: #e0e0e0;
+                border-radius: 8px;
+                overflow: hidden;
+            }
+
+            .result-bar-fill {
+                height: 100%;
+                background: linear-gradient(135deg, #1e90ff, #4a86e8);
+                transition: width 0.5s ease;
+            }
+
+            .winner-box {
+                background: linear-gradient(135deg, #fef3c7, #fde68a);
+                padding: 20px;
+                border-radius: 12px;
+                margin-top: 30px;
+                text-align: center;
+                border: 2px solid #fbbf24;
+            }
+
+            .winner-box h4 {
+                margin-bottom: 10px;
+            }
+
+            .create-poll-form {
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                margin-bottom: 30px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            }
+
+            .create-poll-form h3 {
+                margin-bottom: 20px;
+            }
+
+            .option-input-group {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+
+            .option-input-group input {
+                flex: 1;
+            }
+
+            .btn-small {
+                padding: 10px 15px;
+                width: auto;
+            }
+
+            .btn-remove {
+                background: #ef4444;
+                width: 40px;
+                padding: 10px;
+            }
+
+            .label {
+                display: block;
+                margin-bottom: 8px;
+                color: #1c1c1c;
+                font-weight: 500;
+            }
+
+            .already-voted,
+            .poll-ended-notice {
+                padding: 16px;
+                border-radius: 10px;
+                margin-bottom: 20px;
+                border: 1px solid;
+            }
+
+            .already-voted {
+                background: #ecfdf5;
+                border-color: #d1fae5;
+                color: #047857;
+            }
+
+            .poll-ended-notice {
+                background: #fff1f2;
+                border-color: #fee2e2;
+                color: #ef4444;
+            }
+
+            .hidden {
+                display: none;
+            }
+
+            @media (max-width: 768px) {
+                .main-content {
+                    grid-template-columns: 1fr;
+                }
+
+                .top-bar {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+
+        <div class="header">
+            <h1>Community Polls</h1>
+            <p>Vote on topics that matter to you</p>
+        </div>
+                <div id="navbar-placeholder"></div>
+        <script>
+            fetch("https://allforoneserver.github.io/navigation.html")
+                .then((response) => response.text())
+                .then((data) => {
+                    document.getElementById("navbar-placeholder").innerHTML = data;
+                    // Re-execute any scripts in the loaded content (try/catch to avoid breaking)
+                    const scripts = document.getElementById("navbar-placeholder").getElementsByTagName("script");
+                    for (let script of scripts) {
+                        try {
+                            (0, eval)(script.innerHTML);
+                        } catch (e) {
+                            console.warn("Navbar script error", e);
+                        }
+                    }
+                })
+                .catch((error) => console.error("Error loading navbar:", error));
+        </script>
+
+        <!-- Auth Screen -->
+        <div id="authScreen">
+            <div class="auth-card">
+                <h2 id="authTitle">Welcome Back</h2>
+                <div id="authMessage" class="hidden"></div>
+
+                <form id="authForm">
+                    <div id="displayNameGroup" class="input-group hidden">
+                        <input type="text" id="displayNameInput" placeholder="Display Name" />
+                    </div>
+
+                    <div class="input-group">
+                        <input type="email" id="emailInput" placeholder="Email" required />
+                    </div>
+
+                    <div class="input-group">
+                        <input type="password" id="passwordInput" placeholder="Password" required />
+                    </div>
+
+                    <button type="submit" class="btn" id="authSubmitBtn">Log In</button>
+
+                    <div class="toggle-link" id="authToggle">Need an account? Sign up</div>
+                </form>
+            </div>
         </div>
 
-        <div class="btn-group">
-          <button class="btn btn-small btn-secondary hidden" id="createPollBtn">+ Create Poll</button>
-          <button class="btn btn-small btn-danger" onclick="logout()">Logout</button>
-        </div>
-      </div>
-
-      <div class="container">
-        <div id="authMessage2" class="hidden"></div>
-
-        <!-- Create Poll Form -->
-        <div id="createPollForm" class="create-poll-form hidden">
-          <h3>Create New Poll</h3>
-          <form id="pollForm">
-            <div class="input-group">
-              <input type="text" id="pollTitle" placeholder="Poll Title" required />
+        <!-- Pending Approval Screen -->
+        <div id="pendingScreen" class="hidden">
+            <div class="auth-card">
+                <h2>Account Pending Approval</h2>
+                <p style="margin: 20px 0; text-align: center; color: #666">
+                    Your account has been created and is awaiting approval from an administrator. You'll be able to
+                    access the polls once your account is approved.
+                </p>
+                <button class="btn btn-danger" onclick="logout()">Back to Login</button>
             </div>
-
-            <div class="input-group">
-              <textarea id="pollDescription" placeholder="Poll Description" rows="3" required></textarea>
-            </div>
-
-            <div class="input-group">
-              <label class="label">Poll End Date:</label>
-              <input type="datetime-local" id="pollEndDate" required />
-            </div>
-
-            <label class="label">Options:</label>
-            <div id="optionsContainer"></div>
-
-            <button type="button" class="btn btn-secondary btn-small" onclick="addOption()" style="margin-bottom: 15px">
-              + Add Option
-            </button>
-
-            <button type="submit" class="btn">Create Poll</button>
-          </form>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-          <!-- Polls List -->
-          <div class="polls-list">
-            <h3>Available Polls</h3>
-            <div id="pollsList"></div>
-          </div>
+        <!-- Main App Screen -->
+        <div id="mainScreen" class="hidden">
+            <div class="top-bar">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">U</div>
+                    <span id="userName">User</span>
+                </div>
 
-          <!-- Poll Detail -->
-          <div class="poll-detail">
-            <div id="pollDetail">
-              <div class="empty-state">
-                <h3>Select a Poll</h3>
-                <p>Choose a poll from the list to vote or view results</p>
-              </div>
+                <div class="btn-group">
+                    <button class="btn btn-small btn-secondary hidden" id="createPollBtn">+ Create Poll</button>
+                    <button class="btn btn-small btn-danger" onclick="logout()">Logout</button>
+                </div>
             </div>
-          </div>
+
+            <div class="container">
+                <div id="authMessage2" class="hidden"></div>
+
+                <!-- Create Poll Form -->
+                <div id="createPollForm" class="create-poll-form hidden">
+                    <h3>Create New Poll</h3>
+                    <form id="pollForm">
+                        <div class="input-group">
+                            <input type="text" id="pollTitle" placeholder="Poll Title" required />
+                        </div>
+
+                        <div class="input-group">
+                            <textarea id="pollDescription" placeholder="Poll Description" rows="3" required></textarea>
+                        </div>
+
+                        <div class="input-group">
+                            <label class="label">Poll End Date:</label>
+                            <input type="datetime-local" id="pollEndDate" required />
+                        </div>
+
+                        <label class="label">Options:</label>
+                        <div id="optionsContainer"></div>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary btn-small"
+                            onclick="addOption()"
+                            style="margin-bottom: 15px">
+                            + Add Option
+                        </button>
+
+                        <button type="submit" class="btn">Create Poll</button>
+                    </form>
+                </div>
+
+                <!-- Main Content -->
+                <div class="main-content">
+                    <!-- Polls List -->
+                    <div class="polls-list">
+                        <h3>Available Polls</h3>
+                        <div id="pollsList"></div>
+                    </div>
+
+                    <!-- Poll Detail -->
+                    <div class="poll-detail">
+                        <div id="pollDetail">
+                            <div class="empty-state">
+                                <h3>Select a Poll</h3>
+                                <p>Choose a poll from the list to vote or view results</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Firebase SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+        <!-- Firebase SDKs -->
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 
-    <script>
-      // Firebase Configuration
-      const firebaseConfig = {
-        apiKey: "AIzaSyDzQlAqhCeytCLEYafboYGpFu6pY3Kv9WE",
-        authDomain: "allforonemedia-9a7d8.firebaseapp.com",
-        databaseURL: "https://allforonemedia-9a7d8-default-rtdb.firebaseio.com",
-        projectId: "allforonemedia-9a7d8",
-        storageBucket: "allforonemedia-9a7d8.firebasestorage.app",
-        messagingSenderId: "892787060584",
-        appId: "1:892787060584:web:e65609062592f9ba96f0dd",
-        measurementId: "G-JSXKLMBRLC"
-      };
+        <script>
+            // Firebase Configuration
+            const firebaseConfig = {
+                apiKey: "AIzaSyDzQlAqhCeytCLEYafboYGpFu6pY3Kv9WE",
+                authDomain: "allforonemedia-9a7d8.firebaseapp.com",
+                databaseURL: "https://allforonemedia-9a7d8-default-rtdb.firebaseio.com",
+                projectId: "allforonemedia-9a7d8",
+                storageBucket: "allforonemedia-9a7d8.firebasestorage.app",
+                messagingSenderId: "892787060584",
+                appId: "1:892787060584:web:e65609062592f9ba96f0dd",
+                measurementId: "G-JSXKLMBRLC"
+            };
 
-      firebase.initializeApp(firebaseConfig);
-      const auth = firebase.auth();
-      const db = firebase.firestore();
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
 
-      const ADMIN_EMAIL = "kaioliver111@gmail.com";
+            const ADMIN_EMAIL = "kaioliver111@gmail.com";
 
-      // State
-      let currentUser = null;
-      let userApproved = false;
-      let isSignupMode = false;
-      let polls = [];
-      let selectedPoll = null;
-      let selectedOption = "";
-      let userVotes = {};
-      let viewingResults = false;
+            // State
+            let currentUser = null;
+            let userApproved = false;
+            let isSignupMode = false;
+            let polls = [];
+            let selectedPoll = null;
+            let selectedOption = "";
+            let userVotes = {};
+            let viewingResults = false;
 
-      // DOM Elements
-      const authScreen = document.getElementById("authScreen");
-      const pendingScreen = document.getElementById("pendingScreen");
-      const mainScreen = document.getElementById("mainScreen");
-      const authForm = document.getElementById("authForm");
-      const authTitle = document.getElementById("authTitle");
-      const authToggle = document.getElementById("authToggle");
-      const authSubmitBtn = document.getElementById("authSubmitBtn");
-      const displayNameGroup = document.getElementById("displayNameGroup");
-      const createPollBtn = document.getElementById("createPollBtn");
-      const createPollForm = document.getElementById("createPollForm");
-      const pollForm = document.getElementById("pollForm");
-      const optionsContainer = document.getElementById("optionsContainer");
-      const authMessageEl = document.getElementById("authMessage");
-      const authMessage2El = document.getElementById("authMessage2");
-      const userAvatarEl = document.getElementById("userAvatar");
-      const userNameEl = document.getElementById("userName");
-      const pollsListEl = document.getElementById("pollsList");
-      const pollDetailEl = document.getElementById("pollDetail");
+            // DOM Elements
+            const authScreen = document.getElementById("authScreen");
+            const pendingScreen = document.getElementById("pendingScreen");
+            const mainScreen = document.getElementById("mainScreen");
+            const authForm = document.getElementById("authForm");
+            const authTitle = document.getElementById("authTitle");
+            const authToggle = document.getElementById("authToggle");
+            const authSubmitBtn = document.getElementById("authSubmitBtn");
+            const displayNameGroup = document.getElementById("displayNameGroup");
+            const createPollBtn = document.getElementById("createPollBtn");
+            const createPollForm = document.getElementById("createPollForm");
+            const pollForm = document.getElementById("pollForm");
+            const optionsContainer = document.getElementById("optionsContainer");
+            const authMessageEl = document.getElementById("authMessage");
+            const authMessage2El = document.getElementById("authMessage2");
+            const userAvatarEl = document.getElementById("userAvatar");
+            const userNameEl = document.getElementById("userName");
+            const pollsListEl = document.getElementById("pollsList");
+            const pollDetailEl = document.getElementById("pollDetail");
 
-      // Utility: show messages
-      function showMessage(elId, text, type = "success", timeout = 5000) {
-        const el = document.getElementById(elId);
-        if (!el) return;
-        el.innerHTML = `<div class="message ${type === "error" ? "message-error" : "message-success"}">${escapeHtml(text)}</div>`;
-        el.classList.remove("hidden");
-        if (timeout > 0) {
-          setTimeout(() => {
-            clearMessage(elId);
-          }, timeout);
-        }
-      }
-      function clearMessage(elId) {
-        const el = document.getElementById(elId);
-        if (!el) return;
-        el.innerHTML = "";
-        el.classList.add("hidden");
-      }
-      function escapeHtml(unsafe) {
-        if (typeof unsafe !== "string") return unsafe;
-        return unsafe
-          .replace(/&/g, "&amp;")
-          .replace(/</g, "&lt;")
-          .replace(/>/g, "&gt;")
-          .replace(/"/g, "&quot;")
-          .replace(/'/g, "&#039;");
-      }
+            // Utility: show messages
+            function showMessage(elId, text, type = "success", timeout = 5000) {
+                const el = document.getElementById(elId);
+                if (!el) return;
+                el.innerHTML = `<div class="message ${type === "error" ? "message-error" : "message-success"}">${escapeHtml(text)}</div>`;
+                el.classList.remove("hidden");
+                if (timeout > 0) {
+                    setTimeout(() => {
+                        clearMessage(elId);
+                    }, timeout);
+                }
+            }
+            function clearMessage(elId) {
+                const el = document.getElementById(elId);
+                if (!el) return;
+                el.innerHTML = "";
+                el.classList.add("hidden");
+            }
+            function escapeHtml(unsafe) {
+                if (typeof unsafe !== "string") return unsafe;
+                return unsafe
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;");
+            }
 
-      // Initialize options input for create poll
-      function addOption() {
-        const div = document.createElement("div");
-        div.className = "option-input-group";
-        const count = optionsContainer.children.length + 1;
-        div.innerHTML = `
+            // Initialize options input for create poll
+            function addOption() {
+                const div = document.createElement("div");
+                div.className = "option-input-group";
+                const count = optionsContainer.children.length + 1;
+                div.innerHTML = `
         <input type="text" class="option-input" placeholder="Option ${count}">
         ${optionsContainer.children.length >= 2 ? '<button type="button" class="btn btn-remove" onclick="this.parentElement.remove()">×</button>' : ""}
       `;
-        optionsContainer.appendChild(div);
-      }
-      // Start with two inputs
-      addOption();
-      addOption();
-
-      // Auth state listener
-      auth.onAuthStateChanged(async (user) => {
-        if (user) {
-          currentUser = user;
-          // update UI elements for user while we check approval
-          updateUserInfoUI();
-
-          try {
-            const userDoc = await db.collection("MessagesUsers").doc(user.uid).get();
-            if (userDoc.exists && userDoc.data().approved === true) {
-              userApproved = true;
-              showMainScreen();
-              loadPolls();
-              loadUserVotes();
-            } else {
-              userApproved = false;
-              showPendingScreen();
-              // Listen for approval changes
-              db.collection("MessagesUsers")
-                .doc(user.uid)
-                .onSnapshot((doc) => {
-                  if (doc.exists() && doc.data().approved === true) {
-                    userApproved = true;
-                    showMainScreen();
-                    loadPolls();
-                    loadUserVotes();
-                  }
-                });
+                optionsContainer.appendChild(div);
             }
-          } catch (err) {
-            console.error("Error checking approval", err);
-            showAuthScreen();
-          }
-        } else {
-          currentUser = null;
-          userApproved = false;
-          showAuthScreen();
-        }
-      });
+            // Start with two inputs
+            addOption();
+            addOption();
 
-      function updateUserInfoUI() {
-        if (!currentUser) return;
-        const name = currentUser.displayName || (currentUser.email ? currentUser.email.split("@")[0] : "User");
-        userNameEl.textContent = name;
-        userAvatarEl.textContent = (name[0] || "U").toUpperCase();
-        // Show create poll button only for admin
-        if (currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-          createPollBtn.classList.remove("hidden");
-        } else {
-          createPollBtn.classList.add("hidden");
-          createPollForm.classList.add("hidden");
-        }
-      }
+            // Auth state listener
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    currentUser = user;
+                    // update UI elements for user while we check approval
+                    updateUserInfoUI();
 
-      // Toggle auth mode
-      authToggle.addEventListener("click", () => {
-        isSignupMode = !isSignupMode;
-        if (isSignupMode) {
-          authTitle.textContent = "Create Your Account";
-          authSubmitBtn.textContent = "Sign Up";
-          authToggle.textContent = "Already have an account? Log in";
-          displayNameGroup.classList.remove("hidden");
-        } else {
-          authTitle.textContent = "Welcome Back";
-          authSubmitBtn.textContent = "Log In";
-          authToggle.textContent = "Need an account? Sign up";
-          displayNameGroup.classList.add("hidden");
-        }
-        clearMessage("authMessage");
-      });
-
-      // Auth form submit
-      authForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const email = document.getElementById("emailInput").value;
-        const password = document.getElementById("passwordInput").value;
-        const displayName = document.getElementById("displayNameInput").value;
-
-        try {
-          if (isSignupMode) {
-            if (!displayName) {
-              showMessage("authMessage", "Please enter a display name", "error");
-              return;
-            }
-
-            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-            await userCredential.user.updateProfile({ displayName });
-
-            await db.collection("MessagesUsers").doc(userCredential.user.uid).set({
-              uid: userCredential.user.uid,
-              displayName: displayName,
-              email: email,
-              createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-              lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-              approved: false
+                    try {
+                        const userDoc = await db.collection("MessagesUsers").doc(user.uid).get();
+                        if (userDoc.exists && userDoc.data().approved === true) {
+                            userApproved = true;
+                            showMainScreen();
+                            loadPolls();
+                            loadUserVotes();
+                        } else {
+                            userApproved = false;
+                            showPendingScreen();
+                            // Listen for approval changes
+                            db.collection("MessagesUsers")
+                                .doc(user.uid)
+                                .onSnapshot((doc) => {
+                                    if (doc.exists() && doc.data().approved === true) {
+                                        userApproved = true;
+                                        showMainScreen();
+                                        loadPolls();
+                                        loadUserVotes();
+                                    }
+                                });
+                        }
+                    } catch (err) {
+                        console.error("Error checking approval", err);
+                        showAuthScreen();
+                    }
+                } else {
+                    currentUser = null;
+                    userApproved = false;
+                    showAuthScreen();
+                }
             });
 
-            showMessage("authMessage", "Account created! Awaiting approval...", "success");
-          } else {
-            await auth.signInWithEmailAndPassword(email, password);
-          }
-        } catch (error) {
-          // Firebase errors can be verbose; show a shorter message
-          const msg = error && error.message ? error.message.replace("Firebase: ", "") : "Authentication error";
-          showMessage("authMessage", msg, "error");
-        }
-      });
-
-      // Create poll button toggle (admin only)
-      createPollBtn.addEventListener("click", () => {
-        createPollForm.classList.toggle("hidden");
-      });
-
-      // Poll form submit
-      pollForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-
-        const title = document.getElementById("pollTitle").value.trim();
-        const description = document.getElementById("pollDescription").value.trim();
-        const endDate = document.getElementById("pollEndDate").value;
-        const options = Array.from(document.querySelectorAll(".option-input"))
-          .map((input) => input.value.trim())
-          .filter((val) => val !== "");
-
-        if (!title) {
-          showMessage("authMessage2", "Please provide a poll title", "error");
-          return;
-        }
-
-        if (!endDate) {
-          showMessage("authMessage2", "Please set an end date", "error");
-          return;
-        }
-
-        if (options.length < 2) {
-          showMessage("authMessage2", "Please provide at least 2 options", "error");
-          return;
-        }
-
-        try {
-          const votes = {};
-          options.forEach((opt) => {
-            votes[opt] = [];
-          });
-
-          await db.collection("Polls").add({
-            title,
-            description,
-            options,
-            votes,
-            endDate: new Date(endDate).toISOString(),
-            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-            createdBy: currentUser.uid,
-            active: true
-          });
-
-          showMessage("authMessage2", "Poll created successfully!", "success");
-          createPollForm.classList.add("hidden");
-          pollForm.reset();
-          optionsContainer.innerHTML = "";
-          addOption();
-          addOption();
-        } catch (error) {
-          console.error("Error creating poll:", error);
-          showMessage("authMessage2", "Error creating poll: " + (error.message || error), "error");
-        }
-      });
-
-      // Load polls (real-time)
-      function loadPolls() {
-        db.collection("Polls")
-          .orderBy("createdAt", "desc")
-          .onSnapshot(
-            (snapshot) => {
-              polls = [];
-              snapshot.forEach((doc) => {
-                polls.push({ id: doc.id, ...doc.data() });
-              });
-              renderPollsList();
-              if (selectedPoll) {
-                const updated = polls.find((p) => p.id === selectedPoll.id);
-                if (updated) {
-                  selectedPoll = updated;
-                  renderPollDetail();
+            function updateUserInfoUI() {
+                if (!currentUser) return;
+                const name = currentUser.displayName || (currentUser.email ? currentUser.email.split("@")[0] : "User");
+                userNameEl.textContent = name;
+                userAvatarEl.textContent = (name[0] || "U").toUpperCase();
+                // Show create poll button only for admin
+                if (currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                    createPollBtn.classList.remove("hidden");
+                } else {
+                    createPollBtn.classList.add("hidden");
+                    createPollForm.classList.add("hidden");
                 }
-              }
-            },
-            (err) => {
-              console.error("Error loading polls:", err);
             }
-          );
-      }
 
-      // Load user votes (real-time)
-      function loadUserVotes() {
-        if (!currentUser) return;
-        db.collection("UserVotes")
-          .doc(currentUser.uid)
-          .onSnapshot(
-            (doc) => {
-              if (doc.exists()) {
-                userVotes = doc.data().votes || {};
-              } else {
-                userVotes = {};
-              }
-              renderPollsList();
-              renderPollDetail();
-            },
-            (err) => {
-              console.error("Error loading user votes:", err);
+            // Toggle auth mode
+            authToggle.addEventListener("click", () => {
+                isSignupMode = !isSignupMode;
+                if (isSignupMode) {
+                    authTitle.textContent = "Create Your Account";
+                    authSubmitBtn.textContent = "Sign Up";
+                    authToggle.textContent = "Already have an account? Log in";
+                    displayNameGroup.classList.remove("hidden");
+                } else {
+                    authTitle.textContent = "Welcome Back";
+                    authSubmitBtn.textContent = "Log In";
+                    authToggle.textContent = "Need an account? Sign up";
+                    displayNameGroup.classList.add("hidden");
+                }
+                clearMessage("authMessage");
+            });
+
+            // Auth form submit
+            authForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const email = document.getElementById("emailInput").value;
+                const password = document.getElementById("passwordInput").value;
+                const displayName = document.getElementById("displayNameInput").value;
+
+                try {
+                    if (isSignupMode) {
+                        if (!displayName) {
+                            showMessage("authMessage", "Please enter a display name", "error");
+                            return;
+                        }
+
+                        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                        await userCredential.user.updateProfile({ displayName });
+
+                        await db.collection("MessagesUsers").doc(userCredential.user.uid).set({
+                            uid: userCredential.user.uid,
+                            displayName: displayName,
+                            email: email,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                            approved: false
+                        });
+
+                        showMessage("authMessage", "Account created! Awaiting approval...", "success");
+                    } else {
+                        await auth.signInWithEmailAndPassword(email, password);
+                    }
+                } catch (error) {
+                    // Firebase errors can be verbose; show a shorter message
+                    const msg =
+                        error && error.message ? error.message.replace("Firebase: ", "") : "Authentication error";
+                    showMessage("authMessage", msg, "error");
+                }
+            });
+
+            // Create poll button toggle (admin only)
+            createPollBtn.addEventListener("click", () => {
+                createPollForm.classList.toggle("hidden");
+            });
+
+            // Poll form submit
+            pollForm.addEventListener("submit", async (e) => {
+                e.preventDefault();
+
+                const title = document.getElementById("pollTitle").value.trim();
+                const description = document.getElementById("pollDescription").value.trim();
+                const endDate = document.getElementById("pollEndDate").value;
+                const options = Array.from(document.querySelectorAll(".option-input"))
+                    .map((input) => input.value.trim())
+                    .filter((val) => val !== "");
+
+                if (!title) {
+                    showMessage("authMessage2", "Please provide a poll title", "error");
+                    return;
+                }
+
+                if (!endDate) {
+                    showMessage("authMessage2", "Please set an end date", "error");
+                    return;
+                }
+
+                if (options.length < 2) {
+                    showMessage("authMessage2", "Please provide at least 2 options", "error");
+                    return;
+                }
+
+                try {
+                    const votes = {};
+                    options.forEach((opt) => {
+                        votes[opt] = [];
+                    });
+
+                    await db.collection("Polls").add({
+                        title,
+                        description,
+                        options,
+                        votes,
+                        endDate: new Date(endDate).toISOString(),
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        createdBy: currentUser.uid,
+                        active: true
+                    });
+
+                    showMessage("authMessage2", "Poll created successfully!", "success");
+                    createPollForm.classList.add("hidden");
+                    pollForm.reset();
+                    optionsContainer.innerHTML = "";
+                    addOption();
+                    addOption();
+                } catch (error) {
+                    console.error("Error creating poll:", error);
+                    showMessage("authMessage2", "Error creating poll: " + (error.message || error), "error");
+                }
+            });
+
+            // Load polls (real-time)
+            function loadPolls() {
+                db.collection("Polls")
+                    .orderBy("createdAt", "desc")
+                    .onSnapshot(
+                        (snapshot) => {
+                            polls = [];
+                            snapshot.forEach((doc) => {
+                                polls.push({ id: doc.id, ...doc.data() });
+                            });
+                            renderPollsList();
+                            if (selectedPoll) {
+                                const updated = polls.find((p) => p.id === selectedPoll.id);
+                                if (updated) {
+                                    selectedPoll = updated;
+                                    renderPollDetail();
+                                }
+                            }
+                        },
+                        (err) => {
+                            console.error("Error loading polls:", err);
+                        }
+                    );
             }
-          );
-      }
 
-      // Render polls list
-      function renderPollsList() {
-        if (!pollsListEl) return;
-        if (polls.length === 0) {
-          pollsListEl.innerHTML = '<div class="empty-state"><p>No polls available yet.</p></div>';
-          return;
-        }
+            // Load user votes (real-time)
+            function loadUserVotes() {
+                if (!currentUser) return;
+                db.collection("UserVotes")
+                    .doc(currentUser.uid)
+                    .onSnapshot(
+                        (doc) => {
+                            if (doc.exists()) {
+                                userVotes = doc.data().votes || {};
+                            } else {
+                                userVotes = {};
+                            }
+                            renderPollsList();
+                            renderPollDetail();
+                        },
+                        (err) => {
+                            console.error("Error loading user votes:", err);
+                        }
+                    );
+            }
 
-        pollsListEl.innerHTML = polls
-          .map((poll) => {
-            const ended = new Date(poll.endDate) < new Date();
-            const voted = Boolean(userVotes && userVotes[poll.id]);
-            const active = selectedPoll && selectedPoll.id === poll.id ? "active" : "";
+            // Render polls list
+            function renderPollsList() {
+                if (!pollsListEl) return;
+                if (polls.length === 0) {
+                    pollsListEl.innerHTML = '<div class="empty-state"><p>No polls available yet.</p></div>';
+                    return;
+                }
 
-            const safeTitle = escapeHtml(poll.title || "");
-            const safeDesc = escapeHtml(poll.description || "");
+                pollsListEl.innerHTML = polls
+                    .map((poll) => {
+                        const ended = new Date(poll.endDate) < new Date();
+                        const voted = Boolean(userVotes && userVotes[poll.id]);
+                        const active = selectedPoll && selectedPoll.id === poll.id ? "active" : "";
 
-            return `
+                        const safeTitle = escapeHtml(poll.title || "");
+                        const safeDesc = escapeHtml(poll.description || "");
+
+                        return `
           <div class="poll-item ${active}" onclick="selectPoll('${poll.id}')">
             <h4>
               ${safeTitle}
@@ -887,46 +893,46 @@
             <div class="poll-meta">Ends: ${new Date(poll.endDate).toLocaleString()}</div>
           </div>
         `;
-          })
-          .join("");
-      }
+                    })
+                    .join("");
+            }
 
-      // Select poll
-      function selectPoll(pollId) {
-        selectedPoll = polls.find((p) => p.id === pollId);
-        selectedOption = userVotes[pollId] || "";
-        viewingResults = false;
-        renderPollDetail();
-        renderPollsList();
-      }
+            // Select poll
+            function selectPoll(pollId) {
+                selectedPoll = polls.find((p) => p.id === pollId);
+                selectedOption = userVotes[pollId] || "";
+                viewingResults = false;
+                renderPollDetail();
+                renderPollsList();
+            }
 
-      // Render poll detail
-      function renderPollDetail() {
-        if (!pollDetailEl) return;
+            // Render poll detail
+            function renderPollDetail() {
+                if (!pollDetailEl) return;
 
-        if (!selectedPoll) {
-          pollDetailEl.innerHTML = `
+                if (!selectedPoll) {
+                    pollDetailEl.innerHTML = `
           <div class="empty-state">
             <h3>Select a Poll</h3>
             <p>Choose a poll from the list to vote or view results</p>
           </div>
         `;
-          return;
-        }
+                    return;
+                }
 
-        if (viewingResults) {
-          renderResults();
-          return;
-        }
+                if (viewingResults) {
+                    renderResults();
+                    return;
+                }
 
-        const ended = new Date(selectedPoll.endDate) < new Date();
-        const voted = userVotes && userVotes[selectedPoll.id];
+                const ended = new Date(selectedPoll.endDate) < new Date();
+                const voted = userVotes && userVotes[selectedPoll.id];
 
-        const safeTitle = escapeHtml(selectedPoll.title || "");
-        const safeDesc = escapeHtml(selectedPoll.description || "");
+                const safeTitle = escapeHtml(selectedPoll.title || "");
+                const safeDesc = escapeHtml(selectedPoll.description || "");
 
-        if (voted) {
-          pollDetailEl.innerHTML = `
+                if (voted) {
+                    pollDetailEl.innerHTML = `
           <h2>${safeTitle}</h2>
           <p class="poll-desc" style="margin: 15px 0;">${safeDesc}</p>
           <div class="already-voted">
@@ -934,11 +940,11 @@
           </div>
           <button class="btn" onclick="viewResults()">View Results</button>
         `;
-          return;
-        }
+                    return;
+                }
 
-        if (ended) {
-          pollDetailEl.innerHTML = `
+                if (ended) {
+                    pollDetailEl.innerHTML = `
           <h2>${safeTitle}</h2>
           <p class="poll-desc" style="margin: 15px 0;">${safeDesc}</p>
           <div class="poll-ended-notice">
@@ -946,11 +952,11 @@
           </div>
           <button class="btn" onclick="viewResults()">View Results</button>
         `;
-          return;
-        }
+                    return;
+                }
 
-        // Voting UI
-        pollDetailEl.innerHTML = `
+                // Voting UI
+                pollDetailEl.innerHTML = `
         <h2>${safeTitle}</h2>
         <p class="poll-desc" style="margin: 15px 0;">${safeDesc}</p>
         <h4 style="margin: 30px 0 15px;">Choose your option:</h4>
@@ -959,11 +965,11 @@
         <button class="btn btn-secondary" onclick="viewResults()" style="margin-top: 10px;">View Current Results</button>
       `;
 
-        const optionsListContainer = document.getElementById("optionsListContainer");
-        if (optionsListContainer) {
-          optionsListContainer.innerHTML = selectedPoll.options
-            .map(
-              (opt) => `
+                const optionsListContainer = document.getElementById("optionsListContainer");
+                if (optionsListContainer) {
+                    optionsListContainer.innerHTML = selectedPoll.options
+                        .map(
+                            (opt) => `
           <div class="option-item ${selectedOption === opt ? "selected" : ""}" data-opt="${escapeHtml(opt)}" onclick="selectOption('${escapeHtml(opt)}')">
             <div class="radio">
               ${selectedOption === opt ? '<div class="radio-inner"></div>' : ""}
@@ -971,128 +977,130 @@
             <span>${escapeHtml(opt)}</span>
           </div>
         `
-            )
-            .join("");
-        }
+                        )
+                        .join("");
+                }
 
-        // Wire submit button
-        const submitBtn = document.getElementById("submitVoteBtn");
-        if (submitBtn) {
-          submitBtn.onclick = submitVote;
-        }
-      }
-
-      // Select option
-      function selectOption(option) {
-        selectedOption = option;
-        renderPollDetail();
-      }
-
-      // Submit vote (transactional to avoid double-vote race conditions)
-      async function submitVote() {
-        if (!selectedOption || !selectedPoll || !currentUser) return;
-
-        const pollRef = db.collection("Polls").doc(selectedPoll.id);
-        const userVotesRef = db.collection("UserVotes").doc(currentUser.uid);
-
-        try {
-          await db.runTransaction(async (t) => {
-            const pollDoc = await t.get(pollRef);
-            if (!pollDoc.exists) {
-              throw new Error("Poll not found");
-            }
-            const pollData = pollDoc.data();
-            const ended = new Date(pollData.endDate) < new Date();
-            if (ended) {
-              throw new Error("This poll has already ended");
-            }
-            if (!Array.isArray(pollData.options) || !pollData.options.includes(selectedOption)) {
-              throw new Error("Selected option is invalid");
+                // Wire submit button
+                const submitBtn = document.getElementById("submitVoteBtn");
+                if (submitBtn) {
+                    submitBtn.onclick = submitVote;
+                }
             }
 
-            const userDoc = await t.get(userVotesRef);
-            const existingVotes = userDoc.exists && userDoc.data().votes ? userDoc.data().votes : {};
-            if (existingVotes && existingVotes[selectedPoll.id]) {
-              throw new Error("You have already voted on this poll!");
+            // Select option
+            function selectOption(option) {
+                selectedOption = option;
+                renderPollDetail();
             }
 
-            // Add user id to poll votes for the chosen option
-            t.update(pollRef, {
-              [`votes.${selectedOption}`]: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
-            });
+            // Submit vote (transactional to avoid double-vote race conditions)
+            async function submitVote() {
+                if (!selectedOption || !selectedPoll || !currentUser) return;
 
-            // Record user's vote
-            const newUserVotes = { ...(existingVotes || {}), [selectedPoll.id]: selectedOption };
-            t.set(userVotesRef, { votes: newUserVotes }, { merge: true });
-          });
+                const pollRef = db.collection("Polls").doc(selectedPoll.id);
+                const userVotesRef = db.collection("UserVotes").doc(currentUser.uid);
 
-          // Update local state & UI after successful transaction
-          userVotes[selectedPoll.id] = selectedOption;
-          showMessage("authMessage2", "Vote submitted successfully!", "success");
+                try {
+                    await db.runTransaction(async (t) => {
+                        const pollDoc = await t.get(pollRef);
+                        if (!pollDoc.exists) {
+                            throw new Error("Poll not found");
+                        }
+                        const pollData = pollDoc.data();
+                        const ended = new Date(pollData.endDate) < new Date();
+                        if (ended) {
+                            throw new Error("This poll has already ended");
+                        }
+                        if (!Array.isArray(pollData.options) || !pollData.options.includes(selectedOption)) {
+                            throw new Error("Selected option is invalid");
+                        }
 
-          // Refresh selectedPoll from server to show up-to-date results / counts
-          const updatedPollDoc = await pollRef.get();
-          if (updatedPollDoc.exists) {
-            selectedPoll = { id: updatedPollDoc.id, ...updatedPollDoc.data() };
-          }
-          selectedOption = "";
-          renderPollDetail();
-          renderPollsList();
-        } catch (error) {
-          const msg = error && error.message ? error.message : "Error submitting vote";
-          showMessage("authMessage2", msg, "error");
-          // Refresh user votes if the transaction failed due to existing vote
-          try {
-            const uv = await userVotesRef.get();
-            if (uv.exists()) {
-              userVotes = uv.data().votes || {};
+                        const userDoc = await t.get(userVotesRef);
+                        const existingVotes = userDoc.exists && userDoc.data().votes ? userDoc.data().votes : {};
+                        if (existingVotes && existingVotes[selectedPoll.id]) {
+                            throw new Error("You have already voted on this poll!");
+                        }
+
+                        // Add user id to poll votes for the chosen option
+                        t.update(pollRef, {
+                            [`votes.${selectedOption}`]: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
+                        });
+
+                        // Record user's vote
+                        const newUserVotes = { ...(existingVotes || {}), [selectedPoll.id]: selectedOption };
+                        t.set(userVotesRef, { votes: newUserVotes }, { merge: true });
+                    });
+
+                    // Update local state & UI after successful transaction
+                    userVotes[selectedPoll.id] = selectedOption;
+                    showMessage("authMessage2", "Vote submitted successfully!", "success");
+
+                    // Refresh selectedPoll from server to show up-to-date results / counts
+                    const updatedPollDoc = await pollRef.get();
+                    if (updatedPollDoc.exists) {
+                        selectedPoll = { id: updatedPollDoc.id, ...updatedPollDoc.data() };
+                    }
+                    selectedOption = "";
+                    renderPollDetail();
+                    renderPollsList();
+                } catch (error) {
+                    const msg = error && error.message ? error.message : "Error submitting vote";
+                    showMessage("authMessage2", msg, "error");
+                    // Refresh user votes if the transaction failed due to existing vote
+                    try {
+                        const uv = await userVotesRef.get();
+                        if (uv.exists()) {
+                            userVotes = uv.data().votes || {};
+                        }
+                    } catch (e) {
+                        console.warn("Could not refresh userVotes", e);
+                    }
+                    renderPollDetail();
+                }
             }
-          } catch (e) {
-            console.warn("Could not refresh userVotes", e);
-          }
-          renderPollDetail();
-        }
-      }
 
-      // View results
-      function viewResults() {
-        viewingResults = true;
-        renderResults();
-      }
+            // View results
+            function viewResults() {
+                viewingResults = true;
+                renderResults();
+            }
 
-      // Render results
-      function renderResults() {
-        if (!selectedPoll) return;
-        const pollDetail = document.getElementById("pollDetail");
+            // Render results
+            function renderResults() {
+                if (!selectedPoll) return;
+                const pollDetail = document.getElementById("pollDetail");
 
-        const results = {};
-        let totalVotes = 0;
+                const results = {};
+                let totalVotes = 0;
 
-        (selectedPoll.options || []).forEach((option) => {
-          const voteCount =
-            selectedPoll.votes && Array.isArray(selectedPoll.votes[option]) ? selectedPoll.votes[option].length : 0;
-          results[option] = voteCount;
-          totalVotes += voteCount;
-        });
+                (selectedPoll.options || []).forEach((option) => {
+                    const voteCount =
+                        selectedPoll.votes && Array.isArray(selectedPoll.votes[option])
+                            ? selectedPoll.votes[option].length
+                            : 0;
+                    results[option] = voteCount;
+                    totalVotes += voteCount;
+                });
 
-        const ended = new Date(selectedPoll.endDate) < new Date();
-        let winner = "";
+                const ended = new Date(selectedPoll.endDate) < new Date();
+                let winner = "";
 
-        if (ended) {
-          const maxVotes = Math.max(...Object.values(results));
-          const winners = Object.keys(results).filter((key) => results[key] === maxVotes);
-          if (winners.length > 0) {
-            winner =
-              winners.length > 1
-                ? winners[Math.floor(Math.random() * winners.length)] + " (Tie - Random Winner)"
-                : winners[0];
-          }
-        }
+                if (ended) {
+                    const maxVotes = Math.max(...Object.values(results));
+                    const winners = Object.keys(results).filter((key) => results[key] === maxVotes);
+                    if (winners.length > 0) {
+                        winner =
+                            winners.length > 1
+                                ? winners[Math.floor(Math.random() * winners.length)] + " (Tie - Random Winner)"
+                                : winners[0];
+                    }
+                }
 
-        const safeTitle = escapeHtml(selectedPoll.title || "");
-        const safeDesc = escapeHtml(selectedPoll.description || "");
+                const safeTitle = escapeHtml(selectedPoll.title || "");
+                const safeDesc = escapeHtml(selectedPoll.description || "");
 
-        pollDetail.innerHTML = `
+                pollDetail.innerHTML = `
         <button class="btn btn-small" onclick="backToPoll()" style="width: auto; margin-bottom: 20px;">← Back to Poll</button>
         
         <h2>${safeTitle}</h2>
@@ -1102,25 +1110,25 @@
           <h4>Results (${totalVotes} votes)</h4>
           <div id="resultsContainer"></div>
           ${
-            ended && winner
-              ? `
+              ended && winner
+                  ? `
             <div class="winner-box">
               <h4>🏆 Winner</h4>
               <p>${escapeHtml(winner)}</p>
             </div>
           `
-              : ""
+                  : ""
           }
         </div>
       `;
 
-        const resultsContainer = document.getElementById("resultsContainer");
-        if (resultsContainer) {
-          resultsContainer.innerHTML = (selectedPoll.options || [])
-            .map((option) => {
-              const votes = results[option] || 0;
-              const percentage = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(1) : 0;
-              return `
+                const resultsContainer = document.getElementById("resultsContainer");
+                if (resultsContainer) {
+                    resultsContainer.innerHTML = (selectedPoll.options || [])
+                        .map((option) => {
+                            const votes = results[option] || 0;
+                            const percentage = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(1) : 0;
+                            return `
             <div class="result-item">
               <div class="result-header">
                 <span>${escapeHtml(option)}</span>
@@ -1131,63 +1139,63 @@
               </div>
             </div>
           `;
-            })
-            .join("");
-        }
-      }
+                        })
+                        .join("");
+                }
+            }
 
-      // Back to poll
-      function backToPoll() {
-        viewingResults = false;
-        renderPollDetail();
-      }
+            // Back to poll
+            function backToPoll() {
+                viewingResults = false;
+                renderPollDetail();
+            }
 
-      // Logout
-      function logout() {
-        auth.signOut().catch((err) => console.warn("Sign out error", err));
-        selectedPoll = null;
-        viewingResults = false;
-      }
+            // Logout
+            function logout() {
+                auth.signOut().catch((err) => console.warn("Sign out error", err));
+                selectedPoll = null;
+                viewingResults = false;
+            }
 
-      // Screen helpers
-      function showAuthScreen() {
-        authScreen.classList.remove("hidden");
-        pendingScreen.classList.add("hidden");
-        mainScreen.classList.add("hidden");
-        clearMessage("authMessage");
-        clearMessage("authMessage2");
-        // reset some UI state
-        userNameEl.textContent = "User";
-        userAvatarEl.textContent = "U";
-      }
+            // Screen helpers
+            function showAuthScreen() {
+                authScreen.classList.remove("hidden");
+                pendingScreen.classList.add("hidden");
+                mainScreen.classList.add("hidden");
+                clearMessage("authMessage");
+                clearMessage("authMessage2");
+                // reset some UI state
+                userNameEl.textContent = "User";
+                userAvatarEl.textContent = "U";
+            }
 
-      function showPendingScreen() {
-        authScreen.classList.add("hidden");
-        pendingScreen.classList.remove("hidden");
-        mainScreen.classList.add("hidden");
-        clearMessage("authMessage");
-        clearMessage("authMessage2");
-        updateUserInfoUI();
-      }
+            function showPendingScreen() {
+                authScreen.classList.add("hidden");
+                pendingScreen.classList.remove("hidden");
+                mainScreen.classList.add("hidden");
+                clearMessage("authMessage");
+                clearMessage("authMessage2");
+                updateUserInfoUI();
+            }
 
-      function showMainScreen() {
-        authScreen.classList.add("hidden");
-        pendingScreen.classList.add("hidden");
-        mainScreen.classList.remove("hidden");
-        clearMessage("authMessage");
-        clearMessage("authMessage2");
-        updateUserInfoUI();
-      }
+            function showMainScreen() {
+                authScreen.classList.add("hidden");
+                pendingScreen.classList.add("hidden");
+                mainScreen.classList.remove("hidden");
+                clearMessage("authMessage");
+                clearMessage("authMessage2");
+                updateUserInfoUI();
+            }
 
-      // Expose functions used in inline onclick attributes
-      window.selectPoll = selectPoll;
-      window.selectOption = selectOption;
-      window.submitVote = submitVote;
-      window.viewResults = viewResults;
-      window.backToPoll = backToPoll;
-      window.addOption = addOption;
-      window.logout = logout;
-    </script>
-  </body>
+            // Expose functions used in inline onclick attributes
+            window.selectPoll = selectPoll;
+            window.selectOption = selectOption;
+            window.submitVote = submitVote;
+            window.viewResults = viewResults;
+            window.backToPoll = backToPoll;
+            window.addOption = addOption;
+            window.logout = logout;
+        </script>
+    </body>
 </html>
 ```
