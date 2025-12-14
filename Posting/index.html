@@ -698,27 +698,7 @@
                 <h1>AllForOne Community</h1>
                 <p>Share your Minecraft adventures with the community!</p>
             </div>
-            
-            <div id="navbar-placeholder"></div>
-        <script>
-            fetch("https://allforoneserver.github.io/navigation.html")
-                .then((response) => response.text())
-                .then((data) => {
-                    document.getElementById("navbar-placeholder").innerHTML = data;
-                    // Re-execute any scripts in the loaded content (try/catch to avoid breaking)
-                    const scripts = document.getElementById("navbar-placeholder").getElementsByTagName("script");
-                    for (let script of scripts) {
-                        try {
-                            (0, eval)(script.innerHTML);
-                        } catch (e) {
-                            console.warn("Navbar script error", e);
-                        }
-                    }
-                })
-                .catch((error) => console.error("Error loading navbar:", error));
-        </script>
 
-            <!-- Auth Section -->
             <div id="authSection" class="auth-section">
                 <h2 id="authTitle">Join the Community</h2>
                 <div id="authError" class="error hidden"></div>
@@ -738,7 +718,6 @@
                 </div>
             </div>
 
-            <!-- Pending Approval Section -->
             <div id="pendingSection" class="pending-approval hidden">
                 <div class="icon">⏳</div>
                 <h2>Awaiting Approval</h2>
@@ -753,7 +732,6 @@
                 <button id="backToLoginBtn" style="margin-top: 20px">Back to Login</button>
             </div>
 
-            <!-- Main Content -->
             <div id="mainContent" class="hidden">
                 <div class="user-bar">
                     <div class="user-info">
@@ -778,7 +756,7 @@
                     </div>
                     <textarea
                         id="postInput"
-                        placeholder="What's on your mind? Share your builds, discoveries, or ask for help... (Ctrl+V to paste images)"></textarea>
+                        placeholder="What's on your mind? Share your builds, discoveries, or ask for help..."></textarea>
 
                     <div class="media-upload-section">
                         <button class="media-upload-btn" id="uploadImageBtn">📷 Add Image</button>
@@ -816,12 +794,10 @@
                     <button id="postBtn">Post</button>
                 </div>
 
-                <!-- Posts Container - THIS WAS MISSING -->
                 <div id="postsContainer" class="posts-container"></div>
             </div>
         </div>
 
-        <!-- Fullscreen Media Overlay -->
         <div id="fullscreenOverlay" class="fullscreen-overlay">
             <button class="fullscreen-close" id="fullscreenClose">×</button>
             <button class="fullscreen-nav fullscreen-prev" id="fullscreenPrev">‹</button>
@@ -842,20 +818,24 @@
                 browserLocalPersistence
             } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
             import {
+                getDatabase,
+                ref as rtdbRef,
+                set as rtdbSet,
+                get as rtdbGet,
+                onValue as rtdbOnValue,
+                update as rtdbUpdate
+            } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+            import {
                 getFirestore,
                 collection,
                 addDoc,
                 query,
                 orderBy,
                 onSnapshot,
+                serverTimestamp,
                 deleteDoc,
                 doc,
-                setDoc,
-                serverTimestamp,
-                getDoc,
-                updateDoc,
-                arrayUnion,
-                arrayRemove
+                updateDoc
             } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
             const firebaseConfig = {
@@ -871,11 +851,11 @@
 
             const app = initializeApp(firebaseConfig);
             const auth = getAuth(app);
-            const db = getFirestore(app);
+            const rtdb = getDatabase(app); // For user auth/approval
+            const db = getFirestore(app); // For posts and comments
 
             setPersistence(auth, browserLocalPersistence);
 
-            // Cloudinary config
             const CLOUDINARY_CLOUD_NAME = "dgrmpcha9";
             const CLOUDINARY_UPLOAD_PRESET = "AllForOne Posts";
 
@@ -883,22 +863,44 @@
             let isSignupMode = false;
             let isAdmin = false;
             let uploadedMedia = [];
+            let approvalListener = null;
 
-            // Check if user is approved
+            // Check approval from RTDB only
             async function checkUserApproval(uid) {
                 try {
-                    const userDoc = await getDoc(doc(db, "MessagesUsers", uid));
-                    if (!userDoc.exists()) {
+                    const userSnapshot = await rtdbGet(rtdbRef(rtdb, `MessagesUsers/${uid}`));
+                    if (!userSnapshot.exists()) {
                         return false;
                     }
-                    return userDoc.data().approved === true;
+                    return userSnapshot.val().approved === true;
                 } catch (error) {
                     console.error("Error checking approval:", error);
                     return false;
                 }
             }
 
-            // Profanity filter
+            function startApprovalListener(uid) {
+                if (approvalListener) {
+                    try {
+                        approvalListener();
+                    } catch (e) {}
+                    approvalListener = null;
+                }
+
+                const userRef = rtdbRef(rtdb, `MessagesUsers/${uid}`);
+                approvalListener = rtdbOnValue(userRef, (snapshot) => {
+                    if (!snapshot.exists()) return;
+                    const data = snapshot.val();
+                    if (data && data.approved === true) {
+                        try {
+                            approvalListener();
+                        } catch (e) {}
+                        approvalListener = null;
+                        window.location.reload();
+                    }
+                });
+            }
+
             const profanityList = [
                 "damn",
                 "hell",
@@ -933,7 +935,6 @@
                 return filtered;
             }
 
-            // Cloudinary upload function
             async function uploadToCloudinary(file, resourceType) {
                 const formData = new FormData();
                 formData.append("file", file);
@@ -961,7 +962,6 @@
                 }
             }
 
-            // UI Elements
             const authSection = document.getElementById("authSection");
             const pendingSection = document.getElementById("pendingSection");
             const mainContent = document.getElementById("mainContent");
@@ -997,7 +997,6 @@
             const fullscreenPrev = document.getElementById("fullscreenPrev");
             const fullscreenNext = document.getElementById("fullscreenNext");
 
-            // Media upload handlers
             uploadImageBtn.addEventListener("click", () => imageInput.click());
             uploadVideoBtn.addEventListener("click", () => videoInput.click());
 
@@ -1059,7 +1058,6 @@
                 mediaPreview.appendChild(previewItem);
             }
 
-            // Fullscreen functionality
             let currentMediaArray = [];
             let currentMediaIndex = 0;
 
@@ -1118,7 +1116,6 @@
                 }
             });
 
-            // Toggle auth mode
             toggleAuth.addEventListener("click", () => {
                 isSignupMode = !isSignupMode;
                 if (isSignupMode) {
@@ -1135,6 +1132,12 @@
             });
 
             backToLoginBtn.addEventListener("click", async () => {
+                if (approvalListener) {
+                    try {
+                        approvalListener();
+                    } catch (e) {}
+                    approvalListener = null;
+                }
                 await signOut(auth);
                 pendingSection.classList.add("hidden");
                 authSection.classList.remove("hidden");
@@ -1157,7 +1160,6 @@
                 setTimeout(() => authSuccess.classList.add("hidden"), 3000);
             }
 
-            // Auth handlers
             primaryBtn.addEventListener("click", async () => {
                 const email = emailInput.value.trim();
                 const password = passwordInput.value;
@@ -1180,12 +1182,13 @@
 
                         await updateProfile(user, { displayName });
 
-                        await setDoc(doc(db, "MessagesUsers", user.uid), {
+                        // Write to RTDB only for approval
+                        await rtdbSet(rtdbRef(rtdb, `MessagesUsers/${user.uid}`), {
                             uid: user.uid,
                             displayName: displayName,
                             email: email,
-                            createdAt: serverTimestamp(),
-                            lastSeen: serverTimestamp(),
+                            createdAt: Date.now(),
+                            lastSeen: Date.now(),
                             approved: false
                         });
 
@@ -1212,13 +1215,22 @@
 
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
+                    // Check approval from RTDB
                     const isApproved = await checkUserApproval(user.uid);
 
                     if (!isApproved) {
                         authSection.classList.add("hidden");
                         mainContent.classList.add("hidden");
                         pendingSection.classList.remove("hidden");
+                        startApprovalListener(user.uid);
                         return;
+                    }
+
+                    if (approvalListener) {
+                        try {
+                            approvalListener();
+                        } catch (e) {}
+                        approvalListener = null;
                     }
 
                     currentUser = user;
@@ -1226,15 +1238,14 @@
                     pendingSection.classList.add("hidden");
                     mainContent.classList.remove("hidden");
 
-                    // FIXED: Strict admin check
                     isAdmin = user.email === "kaioliver111@gmail.com";
 
                     let displayName = user.displayName;
                     if (!displayName) {
                         try {
-                            const userDoc = await getDoc(doc(db, "MessagesUsers", user.uid));
-                            if (userDoc.exists()) {
-                                displayName = userDoc.data().displayName;
+                            const userSnapshot = await rtdbGet(rtdbRef(rtdb, `MessagesUsers/${user.uid}`));
+                            if (userSnapshot.exists()) {
+                                displayName = userSnapshot.val().displayName;
                             }
                         } catch (error) {
                             console.log("Could not fetch user data:", error);
@@ -1244,21 +1255,17 @@
                     currentUserDisplay.textContent = displayName || user.email;
                     userAvatar.textContent = (displayName || user.email)[0].toUpperCase();
 
-                    // FIXED: Only show admin options for the specific admin email
                     if (isAdmin) {
                         adminOptions.classList.remove("hidden");
                     } else {
                         adminOptions.classList.add("hidden");
                     }
 
+                    // Update lastSeen in RTDB
                     try {
-                        await setDoc(
-                            doc(db, "MessagesUsers", user.uid),
-                            {
-                                lastSeen: serverTimestamp()
-                            },
-                            { merge: true }
-                        );
+                        await rtdbUpdate(rtdbRef(rtdb, `MessagesUsers/${user.uid}`), {
+                            lastSeen: Date.now()
+                        });
                     } catch (error) {
                         console.log("Could not update lastSeen:", error);
                     }
@@ -1270,10 +1277,15 @@
                     authSection.classList.remove("hidden");
                     pendingSection.classList.add("hidden");
                     mainContent.classList.add("hidden");
+                    if (approvalListener) {
+                        try {
+                            approvalListener();
+                        } catch (e) {}
+                        approvalListener = null;
+                    }
                 }
             });
 
-            // Post functionality
             postBtn.addEventListener("click", async () => {
                 const content = postInput.value.trim();
                 const heading = postHeading.value.trim();
@@ -1289,25 +1301,22 @@
                 try {
                     postBtn.disabled = true;
 
-                    const displayName =
-                        currentUser.displayName ||
-                        (await getDoc(doc(db, "MessagesUsers", currentUser.uid))).data()?.displayName ||
-                        currentUser.email;
+                    const displayName = currentUser.displayName || currentUser.email;
 
                     const postData = {
                         authorId: currentUser.uid,
                         authorName: displayName,
                         content: filtered,
                         timestamp: serverTimestamp(),
-                        likes: [],
-                        media: uploadedMedia
+                        likes: {},
+                        media: uploadedMedia,
+                        comments: {}
                     };
 
                     if (filteredHeading) {
                         postData.heading = filteredHeading;
                     }
 
-                    // FIXED: Only allow announcement if user is actually admin
                     if (isAdmin && announcementCheck.checked) {
                         postData.isAnnouncement = true;
                     }
@@ -1327,11 +1336,10 @@
                 }
             });
 
-            // Load posts
             function loadPosts() {
-                const q = query(collection(db, "MessagesPosts"), orderBy("timestamp", "desc"));
+                const postsQuery = query(collection(db, "MessagesPosts"), orderBy("timestamp", "desc"));
 
-                onSnapshot(q, (snapshot) => {
+                onSnapshot(postsQuery, (snapshot) => {
                     postsContainer.innerHTML = "";
 
                     if (snapshot.empty) {
@@ -1344,9 +1352,9 @@
                         return;
                     }
 
-                    snapshot.forEach((doc) => {
-                        const post = doc.data();
-                        displayPost(doc.id, post);
+                    snapshot.forEach((docSnap) => {
+                        const post = docSnap.data();
+                        displayPost(docSnap.id, post);
                     });
                 });
             }
@@ -1359,7 +1367,7 @@
                 }
 
                 const time = post.timestamp
-                    ? new Date(post.timestamp.toDate()).toLocaleString([], {
+                    ? post.timestamp.toDate().toLocaleString([], {
                           month: "short",
                           day: "numeric",
                           hour: "2-digit",
@@ -1367,8 +1375,9 @@
                       })
                     : "Just now";
 
-                const isLiked = post.likes && post.likes.includes(currentUser.uid);
-                const likeCount = post.likes ? post.likes.length : 0;
+                const likes = post.likes || {};
+                const isLiked = likes[currentUser.uid] === true;
+                const likeCount = Object.keys(likes).length;
                 const isAuthor = post.authorId === currentUser.uid;
 
                 const announcementBadge = post.isAnnouncement
@@ -1376,7 +1385,6 @@
                     : "";
                 const headingHtml = post.heading ? `<div class="post-heading">${post.heading}</div>` : "";
 
-                // Generate media HTML
                 let mediaHtml = "";
                 if (post.media && post.media.length > 0) {
                     const singleClass = post.media.length === 1 ? "single" : "";
@@ -1399,8 +1407,8 @@
                     mediaHtml += "</div>";
                 }
 
-                // Comments count
-                const commentCount = post.comments ? post.comments.length : 0;
+                const comments = post.comments || {};
+                const commentCount = Object.keys(comments).length;
                 const commentText = commentCount === 1 ? "1 comment" : `${commentCount} comments`;
 
                 postDiv.innerHTML = `
@@ -1433,7 +1441,6 @@
         </div>
       `;
 
-                // Media click handlers for fullscreen
                 if (post.media && post.media.length > 0) {
                     const mediaItems = postDiv.querySelectorAll(".post-media-item");
                     mediaItems.forEach((item) => {
@@ -1444,26 +1451,22 @@
                     });
                 }
 
-                // Like handler
                 const likeBtn = postDiv.querySelector('[data-action="like"]');
                 likeBtn.addEventListener("click", async () => {
                     try {
                         const postRef = doc(db, "MessagesPosts", postId);
+                        const newLikes = { ...likes };
                         if (isLiked) {
-                            await updateDoc(postRef, {
-                                likes: arrayRemove(currentUser.uid)
-                            });
+                            delete newLikes[currentUser.uid];
                         } else {
-                            await updateDoc(postRef, {
-                                likes: arrayUnion(currentUser.uid)
-                            });
+                            newLikes[currentUser.uid] = true;
                         }
+                        await updateDoc(postRef, { likes: newLikes });
                     } catch (error) {
                         console.error("Error liking post:", error);
                     }
                 });
 
-                // Comment toggle handler
                 const commentBtn = postDiv.querySelector('[data-action="comment"]');
                 const commentsContainer = postDiv.querySelector(`#comments-${postId}`);
                 const commentInputContainer = postDiv.querySelector(`#comment-input-${postId}`);
@@ -1473,14 +1476,13 @@
                     if (isHidden) {
                         commentsContainer.classList.remove("hidden");
                         commentInputContainer.classList.remove("hidden");
-                        loadComments(postId, commentsContainer);
+                        loadComments(postId, commentsContainer, post.comments || {});
                     } else {
                         commentsContainer.classList.add("hidden");
                         commentInputContainer.classList.add("hidden");
                     }
                 });
 
-                // Comment posting handler
                 const commentInput = commentInputContainer.querySelector(".comment-input");
                 const commentPostBtn = commentInputContainer.querySelector(".comment-btn");
 
@@ -1492,21 +1494,20 @@
 
                     try {
                         commentPostBtn.disabled = true;
+
+                        const displayName = currentUser.displayName || currentUser.email;
+
                         const postRef = doc(db, "MessagesPosts", postId);
+                        const newComments = { ...(post.comments || {}) };
+                        const commentId = Date.now().toString();
+                        newComments[commentId] = {
+                            authorId: currentUser.uid,
+                            authorName: displayName,
+                            content: filteredComment,
+                            timestamp: Date.now()
+                        };
 
-                        const displayName =
-                            currentUser.displayName ||
-                            (await getDoc(doc(db, "MessagesUsers", currentUser.uid))).data()?.displayName ||
-                            currentUser.email;
-
-                        await updateDoc(postRef, {
-                            comments: arrayUnion({
-                                authorId: currentUser.uid,
-                                authorName: displayName,
-                                content: filteredComment,
-                                timestamp: new Date().toISOString()
-                            })
-                        });
+                        await updateDoc(postRef, { comments: newComments });
 
                         commentInput.value = "";
                         commentPostBtn.disabled = false;
@@ -1516,7 +1517,6 @@
                     }
                 });
 
-                // Delete handler
                 if (isAuthor || isAdmin) {
                     const deleteBtn = postDiv.querySelector('[data-action="delete"]');
                     deleteBtn.addEventListener("click", async () => {
@@ -1538,35 +1538,33 @@
 
                 postsContainer.appendChild(postDiv);
 
-                // Load comments if they exist
                 if (commentCount > 0) {
-                    loadComments(postId, commentsContainer);
+                    loadComments(postId, commentsContainer, post.comments || {});
                 }
             }
 
-            function loadComments(postId, container) {
-                const postRef = doc(db, "MessagesPosts", postId);
+            function loadComments(postId, container, comments) {
+                container.innerHTML = "";
 
-                onSnapshot(postRef, (docSnap) => {
-                    if (!docSnap.exists()) return;
+                const commentArray = Object.entries(comments).map(([id, comment]) => ({
+                    id,
+                    ...comment
+                }));
 
-                    const post = docSnap.data();
-                    const comments = post.comments || [];
+                commentArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
 
-                    container.innerHTML = "";
+                commentArray.forEach((comment) => {
+                    const commentDiv = document.createElement("div");
+                    commentDiv.className = "comment";
 
-                    comments.forEach((comment) => {
-                        const commentDiv = document.createElement("div");
-                        commentDiv.className = "comment";
+                    const commentTime = new Date(comment.timestamp).toLocaleString([], {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit"
+                    });
 
-                        const commentTime = new Date(comment.timestamp).toLocaleString([], {
-                            month: "short",
-                            day: "numeric",
-                            hour: "2-digit",
-                            minute: "2-digit"
-                        });
-
-                        commentDiv.innerHTML = `
+                    commentDiv.innerHTML = `
               <div class="comment-header">
                 <div class="comment-avatar">${comment.authorName[0].toUpperCase()}</div>
                 <div class="comment-author">${comment.authorName}</div>
@@ -1575,8 +1573,7 @@
               <div class="comment-content">${comment.content}</div>
             `;
 
-                        container.appendChild(commentDiv);
-                    });
+                    container.appendChild(commentDiv);
                 });
             }
         </script>
