@@ -699,6 +699,24 @@
                 <p>Share your Minecraft adventures with the community!</p>
             </div>
 
+            <div id="navbar-placeholder"></div>
+            <script>
+                fetch("https://allforoneserver.github.io/navigation.html")
+                    .then((response) => response.text())
+                    .then((data) => {
+                        document.getElementById("navbar-placeholder").innerHTML = data;
+                        const scripts = document.getElementById("navbar-placeholder").getElementsByTagName("script");
+                        for (let script of scripts) {
+                            try {
+                                (0, eval)(script.innerHTML);
+                            } catch (e) {
+                                console.warn("Navbar script error", e);
+                            }
+                        }
+                    })
+                    .catch((error) => console.error("Error loading navbar:", error));
+            </script>
+
             <div id="authSection" class="auth-section">
                 <h2 id="authTitle">Join the Community</h2>
                 <div id="authError" class="error hidden"></div>
