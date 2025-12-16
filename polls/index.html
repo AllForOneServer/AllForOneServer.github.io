@@ -420,18 +420,17 @@
         </style>
     </head>
     <body>
-
         <div class="header">
             <h1>Community Polls</h1>
             <p>Vote on topics that matter to you</p>
         </div>
-                <div id="navbar-placeholder"></div>
+
+        <div id="navbar-placeholder"></div>
         <script>
             fetch("https://allforoneserver.github.io/navigation.html")
                 .then((response) => response.text())
                 .then((data) => {
                     document.getElementById("navbar-placeholder").innerHTML = data;
-                    // Re-execute any scripts in the loaded content (try/catch to avoid breaking)
                     const scripts = document.getElementById("navbar-placeholder").getElementsByTagName("script");
                     for (let script of scripts) {
                         try {
@@ -463,7 +462,7 @@
                         <input type="password" id="passwordInput" placeholder="Password" required />
                     </div>
 
-                    <button type="submit" class="btn" id="authSubmitBtn">Log In</button>
+                <button type="submit" class="btn" id="authSubmitBtn">Log In</button>
 
                     <div class="toggle-link" id="authToggle">Need an account? Sign up</div>
                 </form>
@@ -492,7 +491,7 @@
 
                 <div class="btn-group">
                     <button class="btn btn-small btn-secondary hidden" id="createPollBtn">+ Create Poll</button>
-                    <button class="btn btn-small btn-danger" onclick="logout()">Logout</button>
+                    <button class="btn" onclick="authManager.handleLogout()">Logout</button>
                 </div>
             </div>
 
@@ -553,649 +552,1201 @@
         </div>
 
         <!-- Firebase SDKs -->
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    
+        <script type="module">
+// ============================================================================
+// FIREBASE IMPORTS & CONFIGURATION
+// ============================================================================
 
-        <script>
-            // Firebase Configuration
-            const firebaseConfig = {
-                apiKey: "AIzaSyDzQlAqhCeytCLEYafboYGpFu6pY3Kv9WE",
-                authDomain: "allforonemedia-9a7d8.firebaseapp.com",
-                databaseURL: "https://allforonemedia-9a7d8-default-rtdb.firebaseio.com",
-                projectId: "allforonemedia-9a7d8",
-                storageBucket: "allforonemedia-9a7d8.firebasestorage.app",
-                messagingSenderId: "892787060584",
-                appId: "1:892787060584:web:e65609062592f9ba96f0dd",
-                measurementId: "G-JSXKLMBRLC"
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+    getAuth, 
+    createUserWithEmailAndPassword, 
+    signInWithEmailAndPassword,
+    signOut,
+    onAuthStateChanged,
+    updateProfile
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import {
+    getFirestore,
+    collection,
+    addDoc,
+    query,
+    orderBy,
+    onSnapshot,
+    serverTimestamp,
+    deleteDoc,
+    doc,
+    updateDoc,
+    getDoc,
+    setDoc
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyDzQlAqhCeytCLEYafboYGpFu6pY3Kv9WE",
+    authDomain: "allforonemedia-9a7d8.firebaseapp.com",
+    projectId: "allforonemedia-9a7d8",
+    storageBucket: "allforonemedia-9a7d8.firebasestorage.app",
+    messagingSenderId: "892787060584",
+    appId: "1:892787060584:web:e65609062592f9ba96f0dd",
+    measurementId: "G-JSXKLMBRLC"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+// ============================================================================
+// CONSTANTS
+// ============================================================================
+
+const CLOUDINARY_CLOUD_NAME = "dgrmpcha9";
+const CLOUDINARY_UPLOAD_PRESET = "AllForOne Posts";
+const ADMIN_EMAIL = "kaioliver111@gmail.com";
+
+const COLLECTIONS = {
+    POSTS: 'MessagesPosts',
+    USERS: 'MessageUsers'
+};
+
+const PROFANITY_LIST = [
+    "damn", "hell", "crap", "shit", "fuck", "ass", "bitch", "bastard",
+    "dick", "piss", "cock", "pussy", "whore", "slut", "fag", "nigger",
+    "cunt", "twat", "wanker", "bollocks", "arse", "bugger"
+];
+
+// ============================================================================
+// ============================================================================
+// FIREBASE AUTHENTICATION MODULE - START
+// ============================================================================
+// ============================================================================
+
+// ----------------------------------------------------------------------------
+// Authentication Configuration
+// ----------------------------------------------------------------------------
+const AUTH_CONFIG = {
+    adminEmail: ADMIN_EMAIL,
+    usersCollection: COLLECTIONS.USERS,
+    elementIds: {
+        authSection: "authSection",
+        pendingSection: "pendingSection",
+        mainContent: "mainContent",
+        authError: "authError",
+        authSuccess: "authSuccess",
+        authTitle: "authTitle",
+        emailInput: "emailInput",
+        passwordInput: "passwordInput",
+        displayNameInput: "displayNameInput",
+        displayNameGroup: "displayNameGroup",
+        primaryBtn: "primaryBtn",
+        toggleAuth: "toggleAuth",
+        backToLoginBtn: "backToLoginBtn",
+        currentUserDisplay: "currentUserDisplay",
+        userAvatar: "userAvatar",
+        adminOptions: "adminOptions"
+    }
+};
+
+// ----------------------------------------------------------------------------
+// Authentication State
+// ----------------------------------------------------------------------------
+const authState = {
+    currentUser: null,
+    isSignupMode: false,
+    isAdmin: false,
+    approvalListener: null
+};
+
+// ----------------------------------------------------------------------------
+// Authentication DOM Elements
+// ----------------------------------------------------------------------------
+let authElements = {};
+
+function initializeAuthElements() {
+    authElements = {
+        authSection: document.getElementById(AUTH_CONFIG.elementIds.authSection),
+        pendingSection: document.getElementById(AUTH_CONFIG.elementIds.pendingSection),
+        mainContent: document.getElementById(AUTH_CONFIG.elementIds.mainContent),
+        authError: document.getElementById(AUTH_CONFIG.elementIds.authError),
+        authSuccess: document.getElementById(AUTH_CONFIG.elementIds.authSuccess),
+        authTitle: document.getElementById(AUTH_CONFIG.elementIds.authTitle),
+        emailInput: document.getElementById(AUTH_CONFIG.elementIds.emailInput),
+        passwordInput: document.getElementById(AUTH_CONFIG.elementIds.passwordInput),
+        displayNameInput: document.getElementById(AUTH_CONFIG.elementIds.displayNameInput),
+        displayNameGroup: document.getElementById(AUTH_CONFIG.elementIds.displayNameGroup),
+        primaryBtn: document.getElementById(AUTH_CONFIG.elementIds.primaryBtn),
+        toggleAuth: document.getElementById(AUTH_CONFIG.elementIds.toggleAuth),
+        backToLoginBtn: document.getElementById(AUTH_CONFIG.elementIds.backToLoginBtn),
+        currentUserDisplay: document.getElementById(AUTH_CONFIG.elementIds.currentUserDisplay),
+        userAvatar: document.getElementById(AUTH_CONFIG.elementIds.userAvatar),
+        adminOptions: document.getElementById(AUTH_CONFIG.elementIds.adminOptions)
+    };
+}
+
+// ----------------------------------------------------------------------------
+// Authentication Utilities
+// ----------------------------------------------------------------------------
+const authUtils = {
+    showError(message) {
+        if (authElements.authError) {
+            authElements.authError.textContent = message;
+            authElements.authError.classList.remove("hidden");
+            setTimeout(() => authElements.authError.classList.add("hidden"), 5000);
+        } else {
+            console.error("Auth Error:", message);
+            alert(message);
+        }
+    },
+
+    showSuccess(message) {
+        if (authElements.authSuccess) {
+            authElements.authSuccess.textContent = message;
+            authElements.authSuccess.classList.remove("hidden");
+            setTimeout(() => authElements.authSuccess.classList.add("hidden"), 3000);
+        } else {
+            console.log("Auth Success:", message);
+        }
+    },
+
+    validateEmail(email) {
+        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return re.test(email);
+    },
+
+    validatePassword(password) {
+        return password.length >= 6;
+    }
+};
+
+// ----------------------------------------------------------------------------
+// Authentication Firestore Operations
+// ----------------------------------------------------------------------------
+const authFirestoreOps = {
+    async createUser(uid, displayName, email) {
+        try {
+            await setDoc(doc(db, AUTH_CONFIG.usersCollection, uid), {
+                uid: uid,
+                displayName: displayName,
+                email: email,
+                approved: false,
+                createdAt: serverTimestamp(),
+                lastSeen: serverTimestamp()
+            });
+            console.log("User document created in", AUTH_CONFIG.usersCollection);
+        } catch (error) {
+            console.error("Error creating user document:", error);
+            throw error;
+        }
+    },
+
+    async getUser(uid) {
+        try {
+            const userDoc = await getDoc(doc(db, AUTH_CONFIG.usersCollection, uid));
+            if (!userDoc.exists()) {
+                console.log("User document doesn't exist yet");
+                return null;
+            }
+            return userDoc.data();
+        } catch (error) {
+            console.error("Error fetching user:", error);
+            return null;
+        }
+    },
+
+    async updateUserLastSeen(uid) {
+        try {
+            await updateDoc(doc(db, AUTH_CONFIG.usersCollection, uid), {
+                lastSeen: serverTimestamp()
+            });
+        } catch (error) {
+            console.error("Error updating last seen:", error);
+        }
+    },
+
+    subscribeToUserApproval(uid, callback) {
+        return onSnapshot(
+            doc(db, AUTH_CONFIG.usersCollection, uid),
+            callback,
+            (error) => {
+                console.error("Error listening for approval:", error);
+            }
+        );
+    }
+};
+
+// ----------------------------------------------------------------------------
+// Authentication Manager
+// ----------------------------------------------------------------------------
+const authManager = {
+    toggleAuthMode() {
+        authState.isSignupMode = !authState.isSignupMode;
+        
+        if (authState.isSignupMode) {
+            authElements.authTitle.textContent = "Create Your Account";
+            authElements.primaryBtn.textContent = "Sign Up";
+            authElements.toggleAuth.textContent = "Already have an account? Log in";
+            authElements.displayNameGroup.classList.remove("hidden");
+        } else {
+            authElements.authTitle.textContent = "Welcome Back";
+            authElements.primaryBtn.textContent = "Log In";
+            authElements.toggleAuth.textContent = "Need an account? Sign up";
+            authElements.displayNameGroup.classList.add("hidden");
+        }
+    },
+
+    async handleSignUp(email, password, displayName) {
+        try {
+            if (!displayName || displayName.trim() === "") {
+                throw new Error("Please enter a display name");
+            }
+
+            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
+
+            await updateProfile(user, { displayName: displayName.trim() });
+            await authFirestoreOps.createUser(user.uid, displayName.trim(), email);
+
+            authUtils.showSuccess("Account created! Awaiting approval...");
+
+            authElements.emailInput.value = "";
+            authElements.passwordInput.value = "";
+            authElements.displayNameInput.value = "";
+        } catch (error) {
+            console.error("Sign up error:", error);
+            throw error;
+        }
+    },
+
+    async handleLogin(email, password) {
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            console.error("Login error:", error);
+            throw error;
+        }
+    },
+
+    async handleLogout() {
+        try {
+            if (authState.approvalListener) {
+                try {
+                    authState.approvalListener();
+                } catch (e) {
+                    console.error("Error unsubscribing:", e);
+                }
+                authState.approvalListener = null;
+            }
+
+            await signOut(auth);
+            authState.currentUser = null;
+            authState.isAdmin = false;
+        } catch (error) {
+            console.error("Logout error:", error);
+            throw error;
+        }
+    },
+
+    async backToLogin() {
+        await this.handleLogout();
+        authElements.pendingSection.classList.add("hidden");
+        authElements.authSection.classList.remove("hidden");
+        authState.isSignupMode = false;
+        authElements.authTitle.textContent = "Welcome Back";
+        authElements.primaryBtn.textContent = "Log In";
+        authElements.toggleAuth.textContent = "Need an account? Sign up";
+        authElements.displayNameGroup.classList.add("hidden");
+    },
+
+    getCurrentUser() {
+        return authState.currentUser;
+    },
+
+    isAdmin() {
+        return authState.isAdmin;
+    }
+};
+
+// ----------------------------------------------------------------------------
+// Authentication UI Manager
+// ----------------------------------------------------------------------------
+const authUIManager = {
+    showAuthScreen() {
+        authElements.authSection?.classList.remove("hidden");
+        authElements.pendingSection?.classList.add("hidden");
+        authElements.mainContent?.classList.add("hidden");
+    },
+
+    showPendingScreen() {
+        authElements.authSection?.classList.add("hidden");
+        authElements.pendingSection?.classList.remove("hidden");
+        authElements.mainContent?.classList.add("hidden");
+        this.updateUserInfo();
+    },
+
+    showMainScreen() {
+        authElements.authSection?.classList.add("hidden");
+        authElements.pendingSection?.classList.add("hidden");
+        authElements.mainContent?.classList.remove("hidden");
+        this.updateUserInfo();
+    },
+
+    updateUserInfo() {
+        if (!authState.currentUser) return;
+
+        const displayName = authState.currentUser.displayName || authState.currentUser.email;
+        
+        if (authElements.currentUserDisplay) {
+            authElements.currentUserDisplay.textContent = displayName;
+        }
+        
+        if (authElements.userAvatar) {
+            authElements.userAvatar.textContent = displayName[0].toUpperCase();
+        }
+
+        if (authState.isAdmin && authElements.adminOptions) {
+            authElements.adminOptions.classList.remove("hidden");
+        } else if (authElements.adminOptions) {
+            authElements.adminOptions.classList.add("hidden");
+        }
+    }
+};
+
+// ----------------------------------------------------------------------------
+// Authentication Event Listeners
+// ----------------------------------------------------------------------------
+function setupAuthEventListeners() {
+    // Toggle between sign up and login
+    authElements.toggleAuth?.addEventListener("click", () => {
+        authManager.toggleAuthMode();
+    });
+
+    // Back to login button
+    authElements.backToLoginBtn?.addEventListener("click", () => {
+        authManager.backToLogin();
+    });
+
+    // Primary button (Sign Up / Log In)
+    authElements.primaryBtn?.addEventListener("click", async () => {
+        const email = authElements.emailInput.value.trim();
+        const password = authElements.passwordInput.value;
+
+        if (!email || !password) {
+            authUtils.showError("Please fill in email and password");
+            return;
+        }
+
+        if (!authUtils.validateEmail(email)) {
+            authUtils.showError("Please enter a valid email");
+            return;
+        }
+
+        if (!authUtils.validatePassword(password)) {
+            authUtils.showError("Password must be at least 6 characters");
+            return;
+        }
+
+        try {
+            authElements.primaryBtn.disabled = true;
+            authElements.primaryBtn.textContent = "Loading...";
+
+            if (authState.isSignupMode) {
+                const displayName = authElements.displayNameInput.value.trim();
+                if (!displayName) {
+                    authUtils.showError("Please enter a display name");
+                    return;
+                }
+                await authManager.handleSignUp(email, password, displayName);
+            } else {
+                await authManager.handleLogin(email, password);
+            }
+        } catch (error) {
+            let errorMessage = "An error occurred";
+
+            switch (error.code) {
+                case 'auth/email-already-in-use':
+                    errorMessage = "Email already in use";
+                    break;
+                case 'auth/invalid-email':
+                    errorMessage = "Invalid email address";
+                    break;
+                case 'auth/weak-password':
+                    errorMessage = "Password is too weak";
+                    break;
+                case 'auth/user-not-found':
+                    errorMessage = "User not found";
+                    break;
+                case 'auth/wrong-password':
+                    errorMessage = "Incorrect password";
+                    break;
+                case 'auth/invalid-credential':
+                    errorMessage = "Invalid email or password";
+                    break;
+                default:
+                    errorMessage = error.message.replace("Firebase: ", "");
+            }
+
+            authUtils.showError(errorMessage);
+        } finally {
+            authElements.primaryBtn.disabled = false;
+            authElements.primaryBtn.textContent = authState.isSignupMode ? "Sign Up" : "Log In";
+        }
+    });
+
+    // Enter key support
+    [authElements.emailInput, authElements.passwordInput, authElements.displayNameInput].forEach(input => {
+        if (input) {
+            input.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    authElements.primaryBtn.click();
+                }
+            });
+        }
+    });
+
+    // Auth state listener - MAIN AUTHENTICATION FLOW
+    onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            console.log("User signed in:", user.uid);
+            authState.currentUser = user;
+
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            try {
+                const userData = await authFirestoreOps.getUser(user.uid);
+
+                if (!userData) {
+                    console.error("User data not found after sign in");
+                    authUtils.showError("Error loading user data. Please try again.");
+                    await authManager.handleLogout();
+                    return;
+                }
+
+                console.log("User data loaded:", userData);
+
+                if (userData.approved === true) {
+                    // User approved - show main app
+                    authUIManager.showMainScreen();
+
+                    authState.isAdmin = user.email === AUTH_CONFIG.adminEmail;
+                    await authFirestoreOps.updateUserLastSeen(user.uid);
+
+                    if (authState.approvalListener) {
+                        try {
+                            authState.approvalListener();
+                        } catch (e) {}
+                        authState.approvalListener = null;
+                    }
+
+                    // Load posts after authentication
+                    if (typeof uiManager !== 'undefined' && uiManager.loadPosts) {
+                        uiManager.loadPosts();
+                    }
+
+                    // Trigger custom event
+                    window.dispatchEvent(new CustomEvent('userAuthenticated', { 
+                        detail: { 
+                            user: authState.currentUser, 
+                            isAdmin: authState.isAdmin 
+                        } 
+                    }));
+
+                } else {
+                    // User pending approval
+                    authUIManager.showPendingScreen();
+
+                    authState.approvalListener = authFirestoreOps.subscribeToUserApproval(
+                        user.uid,
+                        (doc) => {
+                            if (doc.exists() && doc.data().approved === true) {
+                                console.log("User approved! Reloading...");
+                                if (authState.approvalListener) {
+                                    try {
+                                        authState.approvalListener();
+                                    } catch (e) {}
+                                    authState.approvalListener = null;
+                                }
+                                window.location.reload();
+                            }
+                        }
+                    );
+                }
+            } catch (error) {
+                console.error("Error in auth state change:", error);
+                authUtils.showError("Error loading user data");
+            }
+        } else {
+            // User signed out
+            console.log("User signed out");
+            authState.currentUser = null;
+            authState.isAdmin = false;
+            authUIManager.showAuthScreen();
+
+            if (authState.approvalListener) {
+                try {
+                    authState.approvalListener();
+                } catch (e) {}
+                authState.approvalListener = null;
+            }
+
+            // Trigger custom event
+            window.dispatchEvent(new Event('userSignedOut'));
+        }
+    });
+}
+
+// ----------------------------------------------------------------------------
+// Initialize Authentication
+// ----------------------------------------------------------------------------
+function initializeAuth() {
+    console.log("Initializing authentication system...");
+    initializeAuthElements();
+    setupAuthEventListeners();
+    console.log("Authentication system ready");
+}
+
+// ============================================================================
+// ============================================================================
+// FIREBASE AUTHENTICATION MODULE - END
+// ============================================================================
+// ============================================================================
+
+// ============================================================================
+// STATE MANAGEMENT (For Posts)
+// ============================================================================
+
+const state = {
+    uploadedMedia: [],
+    currentMediaArray: [],
+    currentMediaIndex: 0
+};
+
+// ============================================================================
+// DOM ELEMENTS (For Posts)
+// ============================================================================
+
+const elements = {
+    // Post elements
+    postError: document.getElementById("postError"),
+    postInput: document.getElementById("postInput"),
+    postHeading: document.getElementById("postHeading"),
+    postBtn: document.getElementById("postBtn"),
+    postsContainer: document.getElementById("postsContainer"),
+    announcementCheck: document.getElementById("announcementCheck"),
+    adminOptions: document.getElementById("adminOptions"),
+
+    // Media upload
+    uploadImageBtn: document.getElementById("uploadImageBtn"),
+    uploadVideoBtn: document.getElementById("uploadVideoBtn"),
+    imageInput: document.getElementById("imageInput"),
+    videoInput: document.getElementById("videoInput"),
+    mediaPreview: document.getElementById("mediaPreview"),
+    uploadingIndicator: document.getElementById("uploadingIndicator"),
+
+    // Fullscreen overlay
+    fullscreenOverlay: document.getElementById("fullscreenOverlay"),
+    fullscreenContent: document.getElementById("fullscreenContent"),
+    fullscreenClose: document.getElementById("fullscreenClose"),
+    fullscreenPrev: document.getElementById("fullscreenPrev"),
+    fullscreenNext: document.getElementById("fullscreenNext")
+};
+
+// ============================================================================
+// UTILITY FUNCTIONS
+// ============================================================================
+
+const utils = {
+    filterProfanity(text) {
+        let filtered = text;
+        PROFANITY_LIST.forEach((word) => {
+            const regex = new RegExp(`\\b${word}\\b`, "gi");
+            filtered = filtered.replace(regex, "***");
+        });
+        return filtered;
+    },
+
+    showError(message, errorElement) {
+        errorElement.textContent = message;
+        errorElement.classList.remove("hidden");
+        setTimeout(() => errorElement.classList.add("hidden"), 5000);
+    },
+
+    formatTime(timestamp) {
+        if (!timestamp) return "Just now";
+        return timestamp.toDate().toLocaleString([], {
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        });
+    },
+
+    escapeHtml(unsafe) {
+        if (typeof unsafe !== "string") return unsafe;
+        return unsafe
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+};
+
+// ============================================================================
+// FIRESTORE OPERATIONS (For Posts)
+// ============================================================================
+
+const firestoreOps = {
+    async createPost(postData) {
+        await addDoc(collection(db, COLLECTIONS.POSTS), {
+            ...postData,
+            timestamp: serverTimestamp()
+        });
+    },
+
+    async deletePost(postId) {
+        await deleteDoc(doc(db, COLLECTIONS.POSTS, postId));
+    },
+
+    async updatePost(postId, data) {
+        await updateDoc(doc(db, COLLECTIONS.POSTS, postId), data);
+    },
+
+    subscribeToPosts(callback) {
+        const postsQuery = query(
+            collection(db, COLLECTIONS.POSTS),
+            orderBy("timestamp", "desc")
+        );
+        return onSnapshot(postsQuery, callback);
+    }
+};
+
+// ============================================================================
+// CLOUDINARY UPLOAD
+// ============================================================================
+
+const cloudinaryManager = {
+    async uploadFile(file, resourceType) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+        formData.append("resource_type", resourceType);
+
+        try {
+            const response = await fetch(
+                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
+                {
+                    method: "POST",
+                    body: formData
+                }
+            );
+
+            const data = await response.json();
+            return {
+                url: data.secure_url,
+                type: resourceType,
+                publicId: data.public_id
+            };
+        } catch (error) {
+            console.error("Upload error:", error);
+            throw error;
+        }
+    },
+
+    async handleFileUpload(files, type) {
+        if (!files.length) return;
+
+        elements.uploadingIndicator.classList.remove("hidden");
+        elements.uploadImageBtn.disabled = true;
+        elements.uploadVideoBtn.disabled = true;
+
+        try {
+            for (const file of files) {
+                const mediaData = await this.uploadFile(file, type);
+                state.uploadedMedia.push(mediaData);
+                mediaManager.addPreview(mediaData);
+            }
+        } catch (error) {
+            utils.showError("Failed to upload media. Please try again.", elements.postError);
+        } finally {
+            elements.uploadingIndicator.classList.add("hidden");
+            elements.uploadImageBtn.disabled = false;
+            elements.uploadVideoBtn.disabled = false;
+        }
+    }
+};
+
+// ============================================================================
+// MEDIA MANAGEMENT
+// ============================================================================
+
+const mediaManager = {
+    addPreview(mediaData) {
+        const previewItem = document.createElement("div");
+        previewItem.className = "media-preview-item";
+        previewItem.dataset.publicId = mediaData.publicId;
+
+        if (mediaData.type === "image") {
+            previewItem.innerHTML = `
+                <img src="${mediaData.url}" alt="Preview" />
+                <button class="media-preview-remove">×</button>
+            `;
+        } else {
+            previewItem.innerHTML = `
+                <video src="${mediaData.url}" muted></video>
+                <button class="media-preview-remove">×</button>
+            `;
+        }
+
+        const removeBtn = previewItem.querySelector(".media-preview-remove");
+        removeBtn.addEventListener("click", () => {
+            state.uploadedMedia = state.uploadedMedia.filter((m) => m.publicId !== mediaData.publicId);
+            previewItem.remove();
+        });
+
+        elements.mediaPreview.appendChild(previewItem);
+    },
+
+    openFullscreen(mediaArray, index) {
+        state.currentMediaArray = mediaArray;
+        state.currentMediaIndex = index;
+        this.showFullscreenMedia();
+        elements.fullscreenOverlay.classList.add("active");
+        document.body.style.overflow = "hidden";
+    },
+
+    showFullscreenMedia() {
+        const media = state.currentMediaArray[state.currentMediaIndex];
+        elements.fullscreenContent.innerHTML = "";
+
+        if (media.type === "image") {
+            const img = document.createElement("img");
+            img.src = media.url;
+            elements.fullscreenContent.appendChild(img);
+        } else {
+            const video = document.createElement("video");
+            video.src = media.url;
+            video.controls = true;
+            video.autoplay = true;
+            elements.fullscreenContent.appendChild(video);
+        }
+
+        elements.fullscreenPrev.style.display = state.currentMediaIndex > 0 ? "flex" : "none";
+        elements.fullscreenNext.style.display = 
+            state.currentMediaIndex < state.currentMediaArray.length - 1 ? "flex" : "none";
+    },
+
+    closeFullscreen() {
+        elements.fullscreenOverlay.classList.remove("active");
+        document.body.style.overflow = "";
+        const video = elements.fullscreenContent.querySelector("video");
+        if (video) video.pause();
+    },
+
+    navigatePrev() {
+        if (state.currentMediaIndex > 0) {
+            state.currentMediaIndex--;
+            this.showFullscreenMedia();
+        }
+    },
+
+    navigateNext() {
+        if (state.currentMediaIndex < state.currentMediaArray.length - 1) {
+            state.currentMediaIndex++;
+            this.showFullscreenMedia();
+        }
+    }
+};
+
+// ============================================================================
+// POST MANAGEMENT
+// ============================================================================
+
+const postManager = {
+    async createPost() {
+        const content = elements.postInput.value.trim();
+        const heading = elements.postHeading.value.trim();
+
+        if (!content && state.uploadedMedia.length === 0) {
+            utils.showError("Please write something or upload media", elements.postError);
+            return;
+        }
+
+        const filtered = utils.filterProfanity(content);
+        const filteredHeading = heading ? utils.filterProfanity(heading) : "";
+
+        try {
+            elements.postBtn.disabled = true;
+
+            const displayName = authState.currentUser?.displayName || authState.currentUser?.email || "Anonymous";
+
+            const postData = {
+                authorId: authState.currentUser?.uid || "anonymous",
+                authorName: displayName,
+                content: filtered,
+                likes: {},
+                media: state.uploadedMedia,
+                comments: {}
             };
 
-            firebase.initializeApp(firebaseConfig);
-            const auth = firebase.auth();
-            const db = firebase.firestore();
-
-            const ADMIN_EMAIL = "kaioliver111@gmail.com";
-
-            // State
-            let currentUser = null;
-            let userApproved = false;
-            let isSignupMode = false;
-            let polls = [];
-            let selectedPoll = null;
-            let selectedOption = "";
-            let userVotes = {};
-            let viewingResults = false;
-
-            // DOM Elements
-            const authScreen = document.getElementById("authScreen");
-            const pendingScreen = document.getElementById("pendingScreen");
-            const mainScreen = document.getElementById("mainScreen");
-            const authForm = document.getElementById("authForm");
-            const authTitle = document.getElementById("authTitle");
-            const authToggle = document.getElementById("authToggle");
-            const authSubmitBtn = document.getElementById("authSubmitBtn");
-            const displayNameGroup = document.getElementById("displayNameGroup");
-            const createPollBtn = document.getElementById("createPollBtn");
-            const createPollForm = document.getElementById("createPollForm");
-            const pollForm = document.getElementById("pollForm");
-            const optionsContainer = document.getElementById("optionsContainer");
-            const authMessageEl = document.getElementById("authMessage");
-            const authMessage2El = document.getElementById("authMessage2");
-            const userAvatarEl = document.getElementById("userAvatar");
-            const userNameEl = document.getElementById("userName");
-            const pollsListEl = document.getElementById("pollsList");
-            const pollDetailEl = document.getElementById("pollDetail");
-
-            // Utility: show messages
-            function showMessage(elId, text, type = "success", timeout = 5000) {
-                const el = document.getElementById(elId);
-                if (!el) return;
-                el.innerHTML = `<div class="message ${type === "error" ? "message-error" : "message-success"}">${escapeHtml(text)}</div>`;
-                el.classList.remove("hidden");
-                if (timeout > 0) {
-                    setTimeout(() => {
-                        clearMessage(elId);
-                    }, timeout);
-                }
-            }
-            function clearMessage(elId) {
-                const el = document.getElementById(elId);
-                if (!el) return;
-                el.innerHTML = "";
-                el.classList.add("hidden");
-            }
-            function escapeHtml(unsafe) {
-                if (typeof unsafe !== "string") return unsafe;
-                return unsafe
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/'/g, "&#039;");
+            if (filteredHeading) {
+                postData.heading = filteredHeading;
             }
 
-            // Initialize options input for create poll
-            function addOption() {
-                const div = document.createElement("div");
-                div.className = "option-input-group";
-                const count = optionsContainer.children.length + 1;
-                div.innerHTML = `
-        <input type="text" class="option-input" placeholder="Option ${count}">
-        ${optionsContainer.children.length >= 2 ? '<button type="button" class="btn btn-remove" onclick="this.parentElement.remove()">×</button>' : ""}
-      `;
-                optionsContainer.appendChild(div);
+            if (authState.isAdmin && elements.announcementCheck?.checked) {
+                postData.isAnnouncement = true;
             }
-            // Start with two inputs
-            addOption();
-            addOption();
 
-            // Auth state listener
-            auth.onAuthStateChanged(async (user) => {
-                if (user) {
-                    currentUser = user;
-                    // update UI elements for user while we check approval
-                    updateUserInfoUI();
+            await firestoreOps.createPost(postData);
 
-                    try {
-                        const userDoc = await db.collection("MessagesUsers").doc(user.uid).get();
-                        if (userDoc.exists && userDoc.data().approved === true) {
-                            userApproved = true;
-                            showMainScreen();
-                            loadPolls();
-                            loadUserVotes();
-                        } else {
-                            userApproved = false;
-                            showPendingScreen();
-                            // Listen for approval changes
-                            db.collection("MessagesUsers")
-                                .doc(user.uid)
-                                .onSnapshot((doc) => {
-                                    if (doc.exists() && doc.data().approved === true) {
-                                        userApproved = true;
-                                        showMainScreen();
-                                        loadPolls();
-                                        loadUserVotes();
-                                    }
-                                });
-                        }
-                    } catch (err) {
-                        console.error("Error checking approval", err);
-                        showAuthScreen();
-                    }
+            elements.postInput.value = "";
+            elements.postHeading.value = "";
+            if (elements.announcementCheck) elements.announcementCheck.checked = false;
+            state.uploadedMedia = [];
+            elements.mediaPreview.innerHTML = "";
+            elements.postBtn.disabled = false;
+        } catch (error) {
+            console.error("Error posting:", error);
+            utils.showError("Failed to post. Please try again.", elements.postError);
+            elements.postBtn.disabled = false;
+        }
+    },
+
+    async toggleLike(postId, likes, isLiked) {
+        try {
+            const newLikes = { ...likes };
+            const userId = authState.currentUser?.uid || `anon_${Date.now()}`;
+            
+            if (isLiked) {
+                delete newLikes[userId];
+            } else {
+                newLikes[userId] = true;
+            }
+            await firestoreOps.updatePost(postId, { likes: newLikes });
+        } catch (error) {
+            console.error("Error liking post:", error);
+        }
+    },
+
+    async addComment(postId, commentText, post) {
+        if (!commentText.trim()) return;
+
+        const filteredComment = utils.filterProfanity(commentText);
+
+        try {
+            const displayName = authState.currentUser?.displayName || authState.currentUser?.email || "Anonymous";
+
+            const newComments = { ...(post.comments || {}) };
+            const commentId = Date.now().toString();
+            newComments[commentId] = {
+                authorId: authState.currentUser?.uid || "anonymous",
+                authorName: displayName,
+                content: filteredComment,
+                timestamp: Date.now()
+            };
+
+            await firestoreOps.updatePost(postId, { comments: newComments });
+            return true;
+        } catch (error) {
+            console.error("Error posting comment:", error);
+            return false;
+        }
+    },
+
+    async deletePost(postId, isAuthor) {
+        const confirmMsg = authState.isAdmin && !isAuthor
+            ? "You are deleting this post as an admin. Continue?"
+            : "Are you sure you want to delete this post?";
+
+        if (confirm(confirmMsg)) {
+            try {
+                await firestoreOps.deletePost(postId);
+            } catch (error) {
+                console.error("Error deleting post:", error);
+                alert("Failed to delete post");
+            }
+        }
+    },
+
+    loadComments(postId, container, comments) {
+        container.innerHTML = "";
+
+        const commentArray = Object.entries(comments).map(([id, comment]) => ({
+            id,
+            ...comment
+        }));
+
+        commentArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+
+        commentArray.forEach((comment) => {
+            const commentDiv = document.createElement("div");
+            commentDiv.className = "comment";
+
+            const commentTime = new Date(comment.timestamp).toLocaleString([], {
+                month: "short",
+                day: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+
+            commentDiv.innerHTML = `
+                <div class="comment-header">
+                    <div class="comment-avatar">${comment.authorName[0].toUpperCase()}</div>
+                    <div class="comment-author">${comment.authorName}</div>
+                    <div class="comment-time">${commentTime}</div>
+                </div>
+                <div class="comment-content">${comment.content}</div>
+            `;
+
+            container.appendChild(commentDiv);
+        });
+    }
+};
+
+// ============================================================================
+// UI MANAGEMENT
+// ============================================================================
+
+const uiManager = {
+    displayPost(postId, post) {
+        const postDiv = document.createElement("div");
+        postDiv.className = "post";
+        if (post.isAnnouncement) {
+            postDiv.classList.add("announcement");
+        }
+
+        const time = utils.formatTime(post.timestamp);
+        const likes = post.likes || {};
+        const currentUserId = authState.currentUser?.uid;
+        const isLiked = currentUserId && likes[currentUserId] === true;
+        const likeCount = Object.keys(likes).length;
+        const isAuthor = post.authorId === currentUserId;
+
+        const announcementBadge = post.isAnnouncement
+            ? '<div class="announcement-badge">📢 ANNOUNCEMENT</div>'
+            : "";
+        const headingHtml = post.heading ? `<div class="post-heading">${post.heading}</div>` : "";
+
+        let mediaHtml = "";
+        if (post.media && post.media.length > 0) {
+            const singleClass = post.media.length === 1 ? "single" : "";
+            mediaHtml = '<div class="post-media">';
+            post.media.forEach((media, index) => {
+                if (media.type === "image") {
+                    mediaHtml += `
+                        <div class="post-media-item ${singleClass}" data-media-index="${index}">
+                            <img src="${media.url}" alt="Post media" />
+                        </div>
+                    `;
                 } else {
-                    currentUser = null;
-                    userApproved = false;
-                    showAuthScreen();
+                    mediaHtml += `
+                        <div class="post-media-item ${singleClass}" data-media-index="${index}">
+                            <video src="${media.url}" controls></video>
+                        </div>
+                    `;
                 }
             });
+            mediaHtml += "</div>";
+        }
 
-            function updateUserInfoUI() {
-                if (!currentUser) return;
-                const name = currentUser.displayName || (currentUser.email ? currentUser.email.split("@")[0] : "User");
-                userNameEl.textContent = name;
-                userAvatarEl.textContent = (name[0] || "U").toUpperCase();
-                // Show create poll button only for admin
-                if (currentUser.email && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-                    createPollBtn.classList.remove("hidden");
-                } else {
-                    createPollBtn.classList.add("hidden");
-                    createPollForm.classList.add("hidden");
-                }
-            }
+        const comments = post.comments || {};
+        const commentCount = Object.keys(comments).length;
+        const commentText = commentCount === 1 ? "1 comment" : `${commentCount} comments`;
 
-            // Toggle auth mode
-            authToggle.addEventListener("click", () => {
-                isSignupMode = !isSignupMode;
-                if (isSignupMode) {
-                    authTitle.textContent = "Create Your Account";
-                    authSubmitBtn.textContent = "Sign Up";
-                    authToggle.textContent = "Already have an account? Log in";
-                    displayNameGroup.classList.remove("hidden");
-                } else {
-                    authTitle.textContent = "Welcome Back";
-                    authSubmitBtn.textContent = "Log In";
-                    authToggle.textContent = "Need an account? Sign up";
-                    displayNameGroup.classList.add("hidden");
-                }
-                clearMessage("authMessage");
-            });
-
-            // Auth form submit
-            authForm.addEventListener("submit", async (e) => {
-                e.preventDefault();
-
-                const email = document.getElementById("emailInput").value;
-                const password = document.getElementById("passwordInput").value;
-                const displayName = document.getElementById("displayNameInput").value;
-
-                try {
-                    if (isSignupMode) {
-                        if (!displayName) {
-                            showMessage("authMessage", "Please enter a display name", "error");
-                            return;
-                        }
-
-                        const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-                        await userCredential.user.updateProfile({ displayName });
-
-                        await db.collection("MessagesUsers").doc(userCredential.user.uid).set({
-                            uid: userCredential.user.uid,
-                            displayName: displayName,
-                            email: email,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
-                            approved: false
-                        });
-
-                        showMessage("authMessage", "Account created! Awaiting approval...", "success");
-                    } else {
-                        await auth.signInWithEmailAndPassword(email, password);
-                    }
-                } catch (error) {
-                    // Firebase errors can be verbose; show a shorter message
-                    const msg =
-                        error && error.message ? error.message.replace("Firebase: ", "") : "Authentication error";
-                    showMessage("authMessage", msg, "error");
-                }
-            });
-
-            // Create poll button toggle (admin only)
-            createPollBtn.addEventListener("click", () => {
-                createPollForm.classList.toggle("hidden");
-            });
-
-            // Poll form submit
-            pollForm.addEventListener("submit", async (e) => {
-                e.preventDefault();
-
-                const title = document.getElementById("pollTitle").value.trim();
-                const description = document.getElementById("pollDescription").value.trim();
-                const endDate = document.getElementById("pollEndDate").value;
-                const options = Array.from(document.querySelectorAll(".option-input"))
-                    .map((input) => input.value.trim())
-                    .filter((val) => val !== "");
-
-                if (!title) {
-                    showMessage("authMessage2", "Please provide a poll title", "error");
-                    return;
-                }
-
-                if (!endDate) {
-                    showMessage("authMessage2", "Please set an end date", "error");
-                    return;
-                }
-
-                if (options.length < 2) {
-                    showMessage("authMessage2", "Please provide at least 2 options", "error");
-                    return;
-                }
-
-                try {
-                    const votes = {};
-                    options.forEach((opt) => {
-                        votes[opt] = [];
-                    });
-
-                    await db.collection("Polls").add({
-                        title,
-                        description,
-                        options,
-                        votes,
-                        endDate: new Date(endDate).toISOString(),
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        createdBy: currentUser.uid,
-                        active: true
-                    });
-
-                    showMessage("authMessage2", "Poll created successfully!", "success");
-                    createPollForm.classList.add("hidden");
-                    pollForm.reset();
-                    optionsContainer.innerHTML = "";
-                    addOption();
-                    addOption();
-                } catch (error) {
-                    console.error("Error creating poll:", error);
-                    showMessage("authMessage2", "Error creating poll: " + (error.message || error), "error");
-                }
-            });
-
-            // Load polls (real-time)
-            function loadPolls() {
-                db.collection("Polls")
-                    .orderBy("createdAt", "desc")
-                    .onSnapshot(
-                        (snapshot) => {
-                            polls = [];
-                            snapshot.forEach((doc) => {
-                                polls.push({ id: doc.id, ...doc.data() });
-                            });
-                            renderPollsList();
-                            if (selectedPoll) {
-                                const updated = polls.find((p) => p.id === selectedPoll.id);
-                                if (updated) {
-                                    selectedPoll = updated;
-                                    renderPollDetail();
-                                }
-                            }
-                        },
-                        (err) => {
-                            console.error("Error loading polls:", err);
-                        }
-                    );
-            }
-
-            // Load user votes (real-time)
-            function loadUserVotes() {
-                if (!currentUser) return;
-                db.collection("UserVotes")
-                    .doc(currentUser.uid)
-                    .onSnapshot(
-                        (doc) => {
-                            if (doc.exists()) {
-                                userVotes = doc.data().votes || {};
-                            } else {
-                                userVotes = {};
-                            }
-                            renderPollsList();
-                            renderPollDetail();
-                        },
-                        (err) => {
-                            console.error("Error loading user votes:", err);
-                        }
-                    );
-            }
-
-            // Render polls list
-            function renderPollsList() {
-                if (!pollsListEl) return;
-                if (polls.length === 0) {
-                    pollsListEl.innerHTML = '<div class="empty-state"><p>No polls available yet.</p></div>';
-                    return;
-                }
-
-                pollsListEl.innerHTML = polls
-                    .map((poll) => {
-                        const ended = new Date(poll.endDate) < new Date();
-                        const voted = Boolean(userVotes && userVotes[poll.id]);
-                        const active = selectedPoll && selectedPoll.id === poll.id ? "active" : "";
-
-                        const safeTitle = escapeHtml(poll.title || "");
-                        const safeDesc = escapeHtml(poll.description || "");
-
-                        return `
-          <div class="poll-item ${active}" onclick="selectPoll('${poll.id}')">
-            <h4>
-              ${safeTitle}
-              ${ended ? '<span class="poll-badge badge-ended">Ended</span>' : ""}
-              ${voted ? '<span class="poll-badge badge-voted">✓ Voted</span>' : ""}
-            </h4>
-            <div class="poll-desc">${safeDesc}</div>
-            <div class="poll-meta">Ends: ${new Date(poll.endDate).toLocaleString()}</div>
-          </div>
-        `;
-                    })
-                    .join("");
-            }
-
-            // Select poll
-            function selectPoll(pollId) {
-                selectedPoll = polls.find((p) => p.id === pollId);
-                selectedOption = userVotes[pollId] || "";
-                viewingResults = false;
-                renderPollDetail();
-                renderPollsList();
-            }
-
-            // Render poll detail
-            function renderPollDetail() {
-                if (!pollDetailEl) return;
-
-                if (!selectedPoll) {
-                    pollDetailEl.innerHTML = `
-          <div class="empty-state">
-            <h3>Select a Poll</h3>
-            <p>Choose a poll from the list to vote or view results</p>
-          </div>
-        `;
-                    return;
-                }
-
-                if (viewingResults) {
-                    renderResults();
-                    return;
-                }
-
-                const ended = new Date(selectedPoll.endDate) < new Date();
-                const voted = userVotes && userVotes[selectedPoll.id];
-
-                const safeTitle = escapeHtml(selectedPoll.title || "");
-                const safeDesc = escapeHtml(selectedPoll.description || "");
-
-                if (voted) {
-                    pollDetailEl.innerHTML = `
-          <h2>${safeTitle}</h2>
-          <p class="poll-desc" style="margin: 15px 0;">${safeDesc}</p>
-          <div class="already-voted">
-            <p>You voted for: <strong>${escapeHtml(voted)}</strong></p>
-          </div>
-          <button class="btn" onclick="viewResults()">View Results</button>
-        `;
-                    return;
-                }
-
-                if (ended) {
-                    pollDetailEl.innerHTML = `
-          <h2>${safeTitle}</h2>
-          <p class="poll-desc" style="margin: 15px 0;">${safeDesc}</p>
-          <div class="poll-ended-notice">
-            <p>This poll has ended</p>
-          </div>
-          <button class="btn" onclick="viewResults()">View Results</button>
-        `;
-                    return;
-                }
-
-                // Voting UI
-                pollDetailEl.innerHTML = `
-        <h2>${safeTitle}</h2>
-        <p class="poll-desc" style="margin: 15px 0;">${safeDesc}</p>
-        <h4 style="margin: 30px 0 15px;">Choose your option:</h4>
-        <div class="options-list" id="optionsListContainer"></div>
-        <button class="btn" id="submitVoteBtn" ${!selectedOption ? "disabled" : ""}>Submit Vote</button>
-        <button class="btn btn-secondary" onclick="viewResults()" style="margin-top: 10px;">View Current Results</button>
-      `;
-
-                const optionsListContainer = document.getElementById("optionsListContainer");
-                if (optionsListContainer) {
-                    optionsListContainer.innerHTML = selectedPoll.options
-                        .map(
-                            (opt) => `
-          <div class="option-item ${selectedOption === opt ? "selected" : ""}" data-opt="${escapeHtml(opt)}" onclick="selectOption('${escapeHtml(opt)}')">
-            <div class="radio">
-              ${selectedOption === opt ? '<div class="radio-inner"></div>' : ""}
+        postDiv.innerHTML = `
+            ${announcementBadge}
+            <div class="post-header">
+                <div class="post-avatar">${post.authorName[0].toUpperCase()}</div>
+                <div class="post-author-info">
+                    <div class="post-author">${post.authorName}</div>
+                    <div class="post-time">${time}</div>
+                </div>
             </div>
-            <span>${escapeHtml(opt)}</span>
-          </div>
-        `
-                        )
-                        .join("");
-                }
+            ${headingHtml}
+            <div class="post-content">${post.content}</div>
+            ${mediaHtml}
+            <div class="post-actions">
+                <button class="action-btn ${isLiked ? "liked" : ""}" data-post-id="${postId}" data-action="like">
+                    ${isLiked ? "❤️" : "🤍"} ${likeCount > 0 ? likeCount : ""}
+                </button>
+                <button class="action-btn" data-post-id="${postId}" data-action="comment">
+                    💬 ${commentCount > 0 ? commentText : "Comment"}
+                </button>
+                ${isAuthor || authState.isAdmin ? `<button class="action-btn delete-btn" data-post-id="${postId}" data-action="delete">🗑️ Delete</button>` : ""}
+            </div>
+            <div class="comments-section" data-post-id="${postId}">
+                <div class="comments-container hidden" id="comments-${postId}"></div>
+                <div class="comment-input-container hidden" id="comment-input-${postId}">
+                    <input type="text" class="comment-input" placeholder="Write a comment..." />
+                    <button class="comment-btn">Post</button>
+                </div>
+            </div>
+        `;
 
-                // Wire submit button
-                const submitBtn = document.getElementById("submitVoteBtn");
-                if (submitBtn) {
-                    submitBtn.onclick = submitVote;
-                }
-            }
-
-            // Select option
-            function selectOption(option) {
-                selectedOption = option;
-                renderPollDetail();
-            }
-
-            // Submit vote (transactional to avoid double-vote race conditions)
-            async function submitVote() {
-                if (!selectedOption || !selectedPoll || !currentUser) return;
-
-                const pollRef = db.collection("Polls").doc(selectedPoll.id);
-                const userVotesRef = db.collection("UserVotes").doc(currentUser.uid);
-
-                try {
-                    await db.runTransaction(async (t) => {
-                        const pollDoc = await t.get(pollRef);
-                        if (!pollDoc.exists) {
-                            throw new Error("Poll not found");
-                        }
-                        const pollData = pollDoc.data();
-                        const ended = new Date(pollData.endDate) < new Date();
-                        if (ended) {
-                            throw new Error("This poll has already ended");
-                        }
-                        if (!Array.isArray(pollData.options) || !pollData.options.includes(selectedOption)) {
-                            throw new Error("Selected option is invalid");
-                        }
-
-                        const userDoc = await t.get(userVotesRef);
-                        const existingVotes = userDoc.exists && userDoc.data().votes ? userDoc.data().votes : {};
-                        if (existingVotes && existingVotes[selectedPoll.id]) {
-                            throw new Error("You have already voted on this poll!");
-                        }
-
-                        // Add user id to poll votes for the chosen option
-                        t.update(pollRef, {
-                            [`votes.${selectedOption}`]: firebase.firestore.FieldValue.arrayUnion(currentUser.uid)
-                        });
-
-                        // Record user's vote
-                        const newUserVotes = { ...(existingVotes || {}), [selectedPoll.id]: selectedOption };
-                        t.set(userVotesRef, { votes: newUserVotes }, { merge: true });
-                    });
-
-                    // Update local state & UI after successful transaction
-                    userVotes[selectedPoll.id] = selectedOption;
-                    showMessage("authMessage2", "Vote submitted successfully!", "success");
-
-                    // Refresh selectedPoll from server to show up-to-date results / counts
-                    const updatedPollDoc = await pollRef.get();
-                    if (updatedPollDoc.exists) {
-                        selectedPoll = { id: updatedPollDoc.id, ...updatedPollDoc.data() };
-                    }
-                    selectedOption = "";
-                    renderPollDetail();
-                    renderPollsList();
-                } catch (error) {
-                    const msg = error && error.message ? error.message : "Error submitting vote";
-                    showMessage("authMessage2", msg, "error");
-                    // Refresh user votes if the transaction failed due to existing vote
-                    try {
-                        const uv = await userVotesRef.get();
-                        if (uv.exists()) {
-                            userVotes = uv.data().votes || {};
-                        }
-                    } catch (e) {
-                        console.warn("Could not refresh userVotes", e);
-                    }
-                    renderPollDetail();
-                }
-            }
-
-            // View results
-            function viewResults() {
-                viewingResults = true;
-                renderResults();
-            }
-
-            // Render results
-            function renderResults() {
-                if (!selectedPoll) return;
-                const pollDetail = document.getElementById("pollDetail");
-
-                const results = {};
-                let totalVotes = 0;
-
-                (selectedPoll.options || []).forEach((option) => {
-                    const voteCount =
-                        selectedPoll.votes && Array.isArray(selectedPoll.votes[option])
-                            ? selectedPoll.votes[option].length
-                            : 0;
-                    results[option] = voteCount;
-                    totalVotes += voteCount;
+        // Media click handlers
+        if (post.media && post.media.length > 0) {
+            const mediaItems = postDiv.querySelectorAll(".post-media-item");
+            mediaItems.forEach((item) => {
+                item.addEventListener("click", () => {
+                    const index = parseInt(item.dataset.mediaIndex);
+                    mediaManager.openFullscreen(post.media, index);
                 });
+            });
+        }
 
-                const ended = new Date(selectedPoll.endDate) < new Date();
-                let winner = "";
+        // Like button
+        const likeBtn = postDiv.querySelector('[data-action="like"]');
+        likeBtn.addEventListener("click", () => {
+            postManager.toggleLike(postId, likes, isLiked);
+        });
 
-                if (ended) {
-                    const maxVotes = Math.max(...Object.values(results));
-                    const winners = Object.keys(results).filter((key) => results[key] === maxVotes);
-                    if (winners.length > 0) {
-                        winner =
-                            winners.length > 1
-                                ? winners[Math.floor(Math.random() * winners.length)] + " (Tie - Random Winner)"
-                                : winners[0];
-                    }
-                }
+        // Comment button
+        const commentBtn = postDiv.querySelector('[data-action="comment"]');
+        const commentsContainer = postDiv.querySelector(`#comments-${postId}`);
+        const commentInputContainer = postDiv.querySelector(`#comment-input-${postId}`);
 
-                const safeTitle = escapeHtml(selectedPoll.title || "");
-                const safeDesc = escapeHtml(selectedPoll.description || "");
+        commentBtn.addEventListener("click", () => {
+            const isHidden = commentsContainer.classList.contains("hidden");
+            if (isHidden) {
+                commentsContainer.classList.remove("hidden");
+                commentInputContainer.classList.remove("hidden");
+                postManager.loadComments(postId, commentsContainer, post.comments || {});
+            } else {
+                commentsContainer.classList.add("hidden");
+                commentInputContainer.classList.add("hidden");
+            }
+        });
 
-                pollDetail.innerHTML = `
-        <button class="btn btn-small" onclick="backToPoll()" style="width: auto; margin-bottom: 20px;">← Back to Poll</button>
-        
-        <h2>${safeTitle}</h2>
-        <p class="poll-desc" style="margin: 15px 0;">${safeDesc}</p>
-        
-        <div style="margin-top: 30px;">
-          <h4>Results (${totalVotes} votes)</h4>
-          <div id="resultsContainer"></div>
-          ${
-              ended && winner
-                  ? `
-            <div class="winner-box">
-              <h4>🏆 Winner</h4>
-              <p>${escapeHtml(winner)}</p>
-            </div>
-          `
-                  : ""
-          }
-        </div>
-      `;
+        // Comment input
+        const commentInput = commentInputContainer.querySelector(".comment-input");
+        const commentPostBtn = commentInputContainer.querySelector(".comment-btn");
 
-                const resultsContainer = document.getElementById("resultsContainer");
-                if (resultsContainer) {
-                    resultsContainer.innerHTML = (selectedPoll.options || [])
-                        .map((option) => {
-                            const votes = results[option] || 0;
-                            const percentage = totalVotes > 0 ? ((votes / totalVotes) * 100).toFixed(1) : 0;
-                            return `
-            <div class="result-item">
-              <div class="result-header">
-                <span>${escapeHtml(option)}</span>
-                <span>${votes} votes (${percentage}%)</span>
-              </div>
-              <div class="result-bar">
-                <div class="result-bar-fill" style="width: ${percentage}%"></div>
-              </div>
-            </div>
-          `;
-                        })
-                        .join("");
-                }
+        commentPostBtn.addEventListener("click", async () => {
+            const commentText = commentInput.value.trim();
+            if (!commentText) return;
+
+            commentPostBtn.disabled = true;
+            const success = await postManager.addComment(postId, commentText, post);
+            if (success) {
+                commentInput.value = "";
+            }
+            commentPostBtn.disabled = false;
+        });
+
+        // Delete button
+        if (isAuthor || authState.isAdmin) {
+            const deleteBtn = postDiv.querySelector('[data-action="delete"]');
+            if (deleteBtn) {
+                deleteBtn.addEventListener("click", () => {
+                    postManager.deletePost(postId, isAuthor);
+                });
+            }
+        }
+
+        elements.postsContainer.appendChild(postDiv);
+
+        if (commentCount > 0) {
+            postManager.loadComments(postId, commentsContainer, post.comments || {});
+        }
+    },
+
+    loadPosts() {
+        firestoreOps.subscribeToPosts((snapshot) => {
+            elements.postsContainer.innerHTML = "";
+
+            if (snapshot.empty) {
+                elements.postsContainer.innerHTML = `
+                    <div class="empty-state">
+                        <h3>No posts yet</h3>
+                        <p>Be the first to share something with the community!</p>
+                    </div>
+                `;
+                return;
             }
 
-            // Back to poll
-            function backToPoll() {
-                viewingResults = false;
-                renderPollDetail();
-            }
+            snapshot.forEach((docSnap) => {
+                const post = docSnap.data();
+                this.displayPost(docSnap.id, post);
+            });
+        });
+    }
+};
 
-            // Logout
-            function logout() {
-                auth.signOut().catch((err) => console.warn("Sign out error", err));
-                selectedPoll = null;
-                viewingResults = false;
-            }
+// ============================================================================
+// EVENT LISTENERS (For Posts)
+// ============================================================================
 
-            // Screen helpers
-            function showAuthScreen() {
-                authScreen.classList.remove("hidden");
-                pendingScreen.classList.add("hidden");
-                mainScreen.classList.add("hidden");
-                clearMessage("authMessage");
-                clearMessage("authMessage2");
-                // reset some UI state
-                userNameEl.textContent = "User";
-                userAvatarEl.textContent = "U";
-            }
+function setupEventListeners() {
+    // Post button
+    elements.postBtn?.addEventListener("click", () => {
+        postManager.createPost();
+    });
 
-            function showPendingScreen() {
-                authScreen.classList.add("hidden");
-                pendingScreen.classList.remove("hidden");
-                mainScreen.classList.add("hidden");
-                clearMessage("authMessage");
-                clearMessage("authMessage2");
-                updateUserInfoUI();
-            }
+    // Media upload
+    elements.uploadImageBtn?.addEventListener("click", () => elements.imageInput.click());
+    elements.uploadVideoBtn?.addEventListener("click", () => elements.videoInput.click());
 
-            function showMainScreen() {
-                authScreen.classList.add("hidden");
-                pendingScreen.classList.add("hidden");
-                mainScreen.classList.remove("hidden");
-                clearMessage("authMessage");
-                clearMessage("authMessage2");
-                updateUserInfoUI();
-            }
+    elements.imageInput?.addEventListener("change", async (e) => {
+        await cloudinaryManager.handleFileUpload(e.target.files, "image");
+        elements.imageInput.value = "";
+    });
 
-            // Expose functions used in inline onclick attributes
-            window.selectPoll = selectPoll;
-            window.selectOption = selectOption;
-            window.submitVote = submitVote;
-            window.viewResults = viewResults;
-            window.backToPoll = backToPoll;
-            window.addOption = addOption;
-            window.logout = logout;
-        </script>
-    </body>
+    elements.videoInput?.addEventListener("change", async (e) => {
+        await cloudinaryManager.handleFileUpload(e.target.files, "video");
+        elements.videoInput.value = "";
+    });
+
+    // Fullscreen controls
+    elements.fullscreenClose?.addEventListener("click", () => {
+        mediaManager.closeFullscreen();
+    });
+
+    elements.fullscreenPrev?.addEventListener("click", () => {
+        mediaManager.navigatePrev();
+    });
+
+    elements.fullscreenNext?.addEventListener("click", () => {
+        mediaManager.navigateNext();
+    });
+
+    elements.fullscreenOverlay?.addEventListener("click", (e) => {
+        if (e.target === elements.fullscreenOverlay) {
+            mediaManager.closeFullscreen();
+        }
+    });
+}
+
+// ============================================================================
+// INITIALIZATION
+// ============================================================================
+
+function initialize() {
+    console.log("Initializing application...");
+    
+    // Initialize authentication first
+    initializeAuth();
+    
+    // Setup post event listeners
+    setupEventListeners();
+    
+    // Expose to window
+    window.authManager = authManager;
+    window.authUIManager = authUIManager;
+    window.postManager = postManager;
+    window.mediaManager = mediaManager;
+    
+    console.log("Application initialized");
+}
+
+// Initialize when DOM is ready
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initialize);
+} else {
+    initialize();
+}
+
+</script>
+</body>
 </html>
-```
