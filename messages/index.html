@@ -3,659 +3,699 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>AllForOne Messages</title>
-        <style>
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif; background-color: #f9f9f9; color: #1c1c1c; min-height: 100vh; margin: 0; }
-            .container { width: 100%; min-height: 100vh; background: white; display: flex; flex-direction: column; }
-            .header { background: linear-gradient(135deg, #1e90ff 0%, #0b5394 100%); padding: 15px 30px; color: white; flex-shrink: 0; }
-            .header h1 { font-size: 24px; font-weight: 600; margin-bottom: 3px; }
-            .header p { font-size: 13px; opacity: 0.9; }
-            .auth-section, .pending-section { padding: 30px; text-align: center; flex: 1; display: flex; flex-direction: column; justify-content: center; }
-            .auth-section h2, .pending-section h2 { color: #1e90ff; margin-bottom: 20px; font-size: 24px; }
-            .pending-section p { color: #666; margin-bottom: 20px; line-height: 1.6; }
-            .auth-form { max-width: 400px; margin: 0 auto; width: 100%; }
-            .input-group { margin-bottom: 15px; }
-            input { width: 100%; padding: 14px 18px; border: 1px solid #e0e0e0; border-radius: 10px; font-size: 15px; transition: all 0.3s; background: #f9f9f9; }
-            input:focus { outline: none; border-color: #1e90ff; background: white; }
-            button { width: 100%; padding: 14px; background: #1e90ff; color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: 500; cursor: pointer; transition: all 0.3s; margin-bottom: 10px; }
-            button:hover { background: #0b5394; transform: translateY(-1px); }
-            button:active { transform: translateY(0); }
-            button:disabled { background: #ccc; cursor: not-allowed; transform: none; }
-            .secondary-btn { background: #4a86e8; }
-            .secondary-btn:hover { background: #0b5394; }
-            .logout-btn { background: #ef4444; width: auto; padding: 10px 20px; font-size: 14px; margin: 0; }
-            .logout-btn:hover { background: #dc2626; }
-            .toggle-link { color: #1e90ff; cursor: pointer; text-decoration: underline; margin-top: 15px; display: inline-block; }
-            .toggle-link:hover { color: #0b5394; }
-            .chat-container { display: flex; flex: 1; min-height: 500px; }
-            .users-list { width: 300px; border-right: 1px solid #e0e0e0; overflow-y: auto; background: #f9f9f9; }
-            .user-item { padding: 16px 20px; border-bottom: 1px solid #e0e0e0; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px; }
-            .user-item:hover { background: white; }
-            .user-item.active { background: #e3f2fd; border-left: 3px solid #1e90ff; }
-            .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #4a86e8, #1e90ff); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px; }
-            .user-info { flex: 1; }
-            .user-name { font-weight: 500; color: #1c1c1c; margin-bottom: 2px; }
-            .user-status { font-size: 12px; color: #666; }
-            .chat-area { flex: 1; display: flex; flex-direction: column; min-height: 500px; }
-            .chat-header { padding: 15px 30px; border-bottom: 1px solid #e0e0e0; background: white; flex-shrink: 0; }
-            .chat-header h3 { color: #1e90ff; font-size: 18px; }
-            .messages-container { flex: 1; overflow-y: auto; overflow-x: hidden; padding: 20px 30px; background: #f9f9f9; min-height: 300px; }
-            .message { margin-bottom: 16px; display: flex; gap: 10px; animation: slideIn 0.3s ease; }
-            @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-            .message.sent { flex-direction: row-reverse; }
-            .message-bubble { max-width: 60%; padding: 12px 16px; border-radius: 16px; word-wrap: break-word; word-break: break-word; overflow-wrap: break-word; }
-            .message.received .message-bubble { background: white; border: 1px solid #e0e0e0; color: #1c1c1c; }
-            .message.sent .message-bubble { background: #1e90ff; color: white; }
-            .message-meta { font-size: 11px; opacity: 0.7; margin-top: 4px; }
-            .message-input-area { padding: 15px 30px; border-top: 1px solid #e0e0e0; background: white; display: flex; gap: 12px; flex-shrink: 0; }
-            .message-input { flex: 1; padding: 14px 18px; border: 1px solid #e0e0e0; border-radius: 24px; font-size: 15px; resize: none; font-family: inherit; background: #f9f9f9; }
-            .message-input:focus { outline: none; border-color: #1e90ff; background: white; }
-            .send-btn { width: 50px; height: 50px; border-radius: 50%; background: #1e90ff; border: none; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
-            .send-btn:hover { background: #0b5394; transform: scale(1.05); }
-            .send-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
-            .image-upload-btn { width: 50px; height: 50px; border-radius: 50%; background: #4a86e8; border: none; color: white; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
-            .image-upload-btn:hover { background: #0b5394; transform: scale(1.05); }
-            .message-image { max-width: 100%; max-height: 300px; width: auto; height: auto; display: block; border-radius: 12px; cursor: pointer; transition: transform 0.2s; }
-            .message-image:hover { transform: scale(1.02); }
-            .image-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 1000; align-items: center; justify-content: center; }
-            .image-modal.active { display: flex; }
-            .image-modal img { max-width: 90%; max-height: 90%; border-radius: 8px; }
-            .image-modal-close { position: absolute; top: 20px; right: 20px; background: white; border: none; width: 40px; height: 40px; border-radius: 50%; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-            .error { background: #fff1f2; color: #ef4444; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; border: 1px solid #fee2e2; }
-            .success { background: #ecfdf5; color: #047857; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 14px; border: 1px solid #d1fae5; }
-            .hidden { display: none !important; }
-            .empty-state { text-align: center; padding: 60px 20px; color: #666; }
-            .empty-state h3 { color: #1e90ff; margin-bottom: 10px; font-size: 20px; }
-            ::-webkit-scrollbar { width: 8px; }
-            ::-webkit-scrollbar-track { background: #f9f9f9; }
-            ::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
-            ::-webkit-scrollbar-thumb:hover { background: #999; }
-            .loading { text-align: center; padding: 20px; color: #666; }
-            .top-bar { padding: 12px 30px; border-bottom: 1px solid #e0e0e0; display: flex; justify-content: space-between; align-items: center; background: white; flex-shrink: 0; }
-            .user-info-display { display: flex; align-items: center; gap: 12px; }
-            .top-bar-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #4a86e8, #1e90ff); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 16px; }
-        </style>
+        <title>Private Messaging</title>
+        <link rel="stylesheet" href="style.css" />
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     </head>
     <body>
         <div class="container">
+            <!-- Header -->
             <div class="header">
-                <h1>AllForOne Messages</h1>
-                <p>Minecraft Education Edition Server - 24/7 Community</p>
+                <h1>Private Messages</h1>
+                <p>Connect privately with community members</p>
             </div>
 
-            <div id="navbar-placeholder"></div>
-            <script>
-                fetch("https://allforoneserver.github.io/navigation.html")
-                    .then((response) => response.text())
-                    .then((data) => {
-                        document.getElementById("navbar-placeholder").innerHTML = data;
-                        const scripts = document.getElementById("navbar-placeholder").getElementsByTagName("script");
-                        for (let script of scripts) {
-                            try {
-                                (0, eval)(script.innerHTML);
-                            } catch (e) {
-                                console.warn("Navbar script error", e);
-                            }
-                        }
-                    })
-                    .catch((error) => console.error("Error loading navbar:", error));
-            </script>
-
-            <!-- Auth Section -->
-            <div id="authSection" class="auth-section">
-                <h2 id="authTitle">Welcome Back</h2>
-                <div id="authError" class="error hidden"></div>
-                <div id="authSuccess" class="success hidden"></div>
-                <div class="auth-form">
-                    <div class="input-group">
-                        <input type="email" id="emailInput" placeholder="Email Address" />
+            <!-- Top Bar -->
+            <div class="top-bar hidden" id="topBar">
+                <div class="user-info-display">
+                    <div class="top-bar-avatar" id="topBarAvatar"></div>
+                    <div>
+                        <div id="topBarName" style="font-weight: 600"></div>
+                        <div style="font-size: 12px; color: #666">Online</div>
                     </div>
-                    <div class="input-group">
-                        <input type="password" id="passwordInput" placeholder="Password" />
-                    </div>
-                    <div class="input-group hidden" id="displayNameGroup">
-                        <input type="text" id="displayNameInput" placeholder="Display Name" />
-                    </div>
-                    <button id="primaryBtn">Log In</button>
-                    <div class="toggle-link" id="toggleAuth">Need an account? Sign up</div>
+                </div>
+                <div style="display: flex; gap: 10px">
+                    <button class="secondary-btn" onclick="showBlockedUsers()" style="width: auto; padding: 10px 20px">
+                        Blocked Users
+                    </button>
+                    <button class="logout-btn" onclick="logout()">Logout</button>
                 </div>
             </div>
 
-            <!-- Pending Approval Section -->
-            <div id="pendingSection" class="pending-section hidden">
-                <h2>⏳ Awaiting Approval</h2>
-                <p>Your account has been created successfully!</p>
-                <p>Please wait for an administrator to approve your account before you can access the messaging system.</p>
-                <p style="font-size: 14px; color: #047857; margin-top: 20px; font-weight: 500">✓ This page will automatically refresh when you're approved</p>
-                <p style="font-size: 14px; color: #999; margin-top: 10px">You can also click "Back to Login" to check manually</p>
-                <button id="backToLoginBtn" class="secondary-btn" style="max-width: 300px; margin: 20px auto 0">Back to Login</button>
-            </div>
-
-            <!-- Chat Section -->
-            <div id="chatSection" class="hidden">
-                <div class="top-bar">
-                    <div class="user-info-display">
-                        <div class="top-bar-avatar" id="userAvatar"></div>
-                        <div>
-                            <div style="color: #1e90ff; font-weight: 500; font-size: 14px">Logged in as</div>
-                            <div style="font-weight: 500" id="currentUserDisplay"></div>
+            <!-- Login Form -->
+            <div class="auth-section centered" id="loginForm">
+                <div class="auth-card">
+                    <h2>Welcome Back</h2>
+                    <div class="auth-form">
+                        <div class="input-group">
+                            <input type="email" id="email" placeholder="Email" />
                         </div>
+                        <div class="input-group">
+                            <input type="password" id="password" placeholder="Password" />
+                        </div>
+                        <button onclick="login()">Login</button>
+                        <p style="margin-top: 20px">Don't have an account?</p>
+                        <button class="secondary-btn" onclick="showSignup()">Sign Up</button>
                     </div>
-                    <button class="logout-btn" id="logoutBtn">Log Out</button>
                 </div>
+            </div>
 
+            <!-- Signup Form -->
+            <div class="auth-section centered hidden" id="signupForm">
+                <div class="auth-card">
+                    <h2>Create Account</h2>
+                    <div class="auth-form">
+                        <div class="input-group">
+                            <input type="text" id="signupName" placeholder="Full Name" />
+                        </div>
+                        <div class="input-group">
+                            <input type="email" id="signupEmail" placeholder="Email" />
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="signupPassword" placeholder="Password" />
+                        </div>
+                        <button onclick="signup()">Sign Up</button>
+                        <p style="margin-top: 20px">Already have an account?</p>
+                        <button class="secondary-btn" onclick="showLogin()">Login</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Approval -->
+            <div class="pending-approval centered hidden" id="adminNotice">
+                <h2>⏳ Pending Approval</h2>
+                <p>Your account is awaiting admin approval. You'll be able to access messaging once approved.</p>
+                <button class="secondary-btn" style="margin-top: 20px" onclick="logout()">Logout</button>
+            </div>
+
+            <!-- Main Chat Interface -->
+            <div class="container hidden" id="mainContent">
                 <div class="chat-container">
-                    <div class="users-list" id="usersList">
-                        <div class="loading">Loading users...</div>
+                    <!-- Users List -->
+                    <div class="users-list">
+                        <div style="padding: 15px; border-bottom: 2px solid #1e90ff; background: white">
+                            <input
+                                type="text"
+                                id="userSearch"
+                                placeholder="Search users..."
+                                style="margin: 0"
+                                oninput="filterUsers()" />
+                        </div>
+                        <div id="usersList"></div>
                     </div>
 
+                    <!-- Chat Area -->
                     <div class="chat-area">
-                        <div class="chat-header">
-                            <h3 id="chatTitle">Select a user to start messaging</h3>
+                        <div
+                            id="chatHeader"
+                            class="hidden"
+                            style="
+                                padding: 15px 30px;
+                                background: white;
+                                border-bottom: 1px solid #e0e0e0;
+                                display: flex;
+                                justify-content: space-between;
+                                align-items: center;
+                            ">
+                            <div style="display: flex; gap: 12px; align-items: center">
+                                <div class="post-avatar" id="chatUserAvatar"></div>
+                                <div>
+                                    <div id="chatUserName" style="font-weight: 600"></div>
+                                    <div id="chatUserStatus" style="font-size: 12px; color: #666"></div>
+                                </div>
+                            </div>
+                            <button class="btn-danger" onclick="blockUser()" style="padding: 8px 15px; font-size: 14px">
+                                Block User
+                            </button>
                         </div>
-                        <div class="messages-container" id="messagesContainer">
+
+                        <div id="messagesContainer" class="messages-container">
                             <div class="empty-state">
-                                <h3>👋 Welcome!</h3>
-                                <p>Select a user from the list to start chatting</p>
+                                <h3>👋 Welcome to Private Messages</h3>
+                                <p>Select a user from the left to start chatting</p>
                             </div>
                         </div>
-                        <div class="message-input-area">
-                            <input type="file" id="imageInput" accept="image/*" style="display: none" />
-                            <button class="image-upload-btn" id="uploadImageBtn" title="Upload image">📷</button>
-                            <textarea class="message-input" id="messageInput" placeholder="Type a message or paste an image..." rows="1"></textarea>
-                            <button class="send-btn" id="sendBtn">➤</button>
+
+                        <div
+                            id="messageInput"
+                            class="hidden"
+                            style="padding: 20px 30px; background: white; border-top: 1px solid #e0e0e0">
+                            <div style="display: flex; gap: 10px; align-items: end">
+                                <div style="flex: 1">
+                                    <textarea
+                                        id="messageText"
+                                        placeholder="Type a message..."
+                                        rows="2"
+                                        style="margin: 0; resize: none"></textarea>
+                                    <input
+                                        type="file"
+                                        id="messageImage"
+                                        accept="image/*"
+                                        style="margin-top: 10px; display: none"
+                                        onchange="handleImageSelect()" />
+                                    <div
+                                        id="imagePreview"
+                                        class="hidden"
+                                        style="margin-top: 10px; position: relative; display: inline-block">
+                                        <img id="previewImg" style="max-width: 150px; border-radius: 8px" />
+                                        <button
+                                            onclick="removeImagePreview()"
+                                            style="
+                                                position: absolute;
+                                                top: 5px;
+                                                right: 5px;
+                                                width: auto;
+                                                padding: 5px 10px;
+                                                background: #ef4444;
+                                                font-size: 12px;
+                                            ">
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div
+                                        id="imageCooldown"
+                                        class="hidden"
+                                        style="
+                                            margin-top: 10px;
+                                            padding: 10px;
+                                            background: #fff3cd;
+                                            border: 1px solid #ffc107;
+                                            border-radius: 8px;
+                                            font-size: 14px;
+                                        ">
+                                        ⏳ Please wait <span id="cooldownTimer"></span> seconds before sending another
+                                        image
+                                    </div>
+                                </div>
+                                <div style="display: flex; flex-direction: column; gap: 10px">
+                                    <button
+                                        class="secondary-btn"
+                                        onclick="document.getElementById('messageImage').click()"
+                                        style="width: 50px; height: 50px; padding: 0; font-size: 20px">
+                                        📷
+                                    </button>
+                                    <button
+                                        onclick="sendMessage()"
+                                        style="width: 50px; height: 50px; padding: 0; font-size: 20px">
+                                        📤
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Image Modal -->
-        <div class="image-modal" id="imageModal">
-            <button class="image-modal-close" id="imageModalClose">×</button>
-            <img id="imageModalContent" src="" alt="Full size image" />
+        <!-- Blocked Users Modal -->
+        <div class="fullscreen-overlay" id="blockedUsersModal">
+            <div class="post" style="max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px">
+                    <h2>Blocked Users</h2>
+                    <button class="btn-danger" onclick="hideBlockedUsers()" style="width: auto; padding: 8px 15px">
+                        Close
+                    </button>
+                </div>
+                <div id="blockedUsersList"></div>
+            </div>
         </div>
 
-        <script type="module">
-            // Firebase App + Auth + Realtime Database only
-            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-            import {
-                getAuth,
-                createUserWithEmailAndPassword,
-                signInWithEmailAndPassword,
-                signOut,
-                onAuthStateChanged,
-                updateProfile,
-                setPersistence,
-                browserLocalPersistence
-            } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+        <!-- Image Preview Modal -->
+        <div class="image-modal" id="imageModal" onclick="closeImageModal()">
+            <img id="modalImage" style="max-width: 90%; max-height: 90vh; border-radius: 12px" />
+        </div>
 
-            import {
-                getDatabase,
-                ref as rtdbRef,
-                set as rtdbSet,
-                get as rtdbGet,
-                onValue as rtdbOnValue,
-                update as rtdbUpdate,
-                push as rtdbPush,
-                serverTimestamp as rtdbServerTimestamp
-            } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
+        <script>
+            // Firebase config
             const firebaseConfig = {
                 apiKey: "AIzaSyDzQlAqhCeytCLEYafboYGpFu6pY3Kv9WE",
                 authDomain: "allforonemedia-9a7d8.firebaseapp.com",
-                databaseURL: "https://allforonemedia-9a7d8-default-rtdb.firebaseio.com",
                 projectId: "allforonemedia-9a7d8",
                 storageBucket: "allforonemedia-9a7d8.firebasestorage.app",
                 messagingSenderId: "892787060584",
                 appId: "1:892787060584:web:e65609062592f9ba96f0dd",
                 measurementId: "G-JSXKLMBRLC"
             };
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
 
-            const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
-            const rtdb = getDatabase(app);
-
-            setPersistence(auth, browserLocalPersistence);
-
-            // Cloudinary config
             const CLOUDINARY_CLOUD_NAME = "dgrmpcha9";
             const CLOUDINARY_UPLOAD_PRESET = "AllForOne Posts";
-            const MAX_FILE_SIZE = 2000000000000000;
+            const IMAGE_COOLDOWN = 30; // 30 seconds between images
 
             let currentUser = null;
-            let selectedUserId = null;
-            let selectedUserName = null;
-            let messagesListener = null;
-            let isSignupMode = false;
+            let selectedUser = null;
+            let allUsers = [];
+            let lastImageTime = 0;
+            let cooldownInterval = null;
+            let selectedImageFile = null;
 
-            // Profanity filter
-            const profanityList = [
-                "damn","hell","crap","shit","fuck","ass","bitch","bastard","dick","piss","cock","pussy",
-                "whore","slut","fag","nigger","cunt","twat","wanker","bollocks","arse","bugger"
-            ];
-
-            function filterProfanity(text) {
-                let filtered = text;
-                profanityList.forEach((word) => {
-                    const regex = new RegExp(`\\b${word}\\b`, "gi");
-                    filtered = filtered.replace(regex, "***");
-                });
-                return filtered;
-            }
-
-            // Cloudinary upload
-            async function uploadToCloudinary(file) {
-                if (file.size > MAX_FILE_SIZE) {
-                    throw new Error(`Image must be smaller than ${Math.round(MAX_FILE_SIZE / 1024)}KB`);
-                }
-                const formData = new FormData();
-                formData.append("file", file);
-                formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-                const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, { method: "POST", body: formData });
-                const data = await response.json();
-                return data.secure_url;
-            }
-
-            // UI elements
-            const authSection = document.getElementById("authSection");
-            const pendingSection = document.getElementById("pendingSection");
-            const chatSection = document.getElementById("chatSection");
-            const authError = document.getElementById("authError");
-            const authSuccess = document.getElementById("authSuccess");
-            const authTitle = document.getElementById("authTitle");
-            const emailInput = document.getElementById("emailInput");
-            const passwordInput = document.getElementById("passwordInput");
-            const displayNameInput = document.getElementById("displayNameInput");
-            const displayNameGroup = document.getElementById("displayNameGroup");
-            const primaryBtn = document.getElementById("primaryBtn");
-            const toggleAuth = document.getElementById("toggleAuth");
-            const backToLoginBtn = document.getElementById("backToLoginBtn");
-            const logoutBtn = document.getElementById("logoutBtn");
-            const currentUserDisplay = document.getElementById("currentUserDisplay");
-            const userAvatar = document.getElementById("userAvatar");
-            const usersList = document.getElementById("usersList");
-            const messagesContainer = document.getElementById("messagesContainer");
-            const messageInput = document.getElementById("messageInput");
-            const sendBtn = document.getElementById("sendBtn");
-            const chatTitle = document.getElementById("chatTitle");
-            const uploadImageBtn = document.getElementById("uploadImageBtn");
-            const imageInput = document.getElementById("imageInput");
-            const imageModal = document.getElementById("imageModal");
-            const imageModalClose = document.getElementById("imageModalClose");
-            const imageModalContent = document.getElementById("imageModalContent");
-
-            // Image upload handlers
-            uploadImageBtn.addEventListener("click", () => imageInput.click());
-            imageInput.addEventListener("change", (e) => {
-                const file = e.target.files[0];
-                if (file) uploadAndSendImage(file);
-                imageInput.value = "";
-            });
-
-            // Paste handling
-            function handlePaste(e) {
-                const items = e.clipboardData?.items;
-                if (!items) return;
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].type.indexOf("image") !== -1) {
-                        e.preventDefault();
-                        const file = items[i].getAsFile();
-                        if (file) uploadAndSendImage(file);
-                        break;
+            // Check for existing session
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    const userDoc = await db.collection("users").doc(user.uid).get();
+                    if (userDoc.exists && userDoc.data().approved) {
+                        currentUser = { uid: user.uid, ...userDoc.data() };
+                        showMainContent();
+                    } else if (userDoc.exists) {
+                        document.getElementById("loginForm").classList.add("hidden");
+                        document.getElementById("signupForm").classList.add("hidden");
+                        document.getElementById("adminNotice").classList.remove("hidden");
+                    } else {
+                        document.getElementById("loginForm").classList.remove("hidden");
                     }
-                }
-            }
-            messageInput.addEventListener("paste", handlePaste);
-
-            // Image modal
-            imageModalClose.addEventListener("click", () => imageModal.classList.remove("active"));
-            imageModal.addEventListener("click", (e) => { if (e.target === imageModal) imageModal.classList.remove("active"); });
-            function openImageModal(imageUrl) { imageModalContent.src = imageUrl; imageModal.classList.add("active"); }
-
-            // Toggle login/signup UI
-            toggleAuth.addEventListener("click", () => {
-                isSignupMode = !isSignupMode;
-                if (isSignupMode) {
-                    authTitle.textContent = "Create Your Account";
-                    primaryBtn.textContent = "Sign Up";
-                    toggleAuth.textContent = "Already have an account? Log in";
-                    displayNameGroup.classList.remove("hidden");
                 } else {
-                    authTitle.textContent = "Welcome Back";
-                    primaryBtn.textContent = "Log In";
-                    toggleAuth.textContent = "Need an account? Sign up";
-                    displayNameGroup.classList.add("hidden");
+                    document.getElementById("loginForm").classList.remove("hidden");
                 }
             });
 
-            // Check user approval
-            async function checkUserApproval(uid) {
-                try {
-                    const snap = await rtdbGet(rtdbRef(rtdb, `MessagesUsers/${uid}`));
-                    if (!snap.exists()) return false;
-                    const val = snap.val();
-                    return !!val.approved;
-                } catch (err) {
-                    console.error("RTDB approval check error:", err);
-                    return false;
-                }
+            function showSignup() {
+                document.getElementById("loginForm").classList.add("hidden");
+                document.getElementById("signupForm").classList.remove("hidden");
             }
 
-            // Approval listener
-            let approvalUnsub = null;
-            function startApprovalListener(uid) {
-                if (approvalUnsub) { try { approvalUnsub(); } catch (e) {} approvalUnsub = null; }
-                const rRef = rtdbRef(rtdb, `MessagesUsers/${uid}`);
-                approvalUnsub = rtdbOnValue(rRef, (snapshot) => {
-                    if (!snapshot.exists()) return;
-                    const data = snapshot.val();
-                    if (data && data.approved === true) {
-                        try { approvalUnsub(); } catch (e) {}
-                        approvalUnsub = null;
-                        window.location.reload();
-                    }
-                }, (err) => console.error("RTDB approval listener error:", err));
+            function showLogin() {
+                document.getElementById("signupForm").classList.add("hidden");
+                document.getElementById("loginForm").classList.remove("hidden");
             }
 
-            backToLoginBtn.addEventListener("click", async () => {
-                if (approvalUnsub) { try { approvalUnsub(); } catch (e) {} approvalUnsub = null; }
-                await signOut(auth);
-                pendingSection.classList.add("hidden");
-                authSection.classList.remove("hidden");
-                isSignupMode = false;
-                authTitle.textContent = "Welcome Back";
-                primaryBtn.textContent = "Log In";
-                toggleAuth.textContent = "Need an account? Sign up";
-                displayNameGroup.classList.add("hidden");
-            });
+            async function signup() {
+                const name = document.getElementById("signupName").value;
+                const email = document.getElementById("signupEmail").value;
+                const password = document.getElementById("signupPassword").value;
 
-            function showError(message) {
-                authError.textContent = message;
-                authError.classList.remove("hidden");
-                setTimeout(() => authError.classList.add("hidden"), 5000);
-            }
-            function showSuccess(message) {
-                authSuccess.textContent = message;
-                authSuccess.classList.remove("hidden");
-                setTimeout(() => authSuccess.classList.add("hidden"), 3000);
-            }
-
-            // Upload & send image
-            async function uploadAndSendImage(file) {
-                if (!selectedUserId) { alert("Please select a user to send an image to"); return; }
-                if (file.size > MAX_FILE_SIZE) { alert(`Image must be smaller than ${Math.round(MAX_FILE_SIZE / 1024)}KB.`); return; }
-                try {
-                    sendBtn.disabled = true;
-                    sendBtn.textContent = "⏳";
-                    const imageUrl = await uploadToCloudinary(file);
-                    
-                    // Create conversation key (sorted user IDs)
-                    const conversationKey = [currentUser.uid, selectedUserId].sort().join('_');
-                    
-                    await rtdbPush(rtdbRef(rtdb, `MessagesConversations/${conversationKey}`), {
-                        senderId: currentUser.uid,
-                        senderName: currentUser.displayName || currentUser.email,
-                        receiverId: selectedUserId,
-                        receiverName: selectedUserName,
-                        imageUrl,
-                        timestamp: rtdbServerTimestamp()
-                    });
-                    
-                    sendBtn.disabled = false;
-                    sendBtn.textContent = "➤";
-                } catch (error) {
-                    console.error("Error uploading image:", error);
-                    alert("Failed to upload image: " + (error.message || error));
-                    sendBtn.disabled = false;
-                    sendBtn.textContent = "➤";
-                }
-            }
-
-            // Auth handlers: LOGIN & SIGNUP
-            primaryBtn.addEventListener("click", async () => {
-                const email = (emailInput.value || "").trim();
-                const password = passwordInput.value || "";
-
-                if (!email || !password) {
-                    showError("Please fill in email and password");
+                if (!name || !email || !password) {
+                    alert("Please fill in all fields");
                     return;
                 }
 
-                if (isSignupMode) {
-                    const displayName = (displayNameInput.value || "").trim();
-                    if (!displayName) { showError("Please enter a display name"); return; }
-
-                    try {
-                        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                        const user = userCredential.user;
-                        try { await updateProfile(user, { displayName }); } catch (e) { console.warn("updateProfile failed", e); }
-
-                        await rtdbSet(rtdbRef(rtdb, `MessagesUsers/${user.uid}`), {
-                            uid: user.uid,
-                            displayName,
-                            email,
-                            createdAt: Date.now(),
-                            lastSeen: Date.now(),
-                            approved: false
-                        });
-
-                        showSuccess("Account created! Awaiting approval...");
-                        emailInput.value = "";
-                        passwordInput.value = "";
-                        displayNameInput.value = "";
-                    } catch (error) {
-                        const msg = (error.code ? error.message.replace("Firebase: ", "") : String(error));
-                        showError(msg);
-                    }
-                } else {
-                    try {
-                        await signInWithEmailAndPassword(auth, email, password);
-                    } catch (error) {
-                        showError(error.message ? error.message.replace("Firebase: ", "") : String(error));
-                    }
-                }
-            });
-
-            // Logout
-            logoutBtn.addEventListener("click", async () => { await signOut(auth); });
-
-            // Auth state observer
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    const approved = await checkUserApproval(user.uid);
-                    if (!approved) {
-                        authSection.classList.add("hidden");
-                        chatSection.classList.add("hidden");
-                        pendingSection.classList.remove("hidden");
-                        startApprovalListener(user.uid);
-                        return;
-                    }
-
-                    if (approvalUnsub) { try { approvalUnsub(); } catch (e) {} approvalUnsub = null; }
-
-                    currentUser = user;
-                    authSection.classList.add("hidden");
-                    pendingSection.classList.add("hidden");
-                    chatSection.classList.remove("hidden");
-
-                    let displayName = user.displayName;
-                    if (!displayName) {
-                        try {
-                            const userSnap = await rtdbGet(rtdbRef(rtdb, `MessagesUsers/${user.uid}`));
-                            if (userSnap.exists()) displayName = userSnap.val().displayName;
-                        } catch (err) { console.log("Could not fetch user:", err); }
-                    }
-                    currentUserDisplay.textContent = displayName || user.email;
-                    userAvatar.textContent = (displayName || user.email)[0].toUpperCase();
-
-                    try { await rtdbUpdate(rtdbRef(rtdb, `MessagesUsers/${user.uid}`), { lastSeen: Date.now() }); } catch (e) {}
-
-                    loadUsers();
-                } else {
-                    currentUser = null;
-                    selectedUserId = null;
-                    selectedUserName = null;
-                    authSection.classList.remove("hidden");
-                    pendingSection.classList.add("hidden");
-                    chatSection.classList.add("hidden");
-                    if (approvalUnsub) { try { approvalUnsub(); } catch (e) {} approvalUnsub = null; }
-                    if (messagesListener) { try { messagesListener(); } catch (e) {} messagesListener = null; }
-                }
-            });
-
-            // Load users from Realtime DB
-            async function loadUsers() {
-                usersList.innerHTML = '<div class="loading">Loading users...</div>';
                 try {
-                    const usersRef = rtdbRef(rtdb, 'MessagesUsers');
-                    rtdbOnValue(usersRef, (snapshot) => {
-                        usersList.innerHTML = "";
-                        const users = [];
-                        
-                        snapshot.forEach((childSnap) => {
-                            const userData = childSnap.val();
-                            if (childSnap.key !== currentUser.uid && userData.approved === true) {
-                                users.push({
-                                    id: childSnap.key,
-                                    displayName: userData.displayName || userData.email || "User",
-                                    email: userData.email
-                                });
-                            }
-                        });
-                        
-                        if (users.length === 0) {
-                            usersList.innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">No other approved users yet.</div>';
-                            return;
-                        }
-                        
-                        users.sort((a, b) => a.displayName.localeCompare(b.displayName));
-                        users.forEach((user) => {
-                            const userItem = document.createElement("div");
-                            userItem.className = "user-item";
-                            userItem.dataset.userId = user.id;
-                            userItem.innerHTML = `
-                                <div class="user-avatar">${user.displayName[0].toUpperCase()}</div>
-                                <div class="user-info">
-                                    <div class="user-name">${user.displayName}</div>
-                                    <div class="user-status">AllForOne Member</div>
-                                </div>
-                            `;
-                            userItem.addEventListener("click", () => selectUser(user));
-                            usersList.appendChild(userItem);
-                        });
-                    }, (error) => {
-                        console.error("Error loading users:", error);
-                        usersList.innerHTML = '<div style="padding: 20px; text-align: center; color: #ef4444;">Error loading users. Please refresh.</div>';
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    await db.collection("users").doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        approved: false,
+                        isAdmin: false,
+                        blockedUsers: [],
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     });
+                    alert("Signup successful! Await admin approval.");
+                    showLogin();
                 } catch (error) {
-                    console.error("Error setting up users listener:", error);
-                    usersList.innerHTML = '<div style="padding: 20px; text-align: center; color: #ef4444;">Error loading users. Please refresh.</div>';
+                    alert(error.message);
                 }
+            }
+
+            async function login() {
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+                try {
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    const userDoc = await db.collection("users").doc(user.uid).get();
+
+                    if (userDoc.exists && userDoc.data().approved) {
+                        currentUser = { uid: user.uid, ...userDoc.data() };
+                        showMainContent();
+                    } else {
+                        document.getElementById("loginForm").classList.add("hidden");
+                        document.getElementById("adminNotice").classList.remove("hidden");
+                    }
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+
+            function logout() {
+                auth.signOut();
+                location.reload();
+            }
+
+            async function showMainContent() {
+                document.getElementById("loginForm").classList.add("hidden");
+                document.getElementById("signupForm").classList.add("hidden");
+                document.getElementById("adminNotice").classList.add("hidden");
+                document.getElementById("topBar").classList.remove("hidden");
+                document.getElementById("mainContent").classList.remove("hidden");
+
+                document.getElementById("topBarAvatar").textContent = currentUser.name.charAt(0).toUpperCase();
+                document.getElementById("topBarName").textContent = currentUser.name;
+
+                // Initialize blocked list if it doesn't exist
+                if (!currentUser.blockedUsers) {
+                    await db.collection("users").doc(currentUser.uid).update({ blockedUsers: [] });
+                    currentUser.blockedUsers = [];
+                }
+
+                loadUsers();
+            }
+
+            async function loadUsers() {
+                const usersSnapshot = await db.collection("users").where("approved", "==", true).get();
+                allUsers = [];
+
+                usersSnapshot.forEach((doc) => {
+                    if (doc.id !== currentUser.uid) {
+                        allUsers.push({ uid: doc.id, ...doc.data() });
+                    }
+                });
+
+                displayUsers(allUsers);
+            }
+
+            function displayUsers(users) {
+                const usersList = document.getElementById("usersList");
+                const blockedUsers = currentUser.blockedUsers || [];
+
+                // Filter out blocked users
+                const filteredUsers = users.filter((user) => !blockedUsers.includes(user.uid));
+
+                usersList.innerHTML = "";
+                filteredUsers.forEach((user) => {
+                    const div = document.createElement("div");
+                    div.className = "user-item";
+                    if (selectedUser && selectedUser.uid === user.uid) {
+                        div.classList.add("active");
+                    }
+
+                    div.innerHTML = `
+        <div class="user-avatar" style="width: 45px; height: 45px; font-size: 20px;">
+          ${user.name.charAt(0).toUpperCase()}
+        </div>
+        <div style="flex: 1;">
+          <div style="font-weight: 600;">${user.name}</div>
+          <div style="font-size: 12px; color: #666;">${user.isAdmin ? "👑 Admin" : "Member"}</div>
+        </div>
+      `;
+
+                    div.onclick = () => selectUser(user);
+                    usersList.appendChild(div);
+                });
+
+                if (filteredUsers.length === 0) {
+                    usersList.innerHTML = '<div class="empty-state"><p>No users available</p></div>';
+                }
+            }
+
+            function filterUsers() {
+                const search = document.getElementById("userSearch").value.toLowerCase();
+                const filtered = allUsers.filter((user) => user.name.toLowerCase().includes(search));
+                displayUsers(filtered);
             }
 
             function selectUser(user) {
-                selectedUserId = user.id;
-                selectedUserName = user.displayName;
-                chatTitle.textContent = `Chat with ${user.displayName}`;
-                document.querySelectorAll(".user-item").forEach((item) => item.classList.remove("active"));
-                const selectedItem = document.querySelector(`[data-user-id="${user.id}"]`);
-                if (selectedItem) selectedItem.classList.add("active");
+                selectedUser = user;
+
+                // Update chat header
+                document.getElementById("chatHeader").classList.remove("hidden");
+                document.getElementById("chatUserAvatar").textContent = user.name.charAt(0).toUpperCase();
+                document.getElementById("chatUserName").textContent = user.name;
+                document.getElementById("chatUserStatus").textContent = user.isAdmin ? "👑 Admin" : "Member";
+
+                // Show message input
+                document.getElementById("messageInput").classList.remove("hidden");
+
+                // Update active user in list
+                displayUsers(allUsers);
+
+                // Load messages
                 loadMessages();
             }
 
-            // Load messages from Realtime DB
             function loadMessages() {
-                if (messagesListener) messagesListener();
+                const messagesContainer = document.getElementById("messagesContainer");
                 messagesContainer.innerHTML = "";
-                
-                // Create conversation key (sorted user IDs)
-                const conversationKey = [currentUser.uid, selectedUserId].sort().join('_');
-                const messagesRef = rtdbRef(rtdb, `MessagesConversations/${conversationKey}`);
-                
-                messagesListener = rtdbOnValue(messagesRef, (snapshot) => {
-                    messagesContainer.innerHTML = "";
-                    let hasMessages = false;
-                    
-                    const messages = [];
-                    snapshot.forEach((childSnap) => {
-                        messages.push({
-                            id: childSnap.key,
-                            ...childSnap.val()
+
+                // Create a conversation ID (sorted UIDs to ensure consistency)
+                const conversationId = [currentUser.uid, selectedUser.uid].sort().join("_");
+
+                db.collection("messages")
+                    .where("conversationId", "==", conversationId)
+                    .orderBy("timestamp", "asc")
+                    .onSnapshot((snapshot) => {
+                        messagesContainer.innerHTML = "";
+
+                        snapshot.forEach((doc) => {
+                            const msg = doc.data();
+                            const isSent = msg.senderId === currentUser.uid;
+
+                            const msgDiv = document.createElement("div");
+                            msgDiv.className = `message ${isSent ? "sent" : "received"}`;
+
+                            const bubble = document.createElement("div");
+                            bubble.className = "message-bubble";
+
+                            if (msg.text) {
+                                const textP = document.createElement("p");
+                                textP.textContent = msg.text;
+                                textP.style.margin = "0";
+                                bubble.appendChild(textP);
+                            }
+
+                            if (msg.imageUrl) {
+                                const img = document.createElement("img");
+                                img.src = msg.imageUrl;
+                                img.className = "message-image";
+                                img.style.marginTop = msg.text ? "10px" : "0";
+                                img.style.cursor = "pointer";
+                                img.onclick = () => openImageModal(msg.imageUrl);
+                                bubble.appendChild(img);
+                            }
+
+                            const time = document.createElement("div");
+                            time.style.fontSize = "11px";
+                            time.style.opacity = "0.7";
+                            time.style.marginTop = "5px";
+                            time.textContent = msg.timestamp
+                                ? new Date(msg.timestamp.toDate()).toLocaleTimeString()
+                                : "Just now";
+                            bubble.appendChild(time);
+
+                            msgDiv.appendChild(bubble);
+                            messagesContainer.appendChild(msgDiv);
                         });
+
+                        // Scroll to bottom
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
                     });
-                    
-                    // Sort by timestamp
-                    messages.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-                    
-                    messages.forEach((msg) => {
-                        displayMessage(msg);
-                        hasMessages = true;
-                    });
-                    
-                    if (!hasMessages) {
-                        messagesContainer.innerHTML = `
-                            <div class="empty-state">
-                                <h3>💬 Start a conversation</h3>
-                                <p>Send the first message to ${selectedUserName}</p>
-                            </div>
-                        `;
-                    }
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                });
             }
 
-            function displayMessage(msg) {
-                const messageDiv = document.createElement("div");
-                messageDiv.className = `message ${msg.senderId === currentUser.uid ? "sent" : "received"}`;
-                const time = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : "Now";
-                let content = "";
-                if (msg.imageUrl) content = `<img src="${msg.imageUrl}" class="message-image" alt="Shared image">`;
-                else content = `<div>${msg.text}</div>`;
-                messageDiv.innerHTML = `
-                    <div class="message-bubble">
-                        ${content}
-                        <div class="message-meta">${time}</div>
-                    </div>
-                `;
-                if (msg.imageUrl) {
-                    const img = messageDiv.querySelector(".message-image");
-                    img.addEventListener("click", () => openImageModal(msg.imageUrl));
+            function handleImageSelect() {
+                const file = document.getElementById("messageImage").files[0];
+                if (file) {
+                    selectedImageFile = file;
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        document.getElementById("previewImg").src = e.target.result;
+                        document.getElementById("imagePreview").classList.remove("hidden");
+                    };
+                    reader.readAsDataURL(file);
                 }
-                messagesContainer.appendChild(messageDiv);
+            }
+
+            function removeImagePreview() {
+                selectedImageFile = null;
+                document.getElementById("messageImage").value = "";
+                document.getElementById("imagePreview").classList.add("hidden");
             }
 
             async function sendMessage() {
-                if (!selectedUserId || !messageInput.value.trim()) return;
-                const text = filterProfanity(messageInput.value.trim());
-                try {
-                    sendBtn.disabled = true;
-                    
-                    // Create conversation key (sorted user IDs)
-                    const conversationKey = [currentUser.uid, selectedUserId].sort().join('_');
-                    
-                    await rtdbPush(rtdbRef(rtdb, `MessagesConversations/${conversationKey}`), {
-                        senderId: currentUser.uid,
-                        senderName: currentUser.displayName || currentUser.email,
-                        receiverId: selectedUserId,
-                        receiverName: selectedUserName,
-                        text,
-                        timestamp: rtdbServerTimestamp()
-                    });
-                    
-                    messageInput.value = "";
-                    sendBtn.disabled = false;
-                } catch (error) {
-                    console.error("Error sending message:", error);
-                    alert("Failed to send message. Please try again.");
-                    sendBtn.disabled = false;
+                const text = document.getElementById("messageText").value.trim();
+
+                if (!text && !selectedImageFile) {
+                    alert("Please type a message or select an image");
+                    return;
+                }
+
+                if (!selectedUser) {
+                    alert("Please select a user to message");
+                    return;
+                }
+
+                // Check image cooldown
+                if (selectedImageFile) {
+                    const now = Date.now();
+                    const timeSinceLastImage = (now - lastImageTime) / 1000;
+
+                    if (timeSinceLastImage < IMAGE_COOLDOWN) {
+                        const remaining = Math.ceil(IMAGE_COOLDOWN - timeSinceLastImage);
+                        startCooldownTimer(remaining);
+                        return;
+                    }
+                }
+
+                let imageUrl = "";
+
+                // Upload image if selected
+                if (selectedImageFile) {
+                    const formData = new FormData();
+                    formData.append("file", selectedImageFile);
+                    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
+
+                    try {
+                        const response = await fetch(
+                            `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`,
+                            {
+                                method: "POST",
+                                body: formData
+                            }
+                        );
+                        const data = await response.json();
+                        imageUrl = data.secure_url;
+                        lastImageTime = Date.now();
+                    } catch (error) {
+                        alert("Failed to upload image. Please try again.");
+                        return;
+                    }
+                }
+
+                // Create conversation ID
+                const conversationId = [currentUser.uid, selectedUser.uid].sort().join("_");
+
+                // Send message
+                await db.collection("messages").add({
+                    conversationId: conversationId,
+                    senderId: currentUser.uid,
+                    receiverId: selectedUser.uid,
+                    senderName: currentUser.name,
+                    text: text,
+                    imageUrl: imageUrl,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                // Clear inputs
+                document.getElementById("messageText").value = "";
+                removeImagePreview();
+            }
+
+            function startCooldownTimer(seconds) {
+                document.getElementById("imageCooldown").classList.remove("hidden");
+                document.getElementById("cooldownTimer").textContent = seconds;
+
+                if (cooldownInterval) clearInterval(cooldownInterval);
+
+                cooldownInterval = setInterval(() => {
+                    seconds--;
+                    document.getElementById("cooldownTimer").textContent = seconds;
+
+                    if (seconds <= 0) {
+                        clearInterval(cooldownInterval);
+                        document.getElementById("imageCooldown").classList.add("hidden");
+                    }
+                }, 1000);
+            }
+
+            async function blockUser() {
+                if (!selectedUser) return;
+
+                if (
+                    confirm(
+                        `Are you sure you want to block ${selectedUser.name}? You won't be able to message each other.`
+                    )
+                ) {
+                    const blockedUsers = currentUser.blockedUsers || [];
+                    blockedUsers.push(selectedUser.uid);
+
+                    await db.collection("users").doc(currentUser.uid).update({ blockedUsers });
+                    currentUser.blockedUsers = blockedUsers;
+
+                    // Also add current user to the other user's blocked list
+                    const otherUserDoc = await db.collection("users").doc(selectedUser.uid).get();
+                    const otherBlockedUsers = otherUserDoc.data().blockedUsers || [];
+                    if (!otherBlockedUsers.includes(currentUser.uid)) {
+                        otherBlockedUsers.push(currentUser.uid);
+                        await db.collection("users").doc(selectedUser.uid).update({ blockedUsers: otherBlockedUsers });
+                    }
+
+                    alert(`${selectedUser.name} has been blocked`);
+                    selectedUser = null;
+                    document.getElementById("chatHeader").classList.add("hidden");
+                    document.getElementById("messageInput").classList.add("hidden");
+                    document.getElementById("messagesContainer").innerHTML =
+                        '<div class="empty-state"><h3>User Blocked</h3><p>Select another user to chat with</p></div>';
+
+                    loadUsers();
                 }
             }
 
-            sendBtn.addEventListener("click", sendMessage);
-            messageInput.addEventListener("keypress", (e) => {
-                if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+            function showBlockedUsers() {
+                document.getElementById("blockedUsersModal").classList.add("active");
+                loadBlockedUsers();
+            }
+
+            function hideBlockedUsers() {
+                document.getElementById("blockedUsersModal").classList.remove("active");
+            }
+
+            async function loadBlockedUsers() {
+                const blockedUsersList = document.getElementById("blockedUsersList");
+                const blockedUsers = currentUser.blockedUsers || [];
+
+                if (blockedUsers.length === 0) {
+                    blockedUsersList.innerHTML = '<div class="empty-state"><p>No blocked users</p></div>';
+                    return;
+                }
+
+                blockedUsersList.innerHTML = "";
+
+                for (const uid of blockedUsers) {
+                    const userDoc = await db.collection("users").doc(uid).get();
+                    if (userDoc.exists) {
+                        const user = userDoc.data();
+                        const div = document.createElement("div");
+                        div.style.cssText =
+                            "background: #f9f9f9; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;";
+                        div.innerHTML = `
+          <div style="display: flex; gap: 12px; align-items: center;">
+            <div class="user-avatar" style="width: 40px; height: 40px; font-size: 18px;">
+              ${user.name.charAt(0).toUpperCase()}
+            </div>
+            <div>
+              <div style="font-weight: 600;">${user.name}</div>
+              <div style="font-size: 12px; color: #666;">${user.email}</div>
+            </div>
+          </div>
+          <button class="secondary-btn" style="width: auto; padding: 8px 15px; font-size: 14px;" onclick="unblockUser('${uid}')">Unblock</button>
+        `;
+                        blockedUsersList.appendChild(div);
+                    }
+                }
+            }
+
+            async function unblockUser(uid) {
+                if (confirm("Are you sure you want to unblock this user?")) {
+                    let blockedUsers = currentUser.blockedUsers || [];
+                    blockedUsers = blockedUsers.filter((id) => id !== uid);
+
+                    await db.collection("users").doc(currentUser.uid).update({ blockedUsers });
+                    currentUser.blockedUsers = blockedUsers;
+
+                    // Remove current user from other user's blocked list
+                    const otherUserDoc = await db.collection("users").doc(uid).get();
+                    let otherBlockedUsers = otherUserDoc.data().blockedUsers || [];
+                    otherBlockedUsers = otherBlockedUsers.filter((id) => id !== currentUser.uid);
+                    await db.collection("users").doc(uid).update({ blockedUsers: otherBlockedUsers });
+
+                    alert("User unblocked!");
+                    loadBlockedUsers();
+                    loadUsers();
+                }
+            }
+
+            function openImageModal(url) {
+                document.getElementById("modalImage").src = url;
+                document.getElementById("imageModal").classList.add("active");
+            }
+
+            function closeImageModal() {
+                document.getElementById("imageModal").classList.remove("active");
+            }
+
+            // Allow Enter to send message (Shift+Enter for new line)
+            document.addEventListener("DOMContentLoaded", () => {
+                const textarea = document.getElementById("messageText");
+                if (textarea) {
+                    textarea.addEventListener("keydown", (e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                            e.preventDefault();
+                            sendMessage();
+                        }
+                    });
+                }
             });
         </script>
     </body>
