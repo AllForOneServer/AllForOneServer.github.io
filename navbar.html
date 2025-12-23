@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Navigation Bar</title>
 <style>
+/* Global Styles */
 * {
     margin: 0;
     padding: 0;
@@ -16,6 +17,7 @@ body {
     background: transparent;
 }
 
+/* Navbar */
 .navbar {
     background: linear-gradient(135deg, #1e90ff, #0b5394);
     padding: 0;
@@ -46,6 +48,7 @@ body {
     opacity: 0.9;
 }
 
+/* Menu */
 .nav-menu {
     display: flex;
     list-style: none;
@@ -76,6 +79,7 @@ body {
     font-weight: 600;
 }
 
+/* Toggle Button */
 .nav-toggle {
     display: none;
     background: none;
@@ -100,14 +104,18 @@ body {
         background: linear-gradient(135deg, #1e90ff, #0b5394);
         flex-direction: column;
         gap: 0;
-        max-height: 0;
         overflow: hidden;
-        transition: max-height 0.3s ease;
+        transform: translateY(-20px);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.3s ease, opacity 0.3s ease;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
 
     .nav-menu.active {
-        max-height: 400px;
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
     }
 
     .nav-link {
@@ -144,15 +152,18 @@ body {
                     💬 Messages
                 </a>
             </li>
+            <li class="nav-item">
+                <a href="https://allforoneserver.github.io/messages/" class="nav-link" id="nav-polls" onclick="navigateTo('messages'); return false;">
+                    ✅ Polls
+                </a>
+            </li>
         </ul>
     </div>
 </nav>
 
 <script>
-// Get current page from parent or URL
+// Current page detection
 let currentPage = 'posts';
-
-// Check parent window for current page
 try {
     const parentUrl = window.parent.location.href;
     if (parentUrl.includes('messages') || parentUrl.includes('messaging')) {
@@ -161,36 +172,21 @@ try {
         currentPage = 'posts';
     }
 } catch (e) {
-    // Cross-origin restriction, use fallback
     console.log('Cannot access parent URL');
 }
 
-// Set active link on load
+// Set active link
 function setActiveLink() {
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-    });
-    
+    document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
     const activeLink = document.getElementById(`nav-${currentPage}`);
-    if (activeLink) {
-        activeLink.classList.add('active');
-    }
+    if (activeLink) activeLink.classList.add('active');
 }
 
-// Navigation function
+// Navigation
 function navigateTo(page) {
     currentPage = page;
     setActiveLink();
-    
-    // Close mobile menu
     document.getElementById('navMenu').classList.remove('active');
-    
-    // Communicate with parent window
-    if (page === 'posts') {
-        window.parent.location.href = 'index.html'; // Change this to your posts page filename
-    } else if (page === 'messages') {
-        window.parent.location.href = 'messages.html'; // Change this to your messages page filename
-    }
 }
 
 // Toggle mobile menu
@@ -199,27 +195,17 @@ function toggleMenu() {
     menu.classList.toggle('active');
 }
 
-// Close menu when clicking outside
-document.addEventListener('click', function(event) {
-    const menu = document.getElementById('navMenu');
-    const toggle = document.querySelector('.nav-toggle');
-    const navbar = document.querySelector('.navbar');
-    
-    if (!navbar.contains(event.target)) {
-        menu.classList.remove('active');
-    }
+// Prevent menu from closing when clicking inside
+document.getElementById('navMenu').addEventListener('click', e => e.stopPropagation());
+document.querySelector('.nav-toggle').addEventListener('click', e => e.stopPropagation());
+
+// Close menu on outside click
+document.addEventListener('click', () => {
+    document.getElementById('navMenu').classList.remove('active');
 });
 
 // Initialize
 setActiveLink();
-
-// Listen for messages from parent window
-window.addEventListener('message', function(event) {
-    if (event.data.type === 'setActivePage') {
-        currentPage = event.data.page;
-        setActiveLink();
-    }
-});
 </script>
 </body>
 </html>
