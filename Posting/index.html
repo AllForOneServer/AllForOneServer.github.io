@@ -3,1495 +3,542 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>AllForOne Community</title>
-        <style>
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
-
-            body {
-                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell,
-                    sans-serif;
-                background-color: #f9f9f9;
-                color: #1c1c1c;
-                min-height: 100vh;
-                display: flex;
-                justify-content: center;
-                padding: 20px;
-            }
-
-            .container {
-                width: 100%;
-                max-width: 800px;
-            }
-
-            .header {
-                background: linear-gradient(135deg, #1e90ff 0%, #0b5394 100%);
-                padding: 30px;
-                border-radius: 16px;
-                color: white;
-                margin-bottom: 20px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            }
-
-            .header h1 {
-                font-size: 32px;
-                font-weight: 600;
-                margin-bottom: 8px;
-            }
-
-            .header p {
-                font-size: 16px;
-                opacity: 0.9;
-            }
-
-            .auth-section {
-                background: white;
-                padding: 30px;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-                text-align: center;
-            }
-
-            .auth-section h2 {
-                color: #1e90ff;
-                margin-bottom: 20px;
-                font-size: 24px;
-            }
-
-            .auth-form {
-                max-width: 400px;
-                margin: 0 auto;
-            }
-
-            .input-group {
-                margin-bottom: 15px;
-            }
-
-            input,
-            textarea {
-                width: 100%;
-                padding: 14px 18px;
-                border: 1px solid #e0e0e0;
-                border-radius: 10px;
-                font-size: 15px;
-                transition: all 0.3s;
-                background: #f9f9f9;
-                font-family: inherit;
-            }
-
-            input:focus,
-            textarea:focus {
-                outline: none;
-                border-color: #1e90ff;
-                background: white;
-            }
-
-            button {
-                width: 100%;
-                padding: 14px;
-                background: #1e90ff;
-                color: white;
-                border: none;
-                border-radius: 10px;
-                font-size: 16px;
-                font-weight: 500;
-                cursor: pointer;
-                transition: all 0.3s;
-                margin-bottom: 10px;
-            }
-
-            button:hover {
-                background: #0b5394;
-                transform: translateY(-1px);
-            }
-
-            button:active {
-                transform: translateY(0);
-            }
-
-            button:disabled {
-                opacity: 0.5;
-                cursor: not-allowed;
-                transform: none;
-            }
-
-            .secondary-btn {
-                background: #4a86e8;
-            }
-
-            .secondary-btn:hover {
-                background: #0b5394;
-            }
-
-            .logout-btn {
-                background: #ef4444;
-                width: auto;
-                padding: 10px 20px;
-                font-size: 14px;
-            }
-
-            .logout-btn:hover {
-                background: #dc2626;
-            }
-
-            .toggle-link {
-                color: #1e90ff;
-                cursor: pointer;
-                text-decoration: underline;
-                margin-top: 15px;
-                display: inline-block;
-            }
-
-            .toggle-link:hover {
-                color: #0b5394;
-            }
-
-            .user-bar {
-                background: white;
-                padding: 20px 30px;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-                margin-bottom: 20px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-
-            .user-info {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-            }
-
-            .user-avatar {
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #4a86e8, #1e90ff);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: 600;
-                font-size: 20px;
-            }
-
-            .post-composer {
-                background: white;
-                padding: 25px;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-                margin-bottom: 20px;
-            }
-
-            .post-composer h3 {
-                color: #1e90ff;
-                margin-bottom: 15px;
-                font-size: 20px;
-            }
-
-            .post-composer textarea {
-                min-height: 100px;
-                resize: vertical;
-            }
-
-            .media-upload-section {
-                margin: 15px 0;
-                padding: 15px;
-                background: #f9f9f9;
-                border-radius: 10px;
-                border: 2px dashed #e0e0e0;
-            }
-
-            .media-upload-btn {
-                width: auto;
-                padding: 10px 20px;
-                font-size: 14px;
-                margin-right: 10px;
-                background: #4a86e8;
-            }
-
-            .media-upload-btn:hover {
-                background: #1e90ff;
-            }
-
-            .media-preview {
-                margin-top: 15px;
-                display: flex;
-                gap: 10px;
-                flex-wrap: wrap;
-            }
-
-            .media-preview-item {
-                position: relative;
-                width: 120px;
-                height: 120px;
-                border-radius: 8px;
-                overflow: hidden;
-                border: 2px solid #e0e0e0;
-            }
-
-            .media-preview-item img,
-            .media-preview-item video {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-            }
-
-            .media-preview-remove {
-                position: absolute;
-                top: 5px;
-                right: 5px;
-                background: #ef4444;
-                color: white;
-                border: none;
-                border-radius: 50%;
-                width: 24px;
-                height: 24px;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 14px;
-                padding: 0;
-                margin: 0;
-            }
-
-            .media-preview-remove:hover {
-                background: #dc2626;
-                transform: none;
-            }
-
-            .posts-container {
-                display: flex;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .post {
-                background: white;
-                padding: 25px;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-                animation: slideIn 0.3s ease;
-            }
-
-            .post.announcement {
-                background: linear-gradient(135deg, #fff9c4 0%, #fef3c7 100%);
-                border: 2px solid #facc15;
-            }
-
-            .announcement-badge {
-                display: inline-block;
-                background: #facc15;
-                color: #854d0e;
-                padding: 4px 12px;
-                border-radius: 20px;
-                font-size: 12px;
-                font-weight: 600;
-                margin-bottom: 10px;
-            }
-
-            @keyframes slideIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            .post-header {
-                display: flex;
-                align-items: center;
-                gap: 12px;
-                margin-bottom: 15px;
-            }
-
-            .post-avatar {
-                width: 45px;
-                height: 45px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #4a86e8, #1e90ff);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: 600;
-                font-size: 18px;
-            }
-
-            .post-author-info {
-                flex: 1;
-            }
-
-            .post-author {
-                font-weight: 600;
-                color: #1c1c1c;
-                font-size: 16px;
-            }
-
-            .post-time {
-                font-size: 13px;
-                color: #666;
-            }
-
-            .post-content {
-                color: #1c1c1c;
-                line-height: 1.6;
-                font-size: 15px;
-                margin-bottom: 15px;
-                white-space: pre-wrap;
-                word-wrap: break-word;
-            }
-
-            .post-heading {
-                font-size: 20px;
-                font-weight: 600;
-                color: #1e90ff;
-                margin-bottom: 10px;
-            }
-
-            .post-media {
-                margin: 15px 0;
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 10px;
-            }
-
-            .post-media-item {
-                position: relative;
-                border-radius: 12px;
-                overflow: hidden;
-                cursor: pointer;
-                background: #f0f0f0;
-            }
-
-            .post-media-item img,
-            .post-media-item video {
-                width: 100%;
-                height: 100%;
-                object-fit: cover;
-                display: block;
-            }
-
-            .post-media-item.single {
-                grid-column: 1 / -1;
-                max-height: 500px;
-            }
-
-            .post-media-item.single img,
-            .post-media-item.single video {
-                max-height: 500px;
-                width: 100%;
-                object-fit: contain;
-            }
-
-            .post-actions {
-                display: flex;
-                gap: 15px;
-                padding-top: 15px;
-                border-top: 1px solid #f0f0f0;
-            }
-
-            .action-btn {
-                background: none;
-                border: none;
-                color: #666;
-                cursor: pointer;
-                font-size: 14px;
-                padding: 8px 15px;
-                border-radius: 8px;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-                transition: all 0.2s;
-                width: auto;
-                margin: 0;
-            }
-
-            .action-btn:hover {
-                background: #f9f9f9;
-                color: #1e90ff;
-                transform: none;
-            }
-
-            .action-btn.liked {
-                color: #ef4444;
-            }
-
-            .delete-btn {
-                margin-left: auto;
-                color: #ef4444;
-            }
-
-            .delete-btn:hover {
-                background: #fff1f2;
-                color: #dc2626;
-            }
-
-            .comments-section {
-                margin-top: 15px;
-                padding-top: 15px;
-                border-top: 1px solid #f0f0f0;
-            }
-
-            .comments-toggle {
-                color: #666;
-                cursor: pointer;
-                font-size: 14px;
-                margin-bottom: 10px;
-                display: inline-block;
-            }
-
-            .comments-toggle:hover {
-                color: #1e90ff;
-            }
-
-            .comments-container {
-                margin-top: 10px;
-            }
-
-            .comment {
-                background: #f9f9f9;
-                padding: 12px;
-                border-radius: 8px;
-                margin-bottom: 8px;
-            }
-
-            .comment-header {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-bottom: 6px;
-            }
-
-            .comment-avatar {
-                width: 28px;
-                height: 28px;
-                border-radius: 50%;
-                background: linear-gradient(135deg, #4a86e8, #1e90ff);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: 600;
-                font-size: 12px;
-            }
-
-            .comment-author {
-                font-weight: 600;
-                font-size: 13px;
-                color: #1c1c1c;
-            }
-
-            .comment-time {
-                font-size: 11px;
-                color: #999;
-                margin-left: auto;
-            }
-
-            .comment-content {
-                font-size: 14px;
-                color: #333;
-                line-height: 1.4;
-                margin-left: 36px;
-            }
-
-            .comment-input-container {
-                display: flex;
-                gap: 8px;
-                margin-top: 10px;
-            }
-
-            .comment-input {
-                flex: 1;
-                padding: 10px 12px;
-                border: 1px solid #e0e0e0;
-                border-radius: 8px;
-                font-size: 14px;
-                background: white;
-            }
-
-            .comment-btn {
-                width: auto;
-                padding: 10px 20px;
-                font-size: 14px;
-                margin: 0;
-            }
-
-            .fullscreen-overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100vw;
-                height: 100vh;
-                background: rgba(0, 0, 0, 0.95);
-                z-index: 10000;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .fullscreen-overlay.active {
-                display: flex;
-            }
-
-            .fullscreen-content {
-                max-width: 90vw;
-                max-height: 90vh;
-                position: relative;
-            }
-
-            .fullscreen-content img,
-            .fullscreen-content video {
-                max-width: 100%;
-                max-height: 90vh;
-                object-fit: contain;
-            }
-
-            .fullscreen-close {
-                position: absolute;
-                top: 20px;
-                right: 20px;
-                background: rgba(255, 255, 255, 0.2);
-                color: white;
-                border: none;
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                cursor: pointer;
-                font-size: 24px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                backdrop-filter: blur(10px);
-            }
-
-            .fullscreen-close:hover {
-                background: rgba(255, 255, 255, 0.3);
-                transform: none;
-            }
-
-            .fullscreen-nav {
-                position: absolute;
-                top: 50%;
-                transform: translateY(-50%);
-                background: rgba(255, 255, 255, 0.2);
-                color: white;
-                border: none;
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                cursor: pointer;
-                font-size: 24px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                backdrop-filter: blur(10px);
-            }
-
-            .fullscreen-nav:hover {
-                background: rgba(255, 255, 255, 0.3);
-                transform: translateY(-50%);
-            }
-
-            .fullscreen-prev {
-                left: 20px;
-            }
-
-            .fullscreen-next {
-                right: 20px;
-            }
-
-            .error {
-                background: #fff1f2;
-                color: #ef4444;
-                padding: 12px;
-                border-radius: 8px;
-                margin-bottom: 15px;
-                font-size: 14px;
-                border: 1px solid #fee2e2;
-            }
-
-            .success {
-                background: #fff9c4;
-                color: #854d0e;
-                padding: 12px;
-                border-radius: 8px;
-                margin-bottom: 15px;
-                font-size: 14px;
-                border: 1px solid #fef3c7;
-            }
-
-            .hidden {
-                display: none !important;
-            }
-
-            .empty-state {
-                text-align: center;
-                padding: 60px 20px;
-                color: #666;
-                background: white;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            }
-
-            .empty-state h3 {
-                color: #1e90ff;
-                margin-bottom: 10px;
-                font-size: 24px;
-            }
-
-            .loading {
-                text-align: center;
-                padding: 40px;
-                color: #666;
-                background: white;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            }
-
-            .pending-approval {
-                background: white;
-                padding: 40px;
-                border-radius: 16px;
-                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-                text-align: center;
-                max-width: 500px;
-                margin: 0 auto;
-            }
-
-            .pending-approval h2 {
-                color: #1e90ff;
-                margin-bottom: 15px;
-                font-size: 28px;
-            }
-
-            .pending-approval p {
-                color: #666;
-                line-height: 1.6;
-                margin-bottom: 20px;
-            }
-
-            .pending-approval .icon {
-                font-size: 64px;
-                margin-bottom: 20px;
-            }
-
-            .uploading-indicator {
-                display: inline-block;
-                margin-left: 10px;
-                color: #1e90ff;
-                font-size: 14px;
-            }
-        </style>
+        <title>Private Posting Page</title>
+        <link rel="stylesheet" href="style.css" />
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+        <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
     </head>
     <body>
         <div class="container">
+            <!-- Header -->
             <div class="header">
-                <h1>AllForOne Community</h1>
-                <p>Share your Minecraft adventures with the community!</p>
+                <h1>Private Community</h1>
+                <p>Share and connect with approved members</p>
             </div>
 
-            <div id="navbar-placeholder"></div>
-            <script>
-                fetch("https://allforoneserver.github.io/navigation.html")
-                    .then((response) => response.text())
-                    .then((data) => {
-                        document.getElementById("navbar-placeholder").innerHTML = data;
-                        const scripts = document.getElementById("navbar-placeholder").getElementsByTagName("script");
-                        for (let script of scripts) {
-                            try {
-                                (0, eval)(script.innerHTML);
-                            } catch (e) {
-                                console.warn("Navbar script error", e);
-                            }
-                        }
-                    })
-                    .catch((error) => console.error("Error loading navbar:", error));
-            </script>
-
-            <div id="authSection" class="auth-section">
-                <h2 id="authTitle">Join the Community</h2>
-                <div id="authError" class="error hidden"></div>
-                <div id="authSuccess" class="success hidden"></div>
-                <div class="auth-form">
-                    <div class="input-group">
-                        <input type="email" id="emailInput" placeholder="Email Address" />
+            <!-- Top Bar (shown when logged in) -->
+            <div class="top-bar hidden" id="topBar">
+                <div class="user-info-display">
+                    <div class="top-bar-avatar" id="topBarAvatar"></div>
+                    <div>
+                        <div id="topBarName" style="font-weight: 600"></div>
+                        <div id="topBarRole" style="font-size: 12px; color: #666"></div>
                     </div>
-                    <div class="input-group">
-                        <input type="password" id="passwordInput" placeholder="Password" />
-                    </div>
-                    <div class="input-group hidden" id="displayNameGroup">
-                        <input type="text" id="displayNameInput" placeholder="Display Name" />
-                    </div>
-                    <button id="primaryBtn">Log In</button>
-                    <div class="toggle-link" id="toggleAuth">Need an account? Sign up</div>
                 </div>
+                <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
 
-            <div id="pendingSection" class="pending-approval hidden">
-                <div class="icon">⏳</div>
-                <h2>Awaiting Approval</h2>
-                <p>
-                    Your account has been created successfully! However, it needs to be approved by an administrator
-                    before you can access the community.
-                </p>
-                <p>You will receive access once <strong>Kaidaz18</strong> approves your account.</p>
-                <p style="font-size: 14px; color: #999; margin-top: 30px">
-                    You can close this page and try logging in again later.
-                </p>
-                <button id="backToLoginBtn" style="margin-top: 20px">Back to Login</button>
-            </div>
-
-            <div id="mainContent" class="hidden">
-                <div class="user-bar">
-                    <div class="user-info">
-                        <div class="user-avatar" id="userAvatar">U</div>
-                        <div>
-                            <div style="font-weight: 500; color: #1c1c1c" id="currentUserDisplay">User</div>
-                            <div style="font-size: 13px; color: #666">AllForOne Member</div>
+            <!-- Login Form -->
+            <div class="auth-section centered" id="loginForm">
+                <div class="auth-card">
+                    <h2>Welcome Back</h2>
+                    <div class="auth-form">
+                        <div class="input-group">
+                            <input type="email" id="email" placeholder="Email" />
                         </div>
+                        <div class="input-group">
+                            <input type="password" id="password" placeholder="Password" />
+                        </div>
+                        <button onclick="login()">Login</button>
+                        <p style="margin-top: 20px">Don't have an account?</p>
+                        <button class="secondary-btn" onclick="showSignup()">Sign Up</button>
                     </div>
-                    <button class="logout-btn" id="logoutBtn">Log Out</button>
                 </div>
+            </div>
 
-                <div class="post-composer">
-                    <h3>Share with the community</h3>
-                    <div id="postError" class="error hidden"></div>
+            <!-- Signup Form -->
+            <div class="auth-section centered hidden" id="signupForm">
+                <div class="auth-card">
+                    <h2>Create Account</h2>
+                    <div class="auth-form">
+                        <div class="input-group">
+                            <input type="text" id="signupName" placeholder="Full Name" />
+                        </div>
+                        <div class="input-group">
+                            <input type="email" id="signupEmail" placeholder="Email" />
+                        </div>
+                        <div class="input-group">
+                            <input type="password" id="signupPassword" placeholder="Password" />
+                        </div>
+                        <button onclick="signup()">Sign Up</button>
+                        <p style="margin-top: 20px">Already have an account?</p>
+                        <button class="secondary-btn" onclick="showLogin()">Login</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin notice -->
+            <div class="pending-approval centered hidden" id="adminNotice">
+                <h2>⏳ Pending Approval</h2>
+                <p>Your account is awaiting admin approval. You'll be able to access the community once approved.</p>
+                <button class="secondary-btn" style="margin-top: 20px" onclick="logout()">Logout</button>
+            </div>
+
+            <!-- Main Content -->
+            <div class="container centered hidden" id="mainContent">
+                <!-- Post Form -->
+                <div class="post" style="margin-bottom: 30px">
+                    <h3 style="margin-bottom: 15px" id="postFormTitle">Create Post</h3>
                     <div class="input-group">
-                        <input
-                            type="text"
-                            id="postHeading"
-                            placeholder="Heading (optional)"
-                            style="margin-bottom: 10px" />
+                        <input type="text" id="postHeading" placeholder="Post heading (optional)" />
                     </div>
-                    <textarea
-                        id="postInput"
-                        placeholder="What's on your mind? Share your builds, discoveries, or ask for help..."></textarea>
-
-                    <div class="media-upload-section">
-                        <button class="media-upload-btn" id="uploadImageBtn">📷 Add Image</button>
-                        <button class="media-upload-btn" id="uploadVideoBtn">🎥 Add Video</button>
-                        <span id="uploadingIndicator" class="uploading-indicator hidden">Uploading...</span>
-                        <input type="file" id="imageInput" accept="image/*" multiple style="display: none" />
-                        <input type="file" id="videoInput" accept="video/*" multiple style="display: none" />
-                        <div id="mediaPreview" class="media-preview"></div>
+                    <div class="input-group">
+                        <textarea id="postContent" placeholder="What's on your mind?" rows="4"></textarea>
                     </div>
-
-                    <div
-                        id="adminOptions"
-                        class="hidden"
-                        style="
-                            margin: 15px 0;
-                            padding: 12px;
-                            background: #fff9c4;
-                            border-radius: 8px;
-                            border: 1px solid #facc15;
-                        ">
-                        <label
-                            style="
-                                display: flex;
-                                align-items: center;
-                                gap: 8px;
-                                cursor: pointer;
-                                font-size: 14px;
-                                color: #854d0e;
-                            ">
-                            <input type="checkbox" id="announcementCheck" style="width: auto; cursor: pointer" />
-                            <span>📢 Make this an announcement</span>
-                        </label>
+                    <div class="input-group">
+                        <input type="file" id="postImage" accept="image/*" />
                     </div>
-
-                    <button id="postBtn">Post</button>
+                    <div style="display: flex; gap: 10px">
+                        <button onclick="submitPost()" id="submitPostBtn">Submit Post</button>
+                        <button class="secondary-btn hidden" id="cancelAnnouncementBtn" onclick="cancelAnnouncement()">
+                            Cancel
+                        </button>
+                    </div>
+                    <button
+                        class="secondary-btn hidden"
+                        id="makeAnnouncementBtn"
+                        onclick="makeAnnouncement()"
+                        style="margin-top: 10px">
+                        📢 Make Announcement
+                    </button>
                 </div>
 
-                <div id="postsContainer" class="posts-container"></div>
+                <!-- Admin Panel -->
+                <div
+                    class="post hidden"
+                    id="adminPanel"
+                    style="
+                        margin-bottom: 30px;
+                        background: linear-gradient(135deg, #fef3c7, #fff9c4);
+                        border: 2px solid #facc15;
+                    ">
+                    <h3 style="margin-bottom: 15px">👑 Admin Panel</h3>
+                    <p style="margin-bottom: 15px">Manage user approvals and permissions</p>
+                    <div id="pendingUsers"></div>
+                </div>
+
+                <!-- Posts List -->
+                <div id="postsList"></div>
             </div>
         </div>
 
-        <div id="fullscreenOverlay" class="fullscreen-overlay">
-            <button class="fullscreen-close" id="fullscreenClose">×</button>
-            <button class="fullscreen-nav fullscreen-prev" id="fullscreenPrev">‹</button>
-            <button class="fullscreen-nav fullscreen-next" id="fullscreenNext">›</button>
-            <div class="fullscreen-content" id="fullscreenContent"></div>
-        </div>
-
-
-<script type="module">
-// ============================================================================
-// FIREBASE IMPORTS & CONFIGURATION
-// ============================================================================
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-    getFirestore,
-    collection,
-    addDoc,
-    query,
-    orderBy,
-    onSnapshot,
-    serverTimestamp,
-    deleteDoc,
-    doc,
-    updateDoc
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-
-const firebaseConfig = {
-    apiKey: "AIzaSyDzQlAqhCeytCLEYafboYGpFu6pY3Kv9WE",
-    authDomain: "allforonemedia-9a7d8.firebaseapp.com",
-    projectId: "allforonemedia-9a7d8",
-    storageBucket: "allforonemedia-9a7d8.firebasestorage.app",
-    messagingSenderId: "892787060584",
-    appId: "1:892787060584:web:e65609062592f9ba96f0dd",
-    measurementId: "G-JSXKLMBRLC"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// ============================================================================
-// CONSTANTS
-// ============================================================================
-
-const CLOUDINARY_CLOUD_NAME = "dgrmpcha9";
-const CLOUDINARY_UPLOAD_PRESET = "AllForOne Posts";
-
-const COLLECTIONS = {
-    POSTS: 'MessagesPosts'
-};
-
-const PROFANITY_LIST = [
-    "damn", "hell", "crap", "shit", "fuck", "ass", "bitch", "bastard",
-    "dick", "piss", "cock", "pussy", "whore", "slut", "fag", "nigger",
-    "cunt", "twat", "wanker", "bollocks", "arse", "bugger"
-];
-
-// ============================================================================
-// STATE MANAGEMENT
-// ============================================================================
-
-const state = {
-    uploadedMedia: [],
-    currentMediaArray: [],
-    currentMediaIndex: 0,
-    currentUserName: "Anonymous" // Default user name
-};
-
-// ============================================================================
-// DOM ELEMENTS
-// ============================================================================
-
-const elements = {
-    // Main content
-    mainContent: document.getElementById("mainContent"),
-
-    // Post elements
-    postError: document.getElementById("postError"),
-    postInput: document.getElementById("postInput"),
-    postHeading: document.getElementById("postHeading"),
-    postBtn: document.getElementById("postBtn"),
-    postsContainer: document.getElementById("postsContainer"),
-
-    // Media upload
-    uploadImageBtn: document.getElementById("uploadImageBtn"),
-    uploadVideoBtn: document.getElementById("uploadVideoBtn"),
-    imageInput: document.getElementById("imageInput"),
-    videoInput: document.getElementById("videoInput"),
-    mediaPreview: document.getElementById("mediaPreview"),
-    uploadingIndicator: document.getElementById("uploadingIndicator"),
-
-    // Fullscreen overlay
-    fullscreenOverlay: document.getElementById("fullscreenOverlay"),
-    fullscreenContent: document.getElementById("fullscreenContent"),
-    fullscreenClose: document.getElementById("fullscreenClose"),
-    fullscreenPrev: document.getElementById("fullscreenPrev"),
-    fullscreenNext: document.getElementById("fullscreenNext")
-};
-
-// ============================================================================
-// UTILITY FUNCTIONS
-// ============================================================================
-
-const utils = {
-    filterProfanity(text) {
-        let filtered = text;
-        PROFANITY_LIST.forEach((word) => {
-            const regex = new RegExp(`\\b${word}\\b`, "gi");
-            filtered = filtered.replace(regex, "***");
-        });
-        return filtered;
-    },
-
-    showError(message, errorElement) {
-        errorElement.textContent = message;
-        errorElement.classList.remove("hidden");
-        setTimeout(() => errorElement.classList.add("hidden"), 5000);
-    },
-
-    formatTime(timestamp) {
-        if (!timestamp) return "Just now";
-        return timestamp.toDate().toLocaleString([], {
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        });
-    },
-
-    escapeHtml(unsafe) {
-        if (typeof unsafe !== "string") return unsafe;
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-};
-
-// ============================================================================
-// FIRESTORE OPERATIONS
-// ============================================================================
-
-const firestoreOps = {
-    // Post operations
-    async createPost(postData) {
-        await addDoc(collection(db, COLLECTIONS.POSTS), {
-            ...postData,
-            timestamp: serverTimestamp()
-        });
-    },
-
-    async deletePost(postId) {
-        await deleteDoc(doc(db, COLLECTIONS.POSTS, postId));
-    },
-
-    async updatePost(postId, data) {
-        await updateDoc(doc(db, COLLECTIONS.POSTS, postId), data);
-    },
-
-    subscribeToPosts(callback) {
-        const postsQuery = query(
-            collection(db, COLLECTIONS.POSTS),
-            orderBy("timestamp", "desc")
-        );
-        return onSnapshot(postsQuery, callback);
-    }
-};
-
-// ============================================================================
-// CLOUDINARY UPLOAD
-// ============================================================================
-
-const cloudinaryManager = {
-    async uploadFile(file, resourceType) {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
-        formData.append("resource_type", resourceType);
-
-        try {
-            const response = await fetch(
-                `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/${resourceType}/upload`,
-                {
-                    method: "POST",
-                    body: formData
-                }
-            );
-
-            const data = await response.json();
-            return {
-                url: data.secure_url,
-                type: resourceType,
-                publicId: data.public_id
+        <script>
+            // Firebase config
+            const firebaseConfig = {
+                apiKey: "AIzaSyDzQlAqhCeytCLEYafboYGpFu6pY3Kv9WE",
+                authDomain: "allforonemedia-9a7d8.firebaseapp.com",
+                projectId: "allforonemedia-9a7d8",
+                storageBucket: "allforonemedia-9a7d8.firebasestorage.app",
+                messagingSenderId: "892787060584",
+                appId: "1:892787060584:web:e65609062592f9ba96f0dd",
+                measurementId: "G-JSXKLMBRLC"
             };
-        } catch (error) {
-            console.error("Upload error:", error);
-            throw error;
-        }
-    },
+            firebase.initializeApp(firebaseConfig);
+            const auth = firebase.auth();
+            const db = firebase.firestore();
 
-    async handleFileUpload(files, type) {
-        if (!files.length) return;
+            const CLOUDINARY_CLOUD_NAME = "dgrmpcha9";
+            const CLOUDINARY_UPLOAD_PRESET = "AllForOne Posts";
 
-        elements.uploadingIndicator.classList.remove("hidden");
-        elements.uploadImageBtn.disabled = true;
-        elements.uploadVideoBtn.disabled = true;
+            let currentUser = null;
+            let isAnnouncementMode = false;
 
-        try {
-            for (const file of files) {
-                const mediaData = await this.uploadFile(file, type);
-                state.uploadedMedia.push(mediaData);
-                mediaManager.addPreview(mediaData);
-            }
-        } catch (error) {
-            utils.showError("Failed to upload media. Please try again.", elements.postError);
-        } finally {
-            elements.uploadingIndicator.classList.add("hidden");
-            elements.uploadImageBtn.disabled = false;
-            elements.uploadVideoBtn.disabled = false;
-        }
-    }
-};
-
-// ============================================================================
-// MEDIA MANAGEMENT
-// ============================================================================
-
-const mediaManager = {
-    addPreview(mediaData) {
-        const previewItem = document.createElement("div");
-        previewItem.className = "media-preview-item";
-        previewItem.dataset.publicId = mediaData.publicId;
-
-        if (mediaData.type === "image") {
-            previewItem.innerHTML = `
-                <img src="${mediaData.url}" alt="Preview" />
-                <button class="media-preview-remove">×</button>
-            `;
-        } else {
-            previewItem.innerHTML = `
-                <video src="${mediaData.url}" muted></video>
-                <button class="media-preview-remove">×</button>
-            `;
-        }
-
-        const removeBtn = previewItem.querySelector(".media-preview-remove");
-        removeBtn.addEventListener("click", () => {
-            state.uploadedMedia = state.uploadedMedia.filter((m) => m.publicId !== mediaData.publicId);
-            previewItem.remove();
-        });
-
-        elements.mediaPreview.appendChild(previewItem);
-    },
-
-    openFullscreen(mediaArray, index) {
-        state.currentMediaArray = mediaArray;
-        state.currentMediaIndex = index;
-        this.showFullscreenMedia();
-        elements.fullscreenOverlay.classList.add("active");
-        document.body.style.overflow = "hidden";
-    },
-
-    showFullscreenMedia() {
-        const media = state.currentMediaArray[state.currentMediaIndex];
-        elements.fullscreenContent.innerHTML = "";
-
-        if (media.type === "image") {
-            const img = document.createElement("img");
-            img.src = media.url;
-            elements.fullscreenContent.appendChild(img);
-        } else {
-            const video = document.createElement("video");
-            video.src = media.url;
-            video.controls = true;
-            video.autoplay = true;
-            elements.fullscreenContent.appendChild(video);
-        }
-
-        elements.fullscreenPrev.style.display = state.currentMediaIndex > 0 ? "flex" : "none";
-        elements.fullscreenNext.style.display = 
-            state.currentMediaIndex < state.currentMediaArray.length - 1 ? "flex" : "none";
-    },
-
-    closeFullscreen() {
-        elements.fullscreenOverlay.classList.remove("active");
-        document.body.style.overflow = "";
-        const video = elements.fullscreenContent.querySelector("video");
-        if (video) video.pause();
-    },
-
-    navigatePrev() {
-        if (state.currentMediaIndex > 0) {
-            state.currentMediaIndex--;
-            this.showFullscreenMedia();
-        }
-    },
-
-    navigateNext() {
-        if (state.currentMediaIndex < state.currentMediaArray.length - 1) {
-            state.currentMediaIndex++;
-            this.showFullscreenMedia();
-        }
-    }
-};
-
-// ============================================================================
-// POST MANAGEMENT
-// ============================================================================
-
-const postManager = {
-    async createPost() {
-        const content = elements.postInput.value.trim();
-        const heading = elements.postHeading.value.trim();
-
-        if (!content && state.uploadedMedia.length === 0) {
-            utils.showError("Please write something or upload media", elements.postError);
-            return;
-        }
-
-        const filtered = utils.filterProfanity(content);
-        const filteredHeading = heading ? utils.filterProfanity(heading) : "";
-
-        try {
-            elements.postBtn.disabled = true;
-
-            const postData = {
-                authorName: state.currentUserName,
-                content: filtered,
-                likes: {},
-                media: state.uploadedMedia,
-                comments: {}
-            };
-
-            if (filteredHeading) {
-                postData.heading = filteredHeading;
-            }
-
-            await firestoreOps.createPost(postData);
-
-            elements.postInput.value = "";
-            elements.postHeading.value = "";
-            state.uploadedMedia = [];
-            elements.mediaPreview.innerHTML = "";
-            elements.postBtn.disabled = false;
-        } catch (error) {
-            console.error("Error posting:", error);
-            utils.showError("Failed to post. Please try again.", elements.postError);
-            elements.postBtn.disabled = false;
-        }
-    },
-
-    async toggleLike(postId, likes) {
-        try {
-            const newLikes = { ...likes };
-            const likeId = Date.now().toString(); // Use timestamp as unique ID
-            
-            // Check if already liked (simple check)
-            const hasLiked = Object.keys(newLikes).some(key => key.startsWith('anon'));
-            
-            if (hasLiked) {
-                // Remove the like
-                const likeKey = Object.keys(newLikes).find(key => key.startsWith('anon'));
-                delete newLikes[likeKey];
-            } else {
-                // Add the like
-                newLikes[`anon_${likeId}`] = true;
-            }
-            
-            await firestoreOps.updatePost(postId, { likes: newLikes });
-        } catch (error) {
-            console.error("Error liking post:", error);
-        }
-    },
-
-    async addComment(postId, commentText, post) {
-        if (!commentText.trim()) return;
-
-        const filteredComment = utils.filterProfanity(commentText);
-
-        try {
-            const newComments = { ...(post.comments || {}) };
-            const commentId = Date.now().toString();
-            newComments[commentId] = {
-                authorName: state.currentUserName,
-                content: filteredComment,
-                timestamp: Date.now()
-            };
-
-            await firestoreOps.updatePost(postId, { comments: newComments });
-            return true;
-        } catch (error) {
-            console.error("Error posting comment:", error);
-            return false;
-        }
-    },
-
-    async deletePost(postId) {
-        if (confirm("Are you sure you want to delete this post?")) {
-            try {
-                await firestoreOps.deletePost(postId);
-            } catch (error) {
-                console.error("Error deleting post:", error);
-                alert("Failed to delete post");
-            }
-        }
-    },
-
-    loadComments(postId, container, comments) {
-        container.innerHTML = "";
-
-        const commentArray = Object.entries(comments).map(([id, comment]) => ({
-            id,
-            ...comment
-        }));
-
-        commentArray.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
-
-        commentArray.forEach((comment) => {
-            const commentDiv = document.createElement("div");
-            commentDiv.className = "comment";
-
-            const commentTime = new Date(comment.timestamp).toLocaleString([], {
-                month: "short",
-                day: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
-            });
-
-            commentDiv.innerHTML = `
-                <div class="comment-header">
-                    <div class="comment-avatar">${comment.authorName[0].toUpperCase()}</div>
-                    <div class="comment-author">${comment.authorName}</div>
-                    <div class="comment-time">${commentTime}</div>
-                </div>
-                <div class="comment-content">${comment.content}</div>
-            `;
-
-            container.appendChild(commentDiv);
-        });
-    }
-};
-
-// ============================================================================
-// UI MANAGEMENT
-// ============================================================================
-
-const uiManager = {
-    displayPost(postId, post) {
-        const postDiv = document.createElement("div");
-        postDiv.className = "post";
-        if (post.isAnnouncement) {
-            postDiv.classList.add("announcement");
-        }
-
-        const time = utils.formatTime(post.timestamp);
-        const likes = post.likes || {};
-        const likeCount = Object.keys(likes).length;
-
-        const announcementBadge = post.isAnnouncement
-            ? '<div class="announcement-badge">📢 ANNOUNCEMENT</div>'
-            : "";
-        const headingHtml = post.heading ? `<div class="post-heading">${post.heading}</div>` : "";
-
-        let mediaHtml = "";
-        if (post.media && post.media.length > 0) {
-            const singleClass = post.media.length === 1 ? "single" : "";
-            mediaHtml = '<div class="post-media">';
-            post.media.forEach((media, index) => {
-                if (media.type === "image") {
-                    mediaHtml += `
-                        <div class="post-media-item ${singleClass}" data-media-index="${index}">
-                            <img src="${media.url}" alt="Post media" />
-                        </div>
-                    `;
+            // Check for existing session on page load
+            auth.onAuthStateChanged(async (user) => {
+                if (user) {
+                    // User is signed in, check if approved
+                    const userDoc = await db.collection("users").doc(user.uid).get();
+                    if (userDoc.exists && userDoc.data().approved) {
+                        currentUser = { uid: user.uid, ...userDoc.data() };
+                        showMainContent();
+                    } else if (userDoc.exists) {
+                        // User exists but not approved
+                        document.getElementById("loginForm").classList.add("hidden");
+                        document.getElementById("signupForm").classList.add("hidden");
+                        document.getElementById("adminNotice").classList.remove("hidden");
+                    } else {
+                        // User doesn't exist in database (shouldn't happen)
+                        document.getElementById("loginForm").classList.remove("hidden");
+                    }
                 } else {
-                    mediaHtml += `
-                        <div class="post-media-item ${singleClass}" data-media-index="${index}">
-                            <video src="${media.url}" controls></video>
-                        </div>
-                    `;
+                    // No user signed in, show login
+                    document.getElementById("loginForm").classList.remove("hidden");
                 }
             });
-            mediaHtml += "</div>";
-        }
 
-        const comments = post.comments || {};
-        const commentCount = Object.keys(comments).length;
-        const commentText = commentCount === 1 ? "1 comment" : `${commentCount} comments`;
+            function showSignup() {
+                document.getElementById("loginForm").classList.add("hidden");
+                document.getElementById("signupForm").classList.remove("hidden");
+            }
 
-        postDiv.innerHTML = `
-            ${announcementBadge}
-            <div class="post-header">
-                <div class="post-avatar">${post.authorName[0].toUpperCase()}</div>
-                <div class="post-author-info">
-                    <div class="post-author">${post.authorName}</div>
-                    <div class="post-time">${time}</div>
-                </div>
-            </div>
-            ${headingHtml}
-            <div class="post-content">${post.content}</div>
-            ${mediaHtml}
-            <div class="post-actions">
-                <button class="action-btn" data-post-id="${postId}" data-action="like">
-                    🤍 ${likeCount > 0 ? likeCount : ""}
-                </button>
-                <button class="action-btn" data-post-id="${postId}" data-action="comment">
-                    💬 ${commentCount > 0 ? commentText : "Comment"}
-                </button>
-                <button class="action-btn delete-btn" data-post-id="${postId}" data-action="delete">🗑️ Delete</button>
-            </div>
-            <div class="comments-section" data-post-id="${postId}">
-                <div class="comments-container hidden" id="comments-${postId}"></div>
-                <div class="comment-input-container hidden" id="comment-input-${postId}">
-                    <input type="text" class="comment-input" placeholder="Write a comment..." />
-                    <button class="comment-btn">Post</button>
-                </div>
-            </div>
-        `;
+            function showLogin() {
+                document.getElementById("signupForm").classList.add("hidden");
+                document.getElementById("loginForm").classList.remove("hidden");
+            }
 
-        // Media click handlers
-        if (post.media && post.media.length > 0) {
-            const mediaItems = postDiv.querySelectorAll(".post-media-item");
-            mediaItems.forEach((item) => {
-                item.addEventListener("click", () => {
-                    const index = parseInt(item.dataset.mediaIndex);
-                    mediaManager.openFullscreen(post.media, index);
+            // Signup function
+            async function signup() {
+                const name = document.getElementById("signupName").value;
+                const email = document.getElementById("signupEmail").value;
+                const password = document.getElementById("signupPassword").value;
+
+                if (!name || !email || !password) {
+                    alert("Please fill in all fields");
+                    return;
+                }
+
+                try {
+                    const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    await db.collection("users").doc(user.uid).set({
+                        name: name,
+                        email: email,
+                        approved: false,
+                        isAdmin: false,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                    alert("Signup successful! Await admin approval.");
+                    showLogin();
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+
+            // Login function
+            async function login() {
+                const email = document.getElementById("email").value;
+                const password = document.getElementById("password").value;
+                try {
+                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
+                    const user = userCredential.user;
+                    const userDoc = await db.collection("users").doc(user.uid).get();
+
+                    if (userDoc.exists && userDoc.data().approved) {
+                        currentUser = { uid: user.uid, ...userDoc.data() };
+                        showMainContent();
+                    } else {
+                        document.getElementById("loginForm").classList.add("hidden");
+                        document.getElementById("adminNotice").classList.remove("hidden");
+                    }
+                } catch (error) {
+                    alert(error.message);
+                }
+            }
+
+            function logout() {
+                auth.signOut();
+                location.reload();
+            }
+
+            function showMainContent() {
+                document.getElementById("loginForm").classList.add("hidden");
+                document.getElementById("signupForm").classList.add("hidden");
+                document.getElementById("adminNotice").classList.add("hidden");
+                document.getElementById("topBar").classList.remove("hidden");
+                document.getElementById("mainContent").classList.remove("hidden");
+
+                // Update top bar
+                document.getElementById("topBarAvatar").textContent = currentUser.name.charAt(0).toUpperCase();
+                document.getElementById("topBarName").textContent = currentUser.name;
+                document.getElementById("topBarRole").textContent = currentUser.isAdmin ? "👑 Admin" : "Member";
+
+                // Show admin features
+                if (currentUser.isAdmin) {
+                    document.getElementById("makeAnnouncementBtn").classList.remove("hidden");
+                    document.getElementById("adminPanel").classList.remove("hidden");
+                    loadPendingUsers();
+                }
+
+                loadPosts();
+            }
+
+            // Admin panel - load pending users
+            async function loadPendingUsers() {
+                const pendingUsersDiv = document.getElementById("pendingUsers");
+                const usersSnapshot = await db.collection("users").get();
+
+                let html = "";
+                usersSnapshot.forEach((doc) => {
+                    const user = doc.data();
+                    html += `
+        <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong>${user.name}</strong> (${user.email})
+            <div style="font-size: 12px; color: #666;">
+              Status: ${user.approved ? "✅ Approved" : "⏳ Pending"} | 
+              Role: ${user.isAdmin ? "👑 Admin" : "👤 User"}
+            </div>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            ${!user.approved ? `<button class="btn-secondary" style="width: auto; padding: 8px 15px; font-size: 14px;" onclick="approveUser('${doc.id}')">Approve</button>` : ""}
+            ${!user.isAdmin ? `<button class="btn-secondary" style="width: auto; padding: 8px 15px; font-size: 14px;" onclick="makeAdmin('${doc.id}')">Make Admin</button>` : ""}
+            ${user.isAdmin && doc.id !== currentUser.uid ? `<button class="btn-danger" style="padding: 8px 15px; font-size: 14px;" onclick="removeAdmin('${doc.id}')">Remove Admin</button>` : ""}
+          </div>
+        </div>
+      `;
                 });
-            });
-        }
 
-        // Like button
-        const likeBtn = postDiv.querySelector('[data-action="like"]');
-        likeBtn.addEventListener("click", () => {
-            postManager.toggleLike(postId, likes);
-        });
-
-        // Comment button
-        const commentBtn = postDiv.querySelector('[data-action="comment"]');
-        const commentsContainer = postDiv.querySelector(`#comments-${postId}`);
-        const commentInputContainer = postDiv.querySelector(`#comment-input-${postId}`);
-
-        commentBtn.addEventListener("click", () => {
-            const isHidden = commentsContainer.classList.contains("hidden");
-            if (isHidden) {
-                commentsContainer.classList.remove("hidden");
-                commentInputContainer.classList.remove("hidden");
-                postManager.loadComments(postId, commentsContainer, post.comments || {});
-            } else {
-                commentsContainer.classList.add("hidden");
-                commentInputContainer.classList.add("hidden");
-            }
-        });
-
-        // Comment input
-        const commentInput = commentInputContainer.querySelector(".comment-input");
-        const commentPostBtn = commentInputContainer.querySelector(".comment-btn");
-
-        commentPostBtn.addEventListener("click", async () => {
-            const commentText = commentInput.value.trim();
-            if (!commentText) return;
-
-            commentPostBtn.disabled = true;
-            const success = await postManager.addComment(postId, commentText, post);
-            if (success) {
-                commentInput.value = "";
-            }
-            commentPostBtn.disabled = false;
-        });
-
-        // Delete button
-        const deleteBtn = postDiv.querySelector('[data-action="delete"]');
-        deleteBtn.addEventListener("click", () => {
-            postManager.deletePost(postId);
-        });
-
-        elements.postsContainer.appendChild(postDiv);
-
-        if (commentCount > 0) {
-            postManager.loadComments(postId, commentsContainer, post.comments || {});
-        }
-    },
-
-    loadPosts() {
-        firestoreOps.subscribeToPosts((snapshot) => {
-            elements.postsContainer.innerHTML = "";
-
-            if (snapshot.empty) {
-                elements.postsContainer.innerHTML = `
-                    <div class="empty-state">
-                        <h3>No posts yet</h3>
-                        <p>Be the first to share something with the community!</p>
-                    </div>
-                `;
-                return;
+                pendingUsersDiv.innerHTML = html || '<p style="text-align: center; color: #666;">No pending users</p>';
             }
 
-            snapshot.forEach((docSnap) => {
-                const post = docSnap.data();
-                this.displayPost(docSnap.id, post);
-            });
-        });
-    }
-};
+            async function approveUser(uid) {
+                await db.collection("users").doc(uid).update({ approved: true });
+                loadPendingUsers();
+                alert("User approved!");
+            }
 
-// ============================================================================
-// EVENT LISTENERS
-// ============================================================================
+            async function makeAdmin(uid) {
+                if (confirm("Are you sure you want to make this user an admin?")) {
+                    await db.collection("users").doc(uid).update({ isAdmin: true });
+                    loadPendingUsers();
+                    alert("User is now an admin!");
+                }
+            }
 
-function setupEventListeners() {
-    // Post button
-    elements.postBtn.addEventListener("click", () => {
-        postManager.createPost();
-    });
+            async function removeAdmin(uid) {
+                if (confirm("Are you sure you want to remove admin privileges?")) {
+                    await db.collection("users").doc(uid).update({ isAdmin: false });
+                    loadPendingUsers();
+                    alert("Admin privileges removed!");
+                }
+            }
 
-    // Media upload
-    elements.uploadImageBtn.addEventListener("click", () => elements.imageInput.click());
-    elements.uploadVideoBtn.addEventListener("click", () => elements.videoInput.click());
+            function makeAnnouncement() {
+                isAnnouncementMode = true;
+                document.getElementById("postFormTitle").textContent = "📢 Create Announcement";
+                document.getElementById("makeAnnouncementBtn").classList.add("hidden");
+                document.getElementById("cancelAnnouncementBtn").classList.remove("hidden");
+            }
 
-    elements.imageInput.addEventListener("change", async (e) => {
-        await cloudinaryManager.handleFileUpload(e.target.files, "image");
-        elements.imageInput.value = "";
-    });
+            function cancelAnnouncement() {
+                isAnnouncementMode = false;
+                document.getElementById("postFormTitle").textContent = "Create Post";
+                document.getElementById("makeAnnouncementBtn").classList.remove("hidden");
+                document.getElementById("cancelAnnouncementBtn").classList.add("hidden");
+            }
 
-    elements.videoInput.addEventListener("change", async (e) => {
-        await cloudinaryManager.handleFileUpload(e.target.files, "video");
-        elements.videoInput.value = "";
-    });
+            // Submit post
+            async function submitPost() {
+                const heading = document.getElementById("postHeading").value;
+                const content = document.getElementById("postContent").value;
+                const imageFile = document.getElementById("postImage").files[0];
+                let imageUrl = "";
 
-    // Fullscreen controls
-    elements.fullscreenClose.addEventListener("click", () => {
-        mediaManager.closeFullscreen();
-    });
+                if (!content) {
+                    alert("Please write something!");
+                    return;
+                }
 
-    elements.fullscreenPrev.addEventListener("click", () => {
-        mediaManager.navigatePrev();
-    });
+                if (imageFile) {
+                    const formData = new FormData();
+                    formData.append("file", imageFile);
+                    formData.append("upload_preset", CLOUDINARY_UPLOAD_PRESET);
 
-    elements.fullscreenNext.addEventListener("click", () => {
-        mediaManager.navigateNext();
-    });
+                    const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/upload`, {
+                        method: "POST",
+                        body: formData
+                    });
+                    const data = await response.json();
+                    imageUrl = data.secure_url;
+                }
 
-    elements.fullscreenOverlay.addEventListener("click", (e) => {
-        if (e.target === elements.fullscreenOverlay) {
-            mediaManager.closeFullscreen();
-        }
-    });
-}
+                await db.collection("posts").add({
+                    heading: heading,
+                    content: content,
+                    imageUrl: imageUrl,
+                    isAnnouncement: isAnnouncementMode,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+                    uid: currentUser.uid,
+                    userName: currentUser.name,
+                    likes: [],
+                    dislikes: []
+                });
 
-// ============================================================================
-// INITIALIZATION
-// ============================================================================
+                document.getElementById("postHeading").value = "";
+                document.getElementById("postContent").value = "";
+                document.getElementById("postImage").value = "";
+                if (isAnnouncementMode) cancelAnnouncement();
+            }
 
-function initialize() {
-    setupEventListeners();
-    
-    // Show main content immediately
-    if (elements.mainContent) {
-        elements.mainContent.classList.remove("hidden");
-    }
-    
-    // Load posts
-    uiManager.loadPosts();
-    
-    // Expose functions to window for onclick handlers (if needed)
-    window.postManager = postManager;
-    window.mediaManager = mediaManager;
-}
+            // Load posts
+            function loadPosts() {
+                const postsList = document.getElementById("postsList");
+                db.collection("posts")
+                    .orderBy("timestamp", "desc")
+                    .onSnapshot((snapshot) => {
+                        postsList.innerHTML = "";
+                        snapshot.forEach((doc) => {
+                            const post = doc.data();
+                            const postId = doc.id;
+                            const likeCount = post.likes ? post.likes.length : 0;
+                            const dislikeCount = post.dislikes ? post.dislikes.length : 0;
+                            const hasLiked = post.likes && post.likes.includes(currentUser.uid);
+                            const hasDisliked = post.dislikes && post.dislikes.includes(currentUser.uid);
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initialize);
-} else {
-    initialize();
-}
-</script>
+                            const div = document.createElement("div");
+                            div.className = post.isAnnouncement ? "post announcement" : "post";
+                            div.style.marginBottom = "20px";
+
+                            div.innerHTML = `
+          ${post.isAnnouncement ? '<div style="font-weight: 600; color: #ca8a04; margin-bottom: 10px;">📢 ANNOUNCEMENT</div>' : ""}
+          <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+            <div style="display: flex; gap: 12px; align-items: center;">
+              <div class="post-avatar" style="width: 40px; height: 40px; font-size: 18px;">
+                ${post.userName.charAt(0).toUpperCase()}
+              </div>
+              <div>
+                <div style="font-weight: 600;">${post.userName}</div>
+                <div style="font-size: 12px; color: #666;">${post.timestamp ? new Date(post.timestamp.toDate()).toLocaleString() : "Just now"}</div>
+              </div>
+            </div>
+            ${currentUser.isAdmin || post.uid === currentUser.uid ? `<button class="btn-danger" style="padding: 6px 12px; font-size: 12px;" onclick="deletePost('${postId}')">Delete</button>` : ""}
+          </div>
+          ${post.heading ? `<h3 style="margin-bottom: 10px;">${post.heading}</h3>` : ""}
+          <div class="post-content" style="margin-bottom: 15px;">${post.content}</div>
+          ${post.imageUrl ? `<img src="${post.imageUrl}" style="max-width: 100%; border-radius: 12px; margin-bottom: 15px;">` : ""}
+          <div style="display: flex; gap: 15px; padding-top: 15px; border-top: 1px solid #e0e0e0;">
+            <button class="secondary-btn" style="width: auto; padding: 8px 15px; font-size: 14px; ${hasLiked ? "background: #10b981;" : ""}" onclick="toggleLike('${postId}')">
+              👍 ${likeCount}
+            </button>
+            <button class="secondary-btn" style="width: auto; padding: 8px 15px; font-size: 14px; ${hasDisliked ? "background: #ef4444;" : ""}" onclick="toggleDislike('${postId}')">
+              👎 ${dislikeCount}
+            </button>
+            <button class="secondary-btn" style="width: auto; padding: 8px 15px; font-size: 14px;" onclick="toggleComments('${postId}')">
+              💬 <span id="comment-count-${postId}">0</span>
+            </button>
+          </div>
+          <div id="comments-${postId}" class="hidden" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+              <input type="text" id="comment-input-${postId}" placeholder="Write a comment..." style="flex: 1; margin: 0;" />
+              <button class="secondary-btn" style="width: auto; padding: 10px 20px; margin: 0;" onclick="addComment('${postId}')">Post</button>
+            </div>
+            <div id="comments-list-${postId}"></div>
+          </div>
+        `;
+                            postsList.appendChild(div);
+
+                            loadComments(postId);
+                        });
+                    });
+            }
+
+            async function deletePost(postId) {
+                if (confirm("Are you sure you want to delete this post?")) {
+                    await db.collection("posts").doc(postId).delete();
+                    // Delete all comments for this post
+                    const commentsSnapshot = await db.collection("posts").doc(postId).collection("comments").get();
+                    commentsSnapshot.forEach(async (doc) => {
+                        await doc.ref.delete();
+                    });
+                }
+            }
+
+            async function toggleLike(postId) {
+                const postRef = db.collection("posts").doc(postId);
+                const postDoc = await postRef.get();
+                const post = postDoc.data();
+
+                let likes = post.likes || [];
+                let dislikes = post.dislikes || [];
+
+                if (likes.includes(currentUser.uid)) {
+                    likes = likes.filter((uid) => uid !== currentUser.uid);
+                } else {
+                    likes.push(currentUser.uid);
+                    dislikes = dislikes.filter((uid) => uid !== currentUser.uid);
+                }
+
+                await postRef.update({ likes, dislikes });
+            }
+
+            async function toggleDislike(postId) {
+                const postRef = db.collection("posts").doc(postId);
+                const postDoc = await postRef.get();
+                const post = postDoc.data();
+
+                let likes = post.likes || [];
+                let dislikes = post.dislikes || [];
+
+                if (dislikes.includes(currentUser.uid)) {
+                    dislikes = dislikes.filter((uid) => uid !== currentUser.uid);
+                } else {
+                    dislikes.push(currentUser.uid);
+                    likes = likes.filter((uid) => uid !== currentUser.uid);
+                }
+
+                await postRef.update({ likes, dislikes });
+            }
+
+            function toggleComments(postId) {
+                const commentsDiv = document.getElementById(`comments-${postId}`);
+                commentsDiv.classList.toggle("hidden");
+            }
+
+            async function addComment(postId) {
+                const input = document.getElementById(`comment-input-${postId}`);
+                const text = input.value.trim();
+
+                if (!text) return;
+
+                await db.collection("posts").doc(postId).collection("comments").add({
+                    text: text,
+                    uid: currentUser.uid,
+                    userName: currentUser.name,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                input.value = "";
+            }
+
+            function loadComments(postId) {
+                db.collection("posts")
+                    .doc(postId)
+                    .collection("comments")
+                    .orderBy("timestamp", "asc")
+                    .onSnapshot((snapshot) => {
+                        const commentsListDiv = document.getElementById(`comments-list-${postId}`);
+                        const commentCountSpan = document.getElementById(`comment-count-${postId}`);
+
+                        if (!commentsListDiv) return;
+
+                        // Update comment count
+                        if (commentCountSpan) {
+                            commentCountSpan.textContent = snapshot.size;
+                        }
+
+                        commentsListDiv.innerHTML = "";
+                        snapshot.forEach((doc) => {
+                            const comment = doc.data();
+                            const commentDiv = document.createElement("div");
+                            commentDiv.style.cssText =
+                                "background: #f9f9f9; padding: 12px; border-radius: 8px; margin-bottom: 10px;";
+                            commentDiv.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: start;">
+            <div style="display: flex; gap: 10px;">
+              <div class="comment-avatar" style="width: 32px; height: 32px; font-size: 14px;">
+                ${comment.userName.charAt(0).toUpperCase()}
+              </div>
+              <div style="flex: 1;">
+                <div style="font-weight: 600; font-size: 14px;">${comment.userName}</div>
+                <div style="font-size: 14px; margin-top: 5px;">${comment.text}</div>
+                <div style="font-size: 11px; color: #666; margin-top: 5px;">${comment.timestamp ? new Date(comment.timestamp.toDate()).toLocaleString() : "Just now"}</div>
+              </div>
+            </div>
+            ${currentUser.isAdmin || comment.uid === currentUser.uid ? `<button class="btn-danger" style="padding: 4px 10px; font-size: 11px;" onclick="deleteComment('${postId}', '${doc.id}')">Delete</button>` : ""}
+          </div>
+        `;
+                            commentsListDiv.appendChild(commentDiv);
+                        });
+                    });
+            }
+
+            async function deleteComment(postId, commentId) {
+                if (confirm("Are you sure you want to delete this comment?")) {
+                    await db.collection("posts").doc(postId).collection("comments").doc(commentId).delete();
+                }
+            }
+        </script>
     </body>
 </html>
