@@ -101,13 +101,6 @@
       <button class="secondary-btn hidden" id="makeAnnouncementBtn" onclick="makeAnnouncement()" style="margin-top: 10px;">📢 Make Announcement</button>
     </div>
 
-    <!-- Admin Panel -->
-    <div class="post hidden" id="adminPanel" style="margin-bottom: 30px; background: linear-gradient(135deg, #fef3c7, #fff9c4); border: 2px solid #facc15;">
-      <h3 style="margin-bottom: 15px;">👑 Admin Panel</h3>
-      <p style="margin-bottom: 15px;">Manage user approvals and permissions</p>
-      <div id="pendingUsers"></div>
-    </div>
-
     <!-- Posts List -->
     <div id="postsList"></div>
   </div>
@@ -255,34 +248,7 @@
     loadPosts();
   }
 
-  // Admin panel - load pending users
-  async function loadPendingUsers() {
-    const pendingUsersDiv = document.getElementById('pendingUsers');
-    const usersSnapshot = await db.collection('users').get();
-    
-    let html = '';
-    usersSnapshot.forEach(doc => {
-      const user = doc.data();
-      html += `
-        <div style="background: white; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-          <div>
-            <strong>${user.name}</strong> (${user.email})
-            <div style="font-size: 12px; color: #666;">
-              Status: ${user.approved ? '✅ Approved' : '⏳ Pending'} | 
-              Role: ${user.isAdmin ? '👑 Admin' : '👤 User'}
-            </div>
-          </div>
-          <div style="display: flex; gap: 10px;">
-            ${!user.approved ? `<button class="btn-secondary" style="width: auto; padding: 8px 15px; font-size: 14px;" onclick="approveUser('${doc.id}')">Approve</button>` : ''}
-            ${!user.isAdmin ? `<button class="btn-secondary" style="width: auto; padding: 8px 15px; font-size: 14px;" onclick="makeAdmin('${doc.id}')">Make Admin</button>` : ''}
-            ${user.isAdmin && doc.id !== currentUser.uid ? `<button class="btn-danger" style="padding: 8px 15px; font-size: 14px;" onclick="removeAdmin('${doc.id}')">Remove Admin</button>` : ''}
-          </div>
-        </div>
-      `;
-    });
-    
-    pendingUsersDiv.innerHTML = html || '<p style="text-align: center; color: #666;">No pending users</p>';
-  }
+
 
   async function approveUser(uid) {
     await db.collection('users').doc(uid).update({ approved: true });
