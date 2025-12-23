@@ -12,6 +12,9 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
 </head>
 <body>
+    
+    <div id="navbar-container"></div>
+    
 <div class="container">
   <!-- Header -->
   <div class="header">
@@ -111,6 +114,18 @@
 </div>
 
 <script>
+    
+      //Loads Navbar
+  fetch('../navbar.html')   // go up one folder to find navbar.html
+    .then(response => {
+      if (!response.ok) throw new Error('Navbar not found');
+      return response.text();
+    })
+    .then(html => {
+      document.getElementById('navbar-container').innerHTML = html;
+    })
+    .catch(err => console.error('Failed to load navbar:', err));
+    
   // Firebase config
   const firebaseConfig = {
       apiKey: "AIzaSyDzQlAqhCeytCLEYafboYGpFu6pY3Kv9WE",
