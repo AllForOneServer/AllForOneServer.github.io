@@ -425,53 +425,71 @@
 
                 db.collection("messages")
                     .where("conversationId", "==", conversationId)
-                    .orderBy("timestamp", "asc")
-                    .onSnapshot((snapshot) => {
-                        messagesContainer.innerHTML = "";
+                    .onSnapshot(
+                        (snapshot) => {
+                            messagesContainer.innerHTML = "";
 
-                        snapshot.forEach((doc) => {
-                            const msg = doc.data();
-                            const isSent = msg.senderId === currentUser.uid;
+                            // Sort messages by timestamp manually
+                            const messages = [];
+                            snapshot.forEach((doc) => {
+                                messages.push({ id: doc.id, ...doc.data() });
+                            });
 
-                            const msgDiv = document.createElement("div");
-                            msgDiv.className = `message ${isSent ? "sent" : "received"}`;
+                            // Sort by timestamp, putting null timestamps (new messages) at the end
+                            messages.sort((a, b) => {
+                                if (!a.timestamp) return 1;
+                                if (!b.timestamp) return -1;
+                                return a.timestamp.toMillis() - b.timestamp.toMillis();
+                            });
 
-                            const bubble = document.createElement("div");
-                            bubble.className = "message-bubble";
+                            messages.forEach((msg) => {
+                                const isSent = msg.senderId === currentUser.uid;
 
-                            if (msg.text) {
-                                const textP = document.createElement("p");
-                                textP.textContent = msg.text;
-                                textP.style.margin = "0";
-                                bubble.appendChild(textP);
-                            }
+                                const msgDiv = document.createElement("div");
+                                msgDiv.className = `message ${isSent ? "sent" : "received"}`;
 
-                            if (msg.imageUrl) {
-                                const img = document.createElement("img");
-                                img.src = msg.imageUrl;
-                                img.className = "message-image";
-                                img.style.marginTop = msg.text ? "10px" : "0";
-                                img.style.cursor = "pointer";
-                                img.onclick = () => openImageModal(msg.imageUrl);
-                                bubble.appendChild(img);
-                            }
+                                const bubble = document.createElement("div");
+                                bubble.className = "message-bubble";
 
-                            const time = document.createElement("div");
-                            time.style.fontSize = "11px";
-                            time.style.opacity = "0.7";
-                            time.style.marginTop = "5px";
-                            time.textContent = msg.timestamp
-                                ? new Date(msg.timestamp.toDate()).toLocaleTimeString()
-                                : "Just now";
-                            bubble.appendChild(time);
+                                if (msg.text) {
+                                    const textP = document.createElement("p");
+                                    textP.textContent = msg.text;
+                                    textP.style.margin = "0";
+                                    bubble.appendChild(textP);
+                                }
 
-                            msgDiv.appendChild(bubble);
-                            messagesContainer.appendChild(msgDiv);
-                        });
+                                if (msg.imageUrl) {
+                                    const img = document.createElement("img");
+                                    img.src = msg.imageUrl;
+                                    img.className = "message-image";
+                                    img.style.marginTop = msg.text ? "10px" : "0";
+                                    img.style.cursor = "pointer";
+                                    img.onclick = () => openImageModal(msg.imageUrl);
+                                    bubble.appendChild(img);
+                                }
 
-                        // Scroll to bottom
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                    });
+                                const time = document.createElement("div");
+                                time.style.fontSize = "11px";
+                                time.style.opacity = "0.7";
+                                time.style.marginTop = "5px";
+                                time.textContent = msg.timestamp
+                                    ? new Date(msg.timestamp.toDate()).toLocaleTimeString()
+                                    : "Just now";
+                                bubble.appendChild(time);
+
+                                msgDiv.appendChild(bubble);
+                                messagesContainer.appendChild(msgDiv);
+                            });
+
+                            // Scroll to bottom
+                            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        },
+                        (error) => {
+                            console.error("Error loading messages:", error);
+                            messagesContainer.innerHTML =
+                                '<div class="empty-state"><p style="color: #ef4444;">Error loading messages. Please refresh the page.</p></div>';
+                        }
+                    );
             }
 
             function handleImageSelect() {
